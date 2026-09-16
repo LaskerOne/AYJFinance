@@ -92,6 +92,22 @@ interface ValorHogar {
 
 const HogarContext = createContext<ValorHogar | null>(null);
 
+/** Arma un mensaje que de verdad diga qué pasó. Supabase devuelve objetos
+ *  planos con `message`, `details`, `hint` y `code`; ninguno es un `Error`. */
+function detalleDeError(e: unknown): string {
+  if (typeof e === "object" && e !== null) {
+    const o = e as { message?: string; details?: string; hint?: string; code?: string };
+    const partes = [o.message, o.details, o.hint].filter(
+      (p): p is string => typeof p === "string" && p.length > 0,
+    );
+    if (partes.length > 0) {
+      return o.code ? `${partes.join(" · ")} [${o.code}]` : partes.join(" · ");
+    }
+  }
+  if (e instanceof Error && e.message) return e.message;
+  return "No se pudo abrir el hogar";
+}
+
 export function HogarProvider({ children }: { children: ReactNode }) {
   const { usuario, correo } = useSesion();
   const [hogar, setHogar] = useState<Hogar | null>(null);
@@ -140,7 +156,9 @@ export function HogarProvider({ children }: { children: ReactNode }) {
         if (!vivo) return;
         setPerfiles(gente);
       } catch (e) {
-        if (vivo) setError(e instanceof Error ? e.message : "No se pudo abrir el hogar");
+        // Los errores de Supabase no son instancias de Error: si se filtran
+        // con `instanceof` se pierde justo el mensaje que explica la causa.
+        if (vivo) setError(detalleDeError(e));
       } finally {
         if (vivo) setCargando(false);
       }

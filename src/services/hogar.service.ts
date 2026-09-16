@@ -49,6 +49,26 @@ export async function obtenerOCrearHogar(usuarioId: string, correo: string): Pro
     return data as Hogar;
   }
 
+  // ¿Quedó un hogar creado por mí en un intento anterior que no llegó a
+  // registrar la membresía? Se reusa en vez de acumular hogares huérfanos.
+  const { data: propios, error: errorPropios } = await supabase
+    .from("hogares")
+    .select("*")
+    .eq("creado_por", usuarioId)
+    .limit(1);
+  if (errorPropios) throw errorPropios;
+
+  const propio = (propios ?? [])[0] as Hogar | undefined;
+  if (propio) {
+    const { error } = await supabase
+      .from("miembros")
+      .insert({ hogar_id: propio.id, usuario_id: usuarioId, rol: "socio" });
+    if (error && !error.message.includes("duplicate")) throw error;
+
+    await supabase.rpc("sembrar_ejemplo", { p_hogar: propio.id });
+    return propio;
+  }
+
   const { data: nuevo, error: errorCrear } = await supabase
     .from("hogares")
     .insert({ nombre: "Nuestro hogar", creado_por: usuarioId })
