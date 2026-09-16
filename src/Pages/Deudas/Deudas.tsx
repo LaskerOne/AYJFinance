@@ -25,12 +25,17 @@ export function Deudas() {
     abono,
   );
 
-  const { base, plan } = useMemo(
+  const otra = estrategia === "avalancha" ? "bola" : "avalancha";
+
+  const { base, plan, planOtra } = useMemo(
     () => ({
       base: simularDeudas(deudas, 0, estrategia, false),
       plan: simularDeudas(deudas, abono, estrategia, true),
+      // La misma simulación con la otra estrategia, para poder decir en
+      // pantalla qué se gana o se pierde al cambiar de opción.
+      planOtra: simularDeudas(deudas, abono, otra, true),
     }),
-    [deudas, abono, estrategia],
+    [deudas, abono, estrategia, otra],
   );
 
   const pendientes = deudas.filter((d) => Number(d.saldo) > 0);
@@ -72,6 +77,54 @@ export function Deudas() {
             </button>
           </div>
         </header>
+
+        {pendientes.length > 0 && (
+          <div className={css.explicacion}>
+            <p>
+              {estrategia === "avalancha" ? (
+                <>
+                  <b>Avalancha.</b> Todo lo que sobra cada mes —el abono extra, más las cuotas que
+                  se liberan cuando una deuda se acaba— se lanza contra la deuda de{" "}
+                  <b>mayor tasa</b>. Es la que menos intereses paga en total: matemáticamente
+                  siempre gana.
+                </>
+              ) : (
+                <>
+                  <b>Bola de nieve.</b> El excedente se lanza contra la deuda de{" "}
+                  <b>menor saldo</b>, para irlas eliminando de a una lo más rápido posible. Paga
+                  algo más de intereses, pero cada deuda que desaparece es una victoria visible —
+                  y eso sostiene el hábito.
+                </>
+              )}
+            </p>
+            <p className={css.comparacion}>
+              {base.estancado || plan.estancado || planOtra.estancado ? (
+                <>Con las cuotas actuales no se puede comparar: el saldo no baja.</>
+              ) : plan.meses === planOtra.meses &&
+                Math.abs(plan.intereses - planOtra.intereses) < 1000 ? (
+                <>
+                  Con sus números, las dos estrategias dan prácticamente lo mismo. Elijan la que
+                  más ánimo les dé.
+                </>
+              ) : (
+                <>
+                  Con sus números, <b>{estrategia === "avalancha" ? "avalancha" : "bola de nieve"}</b>{" "}
+                  termina en <b>{enMeses(plan.meses)}</b> pagando{" "}
+                  <b>{$(plan.intereses)}</b> de intereses. Con{" "}
+                  {otra === "avalancha" ? "avalancha" : "bola de nieve"} serían{" "}
+                  <b>{enMeses(planOtra.meses)}</b> y <b>{$(planOtra.intereses)}</b> —{" "}
+                  {plan.intereses <= planOtra.intereses
+                    ? `${$(planOtra.intereses - plan.intereses)} más.`
+                    : `${$(plan.intereses - planOtra.intereses)} menos.`}
+                </>
+              )}
+            </p>
+            <p className={css.pistaOrden}>
+              Al cambiar de opción se reordena la lista de abajo: la número <b>1</b> es la deuda a
+              la que hay que echarle todo lo que sobre.
+            </p>
+          </div>
+        )}
 
         {pendientes.length === 0 ? (
           <p className="vacio">

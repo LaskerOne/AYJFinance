@@ -2,6 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useSesion } from "@/contexts/SesionContext";
 import { useHogar } from "@/contexts/HogarContext";
 import { Cargando } from "@/components/ui/Cargando";
+import { SelectorTema } from "@/components/ui/SelectorTema";
 import { MONEDAS } from "@/lib/formato";
 import css from "./Layout.module.css";
 
@@ -78,6 +79,8 @@ export function Layout() {
               </option>
             ))}
           </select>
+
+          <SelectorTema />
 
           <button className="pill ghost" onClick={() => void salir()} title={correo}>
             Salir
