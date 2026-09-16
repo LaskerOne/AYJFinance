@@ -1,0 +1,38 @@
+.bloque {
+  margin-top: 24px;
+}
+
+.subtitulo {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--ink);
+}
+
+.error {
+  font-size: 13px;
+  color: var(--crit-ink);
+  background: color-mix(in srgb, var(--crit) 12%, transparent);
+  border-radius: var(--r-sm);
+  padding: 8px 11px;
+  margin-bottom: 14px;
+}
+
+.puntoCat {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.pista {
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}

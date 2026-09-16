@@ -1,0 +1,82 @@
+####################################################################
+#  Mantener el proyecto de Supabase despierto
+#
+#  Los proyectos del plan gratuito se pausan tras una semana sin
+#  actividad. Este trabajo hace una consulta mínima cada tres días,
+#  con lo que el reloj de inactividad nunca llega a los siete.
+#
+#  Necesita dos secretos en el repositorio
+#  (Settings → Secrets and variables → Actions):
+#    SUPABASE_URL       https://xxxxxxxx.supabase.co
+#    SUPABASE_ANON_KEY  la clave anónima del proyecto
+#
+#  Son los mismos valores del .env. La clave anónima es pública por
+#  diseño y no da acceso a nada por sí sola: quien protege los datos
+#  son las políticas RLS. Nunca pongas aquí la service_role key.
+####################################################################
+
+name: Mantener Supabase despierto
+
+on:
+  schedule:
+    # A las 13:17 UTC (8:17 a. m. en Colombia) cada tres días.
+    # El minuto es deliberadamente irregular: GitHub encola con retraso
+    # los cron que caen en horas en punto, porque se congestionan.
+    - cron: "17 13 */3 * *"
+  # Permite dispararlo a mano desde la pestaña Actions para probarlo.
+  workflow_dispatch:
+
+# Este trabajo no toca el código: no necesita permisos sobre el repo.
+permissions: {}
+
+jobs:
+  consultar:
+    name: Consultar la base de datos
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Despertar el proyecto
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_ANON_KEY:-}" ]; then
+            echo "::error::Faltan los secretos SUPABASE_URL o SUPABASE_ANON_KEY."
+            echo "Configúralos en Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+          # Se quita la barra final por si la URL viene con ella.
+          url="${SUPABASE_URL%/}/rest/v1/hogares?select=id&limit=1"
+
+          codigo=$(curl --silent --show-error --max-time 30 \
+            --retry 3 --retry-delay 10 --retry-connrefused \
+            --output respuesta.txt --write-out "%{http_code}" \
+            "$url" \
+            --header "apikey: ${SUPABASE_ANON_KEY}" \
+            --header "Authorization: Bearer ${SUPABASE_ANON_KEY}" || echo "000")
+
+          echo "Respuesta HTTP: $codigo"
+          echo "Cuerpo: $(head -c 300 respuesta.txt || true)"
+
+          # Sin sesión iniciada, las políticas RLS devuelven una lista
+          # vacía: es lo correcto y confirma que la base respondió.
+          # Para el propósito de este trabajo basta con que el proyecto
+          # conteste algo; un 4xx también significa que está despierto.
+          case "$codigo" in
+            000)
+              echo "::error::No hubo respuesta. Revisa que SUPABASE_URL sea correcta."
+              exit 1
+              ;;
+            5*)
+              echo "::error::El proyecto respondió $codigo. Puede estar pausado o caído."
+              echo "Entra al panel de Supabase y reactívalo a mano."
+              exit 1
+              ;;
+            *)
+              echo "Proyecto despierto (HTTP $codigo)."
+              ;;
+          esac

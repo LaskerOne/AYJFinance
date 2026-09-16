@@ -1,0 +1,127 @@
+.navegaMes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mesActual {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: capitalize;
+  min-width: 130px;
+  text-align: center;
+}
+
+/* --- formulario rápido -------------------------------------------------- */
+.formulario {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 130px;
+  min-width: 120px;
+}
+.ancho {
+  flex: 3 1 220px;
+}
+.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  font-size: 13px;
+  color: var(--ink-2);
+  padding-bottom: 9px;
+}
+.checkbox input {
+  width: auto;
+  accent-color: var(--a);
+}
+.formulario button[type="submit"] {
+  padding: 10px 20px;
+  flex: 0 0 auto;
+}
+
+/* --- comparativa -------------------------------------------------------- */
+.comparativa {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.filaComparativa {
+  display: grid;
+  grid-template-columns: 130px 1fr auto 86px;
+  gap: 14px;
+  align-items: center;
+  font-size: 13px;
+}
+@media (max-width: 720px) {
+  .filaComparativa {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "nombre desviacion"
+      "barra barra"
+      "cifras cifras";
+    gap: 5px 12px;
+  }
+  .filaComparativa > :nth-child(1) {
+    grid-area: nombre;
+  }
+  .filaComparativa > :nth-child(2) {
+    grid-area: barra;
+  }
+  .filaComparativa > :nth-child(3) {
+    grid-area: cifras;
+  }
+  .filaComparativa > :nth-child(4) {
+    grid-area: desviacion;
+    text-align: right;
+  }
+}
+
+.catNombre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.puntoCat {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.cifrasComparativa {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.cifrasComparativa b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.desviacion {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+.bueno {
+  color: var(--ok-ink);
+}
+.malo {
+  color: var(--crit-ink);
+}

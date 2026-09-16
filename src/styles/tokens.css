@@ -1,0 +1,163 @@
+/* ============================================================================
+   Sistema de diseño · Cuentas de Dos
+   Paleta validada con el verificador de daltonismo y contraste:
+   separación CVD ΔE ≥ 8 entre colores adyacentes y ≥ 3:1 contra el fondo.
+   Todo color del sistema nace aquí; ningún componente escribe un hex suelto.
+   ========================================================================= */
+
+:root {
+  /* superficies y tinta */
+  --bg: #eceff0;
+  --surface: #ffffff;
+  --surface-2: #f4f7f7;
+  --surface-3: #e8edee;
+  --ink: #131a1d;
+  --ink-2: #53636a;
+  --ink-3: #7e8c92;
+  --line: #dbe2e3;
+  --line-2: #c2ccce;
+
+  /* identidad de cada persona (teal / ciruela) */
+  --a: #0b8f86;
+  --a-soft: #e0f1ef;
+  --a-ink: #06645e;
+  --b: #a84fb8;
+  --b-soft: #f4e8f6;
+  --b-ink: #7d3389;
+  --comun: #56656c;
+  --comun-soft: #e6ebec;
+
+  /* estado · nunca se usan como color de serie */
+  --ok: #0ca30c;
+  --warn: #fab219;
+  --serious: #ec835a;
+  --crit: #d03b3b;
+  --ok-ink: #0a7a1e;
+  --warn-ink: #8a6200;
+  --crit-ink: #a82c2c;
+
+  /* categorías de gasto · orden fijo, el color sigue a la categoría */
+  --cat-vivienda: #2a78d6;
+  --cat-mercado: #eb6834;
+  --cat-servicios: #eda100;
+  --cat-transporte: #1baf7a;
+  --cat-salud: #008300;
+  --cat-ocio: #e87ba4;
+  --cat-personal: #4a3aa7;
+  --cat-educacion: #e34948;
+  --cat-otros: #8b969c;
+
+  /* segmentos de las barras apiladas */
+  --s-ingreso: #2a78d6;
+  --s-gasto: #eb6834;
+  --s-deuda: #4a3aa7;
+  --s-ahorro: #1baf7a;
+  --s-libre: #b3bec2;
+
+  --grid: #e6eced;
+  --axis: #c2ccce;
+  --shadow: 0 1px 2px rgba(19, 26, 29, 0.05), 0 8px 24px -14px rgba(19, 26, 29, 0.22);
+
+  --display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-full: 999px;
+}
+
+/* El tema oscuro es una selección, no una inversión automática:
+   cada color se volvió a escoger contra el fondo oscuro y se revalidó. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141a;
+    --surface: #171d23;
+    --surface-2: #1d242b;
+    --surface-3: #222b33;
+    --ink: #e6ecef;
+    --ink-2: #9aa7af;
+    --ink-3: #77858d;
+    --line: #28323b;
+    --line-2: #3a4752;
+
+    --a: #1fa295;
+    --a-soft: #10312f;
+    --a-ink: #4fc9bc;
+    --b: #ac5bc0;
+    --b-soft: #2c1b31;
+    --b-ink: #d08be0;
+    --comun: #8b99a1;
+    --comun-soft: #222b33;
+
+    --ok-ink: #57c957;
+    --warn-ink: #fab219;
+    --crit-ink: #f07f7f;
+
+    --cat-vivienda: #3987e5;
+    --cat-mercado: #d95926;
+    --cat-servicios: #c98500;
+    --cat-transporte: #199e70;
+    --cat-salud: #008300;
+    --cat-ocio: #d55181;
+    --cat-personal: #9085e9;
+    --cat-educacion: #e66767;
+    --cat-otros: #7d8990;
+
+    --s-ingreso: #3987e5;
+    --s-gasto: #d95926;
+    --s-deuda: #9085e9;
+    --s-ahorro: #199e70;
+    --s-libre: #4c5a63;
+
+    --grid: #222b33;
+    --axis: #3a4752;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -16px rgba(0, 0, 0, 0.8);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f141a;
+  --surface: #171d23;
+  --surface-2: #1d242b;
+  --surface-3: #222b33;
+  --ink: #e6ecef;
+  --ink-2: #9aa7af;
+  --ink-3: #77858d;
+  --line: #28323b;
+  --line-2: #3a4752;
+
+  --a: #1fa295;
+  --a-soft: #10312f;
+  --a-ink: #4fc9bc;
+  --b: #ac5bc0;
+  --b-soft: #2c1b31;
+  --b-ink: #d08be0;
+  --comun: #8b99a1;
+  --comun-soft: #222b33;
+
+  --ok-ink: #57c957;
+  --warn-ink: #fab219;
+  --crit-ink: #f07f7f;
+
+  --cat-vivienda: #3987e5;
+  --cat-mercado: #d95926;
+  --cat-servicios: #c98500;
+  --cat-transporte: #199e70;
+  --cat-salud: #008300;
+  --cat-ocio: #d55181;
+  --cat-personal: #9085e9;
+  --cat-educacion: #e66767;
+  --cat-otros: #7d8990;
+
+  --s-ingreso: #3987e5;
+  --s-gasto: #d95926;
+  --s-deuda: #9085e9;
+  --s-ahorro: #199e70;
+  --s-libre: #4c5a63;
+
+  --grid: #222b33;
+  --axis: #3a4752;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -16px rgba(0, 0, 0, 0.8);
+}

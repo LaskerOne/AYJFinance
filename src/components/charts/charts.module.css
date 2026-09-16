@@ -1,0 +1,177 @@
+.marco {
+  position: relative;
+}
+
+/* --- tooltip ------------------------------------------------------------ */
+.tip {
+  position: absolute;
+  z-index: 20;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 12px));
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 230px;
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+}
+.tipTitulo {
+  font-weight: 700;
+}
+.tipDetalle {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- barra apilada ------------------------------------------------------ */
+.apilada {
+  display: flex;
+  width: 100%;
+  border-radius: 7px;
+  overflow: hidden;
+  background: var(--surface-3);
+  gap: 2px;
+}
+.segmento {
+  min-width: 0;
+  transition: filter 0.15s;
+}
+.segmento:hover {
+  filter: brightness(1.12);
+}
+
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 12px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.muestra {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+.item b {
+  color: var(--ink);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 12px;
+}
+.item .pct {
+  color: var(--ink-3);
+}
+
+/* --- dona --------------------------------------------------------------- */
+.donaCaja {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.donaCaja svg {
+  flex: none;
+}
+.listaCat {
+  flex: 1;
+  min-width: 210px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.filaCat {
+  display: grid;
+  grid-template-columns: 10px 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+  border-radius: 5px;
+  padding: 1px 3px;
+  margin: 0 -3px;
+  cursor: default;
+}
+.filaCat.activa {
+  background: var(--surface-2);
+}
+.nombreCat {
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.montoCat {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.pctCat {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--ink-3);
+  width: 46px;
+  text-align: right;
+}
+
+/* --- línea de tiempo ---------------------------------------------------- */
+.svgPleno {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+/* --- barras mensuales --------------------------------------------------- */
+.mesesCaja {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  min-height: 170px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.mes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1 0 54px;
+  min-width: 54px;
+}
+.columnas {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 130px;
+  width: 100%;
+  justify-content: center;
+}
+.columna {
+  width: 14px;
+  border-radius: 4px 4px 0 0;
+  min-height: 2px;
+  transition: filter 0.15s;
+}
+.columna:hover {
+  filter: brightness(1.12);
+}
+.etiquetaMes {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-3);
+  text-transform: capitalize;
+  white-space: nowrap;
+}

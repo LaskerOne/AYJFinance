@@ -1,0 +1,272 @@
+/* --- pareja ------------------------------------------------------------- */
+.pareja {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 640px) {
+  .pareja {
+    grid-template-columns: 1fr;
+  }
+}
+
+.persona,
+.invitacion {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  text-decoration: none;
+  color: inherit;
+}
+.persona[data-lado="a"] {
+  border-left: 4px solid var(--a);
+}
+.persona[data-lado="b"] {
+  border-left: 4px solid var(--b);
+}
+.invitacion {
+  border-style: dashed;
+  border-color: var(--line-2);
+}
+.invitacion:hover {
+  border-color: var(--a);
+  background: var(--a-soft);
+}
+
+.avatar,
+.avatarVacio {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 16px;
+}
+.persona[data-lado="a"] .avatar {
+  background: var(--a-soft);
+  color: var(--a-ink);
+  border: 1px solid color-mix(in srgb, var(--a) 30%, transparent);
+}
+.persona[data-lado="b"] .avatar {
+  background: var(--b-soft);
+  color: var(--b-ink);
+  border: 1px solid color-mix(in srgb, var(--b) 30%, transparent);
+}
+.avatarVacio {
+  background: var(--surface-3);
+  color: var(--ink-3);
+  font-size: 20px;
+}
+
+.datosPersona {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.nombrePersona {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 16px;
+  display: block;
+}
+.ingresoPersona {
+  font-size: 13px;
+  color: var(--ink-2);
+  display: block;
+}
+.ingresoPersona b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.pesoPersona {
+  flex: none;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.pesoValor {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.persona[data-lado="a"] .pesoValor {
+  color: var(--a-ink);
+}
+.persona[data-lado="b"] .pesoValor {
+  color: var(--b-ink);
+}
+
+/* --- flujo -------------------------------------------------------------- */
+.pieFlujo {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.alerta {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--crit-ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* --- regla 50/30/20 ----------------------------------------------------- */
+.regla {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.pista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pistaCabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.pistaNombre {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.pistaNombre small {
+  font-weight: 400;
+  color: var(--ink-3);
+  font-size: 12px;
+}
+.pistaValor {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pistaPie {
+  display: flex;
+  align-items: center;
+  gap: 6px 12px;
+  font-size: 12px;
+  color: var(--ink-2);
+  flex-wrap: wrap;
+}
+
+/* --- reparto ------------------------------------------------------------ */
+.cabeceraReparto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.cifrasBote {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 34px;
+}
+.cifra {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cifraValor {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 25px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.tonoA {
+  color: var(--a-ink);
+}
+.tonoB {
+  color: var(--b-ink);
+}
+
+.barraPersona {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+.barraCabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.barraNombre {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14.5px;
+}
+.barraResto {
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.barraResto b {
+  color: var(--ink);
+}
+
+.notaReparto {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--a);
+  border-radius: var(--r-md);
+  padding: 13px 15px;
+  font-size: 13.5px;
+  margin-top: 16px;
+}
+.mn {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--a-ink);
+}
+
+/* --- colchón ------------------------------------------------------------ */
+.colchonCabeza {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.colchonNumero {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.colchonTexto {
+  color: var(--ink-2);
+  font-size: 14px;
+}
+.colchonEscala {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
