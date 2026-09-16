@@ -49,6 +49,9 @@ export function Deudas() {
     ordenadas.length === ordenAlterno.length &&
     ordenadas.every((d, i) => d.id === ordenAlterno[i]?.id);
 
+  const primera = ordenadas[0];
+  const primeraOtra = ordenAlterno[0];
+
   const series: Serie[] = [
     { nombre: "Solo las cuotas", puntos: base.serie, color: "--ink-3", punteada: true },
     { nombre: "Con abono extra", puntos: plan.serie, color: "--a" },
@@ -95,6 +98,13 @@ export function Deudas() {
                   se liberan cuando una deuda se acaba— se lanza contra la deuda de{" "}
                   <b>mayor tasa</b>. Es la que menos intereses paga en total: matemáticamente
                   siempre gana.
+                  {primera && (
+                    <>
+                      {" "}
+                      En su caso es <b>{primera.nombre || "la primera de la lista"}</b>, al{" "}
+                      <b>{String(Number(primera.tasa_ea)).replace(".", ",")} % E.A.</b>
+                    </>
+                  )}
                 </>
               ) : (
                 <>
@@ -102,6 +112,20 @@ export function Deudas() {
                   <b>menor saldo</b>, para irlas eliminando de a una lo más rápido posible. Paga
                   algo más de intereses, pero cada deuda que desaparece es una victoria visible —
                   y eso sostiene el hábito.
+                  {primera && (
+                    <>
+                      {" "}
+                      En su caso es <b>{primera.nombre || "la primera de la lista"}</b>, con{" "}
+                      <b>{$(Number(primera.saldo))}</b> pendientes
+                      {Number(primera.cuota) > 0 && (
+                        <>
+                          {" "}
+                          — unos <b>{enMeses(Math.ceil(Number(primera.saldo) / (Number(primera.cuota) + abono)))}</b> si
+                          le echan todo encima
+                        </>
+                      )}
+                    </>
+                  )}
                 </>
               )}
             </p>
@@ -131,13 +155,16 @@ export function Deudas() {
               {mismoOrden ? (
                 <>
                   Con estas deudas las dos estrategias coinciden en el orden —la más cara resulta
-                  ser también la más pequeña—, así que la lista de abajo no cambia al alternar. La
-                  número <b>1</b> es la deuda a la que hay que echarle todo lo que sobre.
+                  ser también la más pequeña—, así que la lista de abajo no cambia al alternar:{" "}
+                  <b>{primera?.nombre || "la primera"}</b> encabeza las dos.
                 </>
               ) : (
                 <>
-                  Al cambiar de opción se reordena la lista de abajo: la número <b>1</b> es la
-                  deuda a la que hay que echarle todo lo que sobre.
+                  Las dos estrategias no coinciden: con{" "}
+                  {estrategia === "avalancha" ? "avalancha" : "bola de nieve"} va primero{" "}
+                  <b>{primera?.nombre || "la primera"}</b>, y con la otra iría{" "}
+                  <b>{primeraOtra?.nombre || "otra"}</b>. La número <b>1</b> de la lista es a la
+                  que hay que echarle todo lo que sobre.
                 </>
               )}
             </p>
