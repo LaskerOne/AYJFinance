@@ -80,6 +80,10 @@ interface ValorHogar {
 
   cargando: boolean;
   error: string;
+  /** Último fallo al guardar. Antes se perdía en silencio y la pantalla
+   *  simplemente no reaccionaba, que es la peor forma de fallar. */
+  errorEscritura: string;
+  descartarErrorEscritura: () => void;
   enVivo: boolean;
 
   crear: <T extends NombreTabla>(tabla: T, fila: Record<string, unknown>) => Promise<void>;
@@ -115,9 +119,16 @@ export function HogarProvider({ children }: { children: ReactNode }) {
   const [filas, setFilas] = useState<Filas>(VACIO);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const [errorEscritura, setErrorEscritura] = useState("");
   const [enVivo, setEnVivo] = useState(false);
 
   const hogarRef = useRef<string | null>(null);
+  // Copia siempre fresca de las filas, para poder revertir un cambio que la
+  // base rechace sin depender del cierre de la función.
+  const filasRef = useRef<Filas>(VACIO);
+  useEffect(() => {
+    filasRef.current = filas;
+  }, [filas]);
 
   const cargarTodo = useCallback(async (hogarId: string) => {
     const resultados = await Promise.all(
@@ -237,15 +248,20 @@ export function HogarProvider({ children }: { children: ReactNode }) {
 
   const crear = useCallback(
     async (tabla: NombreTabla, fila: Record<string, unknown>) => {
-      await conHogar(async (hogarId) => {
-        const creada = await coleccion.insertar(tabla, { ...fila, hogar_id: hogarId });
-        // Pintado inmediato: no se espera al eco del WebSocket.
-        setFilas((p) => {
-          const lista = p[tabla] as Array<{ id: string }>;
-          if (lista.some((f) => f.id === (creada as { id: string }).id)) return p;
-          return { ...p, [tabla]: [...lista, creada] as never };
+      try {
+        await conHogar(async (hogarId) => {
+          const creada = await coleccion.insertar(tabla, { ...fila, hogar_id: hogarId });
+          // Pintado inmediato: no se espera al eco del WebSocket.
+          setFilas((p) => {
+            const lista = p[tabla] as Array<{ id: string }>;
+            if (lista.some((f) => f.id === (creada as { id: string }).id)) return p;
+            return { ...p, [tabla]: [...lista, creada] as never };
+          });
         });
-      });
+        setErrorEscritura("");
+      } catch (e) {
+        setErrorEscritura(detalleDeError(e));
+      }
     },
     [conHogar],
   );
@@ -267,23 +283,39 @@ export function HogarProvider({ children }: { children: ReactNode }) {
 
   const editar = useCallback(
     async (tabla: NombreTabla, id: string, cambios: Record<string, unknown>) => {
+      const antes = filasRef.current[tabla] as Array<{ id: string }>;
       setFilas((p) => ({
         ...p,
         [tabla]: (p[tabla] as Array<{ id: string }>).map((f) =>
           f.id === id ? { ...f, ...cambios } : f,
         ) as never,
       }));
-      await coleccion.actualizar(tabla, id, cambios);
+      try {
+        await coleccion.actualizar(tabla, id, cambios);
+        setErrorEscritura("");
+      } catch (e) {
+        // Se deshace el pintado optimista: la pantalla no puede mostrar algo
+        // que la base rechazó.
+        setFilas((p) => ({ ...p, [tabla]: antes as never }));
+        setErrorEscritura(detalleDeError(e));
+      }
     },
     [],
   );
 
   const borrar = useCallback(async (tabla: NombreTabla, id: string) => {
+    const antes = filasRef.current[tabla] as Array<{ id: string }>;
     setFilas((p) => ({
       ...p,
       [tabla]: (p[tabla] as Array<{ id: string }>).filter((f) => f.id !== id) as never,
     }));
-    await coleccion.eliminar(tabla, id);
+    try {
+      await coleccion.eliminar(tabla, id);
+      setErrorEscritura("");
+    } catch (e) {
+      setFilas((p) => ({ ...p, [tabla]: antes as never }));
+      setErrorEscritura(detalleDeError(e));
+    }
   }, []);
 
   const cambiarHogar = useCallback(
@@ -340,6 +372,8 @@ export function HogarProvider({ children }: { children: ReactNode }) {
       cierres: filas.cierres_mensuales,
       cargando,
       error,
+      errorEscritura,
+      descartarErrorEscritura: () => setErrorEscritura(""),
       enVivo,
       crear,
       editar,
@@ -349,7 +383,8 @@ export function HogarProvider({ children }: { children: ReactNode }) {
       recargar,
     }),
     [
-      hogar, perfiles, idA, idB, nombreDe, ladoDe, filas, cargando, error, enVivo,
+      hogar, perfiles, idA, idB, nombreDe, ladoDe, filas, cargando, error,
+      errorEscritura, enVivo,
       crear, editar, borrar, crearVarias, cambiarHogar, recargar,
     ],
   );

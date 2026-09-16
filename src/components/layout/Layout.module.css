@@ -121,3 +121,27 @@
   flex-direction: column;
   gap: 22px;
 }
+
+/* --- aviso de fallo al guardar ------------------------------------------ */
+.avisoError {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: center;
+  justify-content: space-between;
+  background: color-mix(in srgb, var(--crit) 12%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--crit) 40%, transparent);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  font-size: 13.5px;
+}
+.avisoError strong {
+  color: var(--crit-ink);
+}
+.detalleError {
+  margin-top: 3px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-2);
+  word-break: break-word;
+}

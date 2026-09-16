@@ -18,7 +18,16 @@ const SECCIONES = [
 
 export function Layout() {
   const { salir, correo } = useSesion();
-  const { hogar, cargando, error, enVivo, cambiarHogar, perfiles } = useHogar();
+  const {
+    hogar,
+    cargando,
+    error,
+    errorEscritura,
+    descartarErrorEscritura,
+    enVivo,
+    cambiarHogar,
+    perfiles,
+  } = useHogar();
 
   if (cargando) return <Cargando mensaje="Abriendo su hogar" />;
 
@@ -88,6 +97,18 @@ export function Layout() {
           </NavLink>
         ))}
       </nav>
+
+      {errorEscritura && (
+        <div className={css.avisoError} role="alert">
+          <div>
+            <strong>No se pudo guardar el cambio.</strong>
+            <p className={css.detalleError}>{errorEscritura}</p>
+          </div>
+          <button className="pill" onClick={descartarErrorEscritura}>
+            Entendido
+          </button>
+        </div>
+      )}
 
       <main className={css.contenido}>
         <Outlet />
