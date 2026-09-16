@@ -13,6 +13,7 @@ const SECCIONES = [
   { ruta: "/deudas", texto: "Deudas" },
   { ruta: "/metas", texto: "Metas" },
   { ruta: "/historico", texto: "Histórico" },
+  { ruta: "/sugerencias", texto: "Sugerencias" },
   { ruta: "/importar", texto: "Importar" },
   { ruta: "/ajustes", texto: "Ajustes" },
 ];

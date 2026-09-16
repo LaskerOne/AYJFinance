@@ -13,6 +13,7 @@ import { Presupuesto } from "@/Pages/Presupuesto/Presupuesto";
 import { Deudas } from "@/Pages/Deudas/Deudas";
 import { Metas } from "@/Pages/Metas/Metas";
 import { Historico } from "@/Pages/Historico/Historico";
+import { Sugerencias } from "@/Pages/Sugerencias/Sugerencias";
 import { Importar } from "@/Pages/Importar/Importar";
 import { Ajustes } from "@/Pages/Ajustes/Ajustes";
 
@@ -39,6 +40,7 @@ export function App() {
           <Route path="deudas" element={<Deudas />} />
           <Route path="metas" element={<Metas />} />
           <Route path="historico" element={<Historico />} />
+          <Route path="sugerencias" element={<Sugerencias />} />
           <Route path="importar" element={<Importar />} />
           <Route path="ajustes" element={<Ajustes />} />
         </Route>

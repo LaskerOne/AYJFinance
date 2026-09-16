@@ -1,0 +1,166 @@
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tarjeta {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-2);
+  border-radius: var(--r-md);
+  padding: 15px 17px;
+  background: var(--surface-2);
+}
+.tarjeta[data-tono="crit"] {
+  border-left-color: var(--crit);
+}
+.tarjeta[data-tono="warn"] {
+  border-left-color: var(--warn);
+}
+.tarjeta[data-tono="ok"] {
+  border-left-color: var(--ok);
+}
+.tarjeta[data-tono="neutro"] {
+  border-left-color: var(--comun);
+}
+
+.cabeza {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+
+.titulo {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.cuerpo {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 78ch;
+}
+
+.calculo {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ink-3);
+  font-style: italic;
+  max-width: 78ch;
+}
+
+/* --- listón de rentabilidad --------------------------------------------- */
+.liston {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.listonNumero {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(34px, 6vw, 48px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--a-ink);
+}
+.listonTexto {
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.listonNota {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 76ch;
+}
+.listonNota b {
+  color: var(--ink);
+}
+
+.descargo {
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-3);
+  max-width: 76ch;
+}
+
+/* --- ensayo -------------------------------------------------------------- */
+.deslizador {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.deslizador label {
+  font-size: 13px;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 250px;
+}
+.deslizador input[type="range"] {
+  flex: 1;
+  accent-color: var(--a);
+  min-width: 120px;
+}
+.valorEnsayo {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 13.5px;
+  min-width: 96px;
+  text-align: right;
+}
+
+.grafico {
+  margin: 18px 0 10px;
+}
+
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.leyenda span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.trazoPunteado {
+  width: 18px;
+  height: 0;
+  border-top: 2px dashed var(--ink-3);
+  flex: none;
+}
+.trazoSolido {
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--a);
+  flex: none;
+}
+
+.aviso {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--warn-ink);
+  background: color-mix(in srgb, var(--warn) 14%, transparent);
+  border-radius: var(--r-sm);
+  padding: 10px 13px;
+  line-height: 1.55;
+}
