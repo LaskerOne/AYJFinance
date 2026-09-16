@@ -35,10 +35,21 @@ export function mensajeDeError(error: unknown): string {
   if (m.includes("duplicate key")) {
     return "Ese registro ya existe.";
   }
-  if (m.includes("rate limit") || m.includes("too many")) {
-    return "Demasiados intentos seguidos. Espera un minuto antes de reintentar.";
+  if (m.includes("not authorized") || m.includes("email address not authorized")) {
+    return (
+      "Ese correo no está autorizado para recibir el enlace. El servicio de " +
+      "pruebas de Supabase solo escribe a los miembros del proyecto: para " +
+      "invitar a otra persona hay que configurar un SMTP propio."
+    );
   }
-  if (m.includes("invalid login") || m.includes("otp")) {
+  if (m.includes("rate limit") || m.includes("too many") || m.includes("over_email_send_rate")) {
+    return (
+      "Se agotaron los envíos de esta hora. El servicio de pruebas de Supabase " +
+      "permite solo 2 correos por hora; espera a la siguiente hora, o configura " +
+      "un SMTP propio para quitar el límite."
+    );
+  }
+  if (m.includes("invalid login") || m.includes("otp") || m.includes("expired")) {
     return "El enlace no es válido o ya venció. Pide uno nuevo.";
   }
   return e.message ?? "Algo salió mal. Intenta de nuevo.";
