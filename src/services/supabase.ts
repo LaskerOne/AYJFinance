@@ -1,7 +1,22 @@
 import { createClient } from "@supabase/supabase-js";
 
-const url = import.meta.env.VITE_SUPABASE_URL;
-const anon = import.meta.env.VITE_SUPABASE_ANON_KEY;
+/**
+ * El panel de Supabase muestra la URL con el sufijo del endpoint REST, así
+ * que es fácil copiarla como `https://xxx.supabase.co/rest/v1/`. El cliente
+ * agrega su propia ruta y terminaría pidiendo `/rest/v1/auth/v1/otp`, que
+ * responde "Invalid path specified in request URL". Aquí se normaliza para
+ * que cualquiera de las dos formas funcione.
+ */
+function urlBase(valor: string | undefined): string {
+  return (valor ?? "")
+    .trim()
+    .replace(/\/+$/, "")
+    .replace(/\/(rest|auth|realtime|storage)\/v\d+$/i, "")
+    .replace(/\/+$/, "");
+}
+
+const url = urlBase(import.meta.env.VITE_SUPABASE_URL);
+const anon = (import.meta.env.VITE_SUPABASE_ANON_KEY ?? "").trim();
 
 /** Falso mientras el .env no esté completo: la app muestra instrucciones
  *  en vez de estrellarse con un error críptico de red. */
