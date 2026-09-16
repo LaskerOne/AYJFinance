@@ -41,6 +41,14 @@ export function Deudas() {
   const pendientes = deudas.filter((d) => Number(d.saldo) > 0);
   const ordenadas = ordenarPorEstrategia(deudas, estrategia);
 
+  // Con frecuencia la deuda más cara es además la más pequeña —las tarjetas
+  // de crédito son el caso típico—, y entonces ambas estrategias producen el
+  // mismo orden. Decirlo evita que parezca que el selector no hace nada.
+  const ordenAlterno = ordenarPorEstrategia(deudas, otra);
+  const mismoOrden =
+    ordenadas.length === ordenAlterno.length &&
+    ordenadas.every((d, i) => d.id === ordenAlterno[i]?.id);
+
   const series: Serie[] = [
     { nombre: "Solo las cuotas", puntos: base.serie, color: "--ink-3", punteada: true },
     { nombre: "Con abono extra", puntos: plan.serie, color: "--a" },
@@ -120,8 +128,18 @@ export function Deudas() {
               )}
             </p>
             <p className={css.pistaOrden}>
-              Al cambiar de opción se reordena la lista de abajo: la número <b>1</b> es la deuda a
-              la que hay que echarle todo lo que sobre.
+              {mismoOrden ? (
+                <>
+                  Con estas deudas las dos estrategias coinciden en el orden —la más cara resulta
+                  ser también la más pequeña—, así que la lista de abajo no cambia al alternar. La
+                  número <b>1</b> es la deuda a la que hay que echarle todo lo que sobre.
+                </>
+              ) : (
+                <>
+                  Al cambiar de opción se reordena la lista de abajo: la número <b>1</b> es la
+                  deuda a la que hay que echarle todo lo que sobre.
+                </>
+              )}
             </p>
           </div>
         )}
