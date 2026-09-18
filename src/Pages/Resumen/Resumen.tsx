@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { EnlaceEditar } from "@/components/ui/EnlaceEditar";
 import { BarraApilada, type Segmento } from "@/components/charts/BarraApilada";
 import { Dona } from "@/components/charts/Dona";
 import { BarraProgreso } from "@/components/charts/BarraProgreso";
@@ -70,6 +71,7 @@ export function Resumen() {
             <h2>A dónde va cada peso del mes</h2>
             <p className="nota">Sobre el ingreso total, ya normalizado a valor mensual.</p>
           </div>
+          <EnlaceEditar a="/presupuesto" texto="Editar en Presupuesto" />
         </header>
 
         <BarraApilada segmentos={flujo} total={f.ingreso} etiqueta="Reparto del ingreso mensual" />
@@ -101,6 +103,7 @@ export function Resumen() {
               <h2>Gastos por categoría</h2>
               <p className="nota">Sin incluir cuotas de deuda ni aportes a metas.</p>
             </div>
+            <EnlaceEditar a="/presupuesto" texto="Editar gastos" />
           </header>
           <Dona datos={f.porCategoria} total={f.gastos} titulo="Gastos por categoría" />
         </section>
@@ -124,6 +127,7 @@ export function Resumen() {
               Gastos compartidos, más las cuotas y metas que están a nombre de los dos.
             </p>
           </div>
+          <EnlaceEditar a="/presupuesto" texto="Editar en Presupuesto" />
         </header>
         <RepartoBote finanzas={f} />
       </section>
@@ -134,6 +138,7 @@ export function Resumen() {
             <h2>Colchón de emergencia</h2>
             <p className="nota">Meses de vida que cubre el fondo marcado como emergencia.</p>
           </div>
+          <EnlaceEditar a="/metas" texto="Editar en Metas" />
         </header>
 
         {f.fondoObjetivo <= 0 && f.fondo <= 0 ? (

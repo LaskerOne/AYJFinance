@@ -10,12 +10,15 @@ import {
 } from "@/services/hogar.service";
 import { mensajeDeError } from "@/services/supabase";
 import { MONEDAS } from "@/lib/formato";
+import { useCategorias } from "@/hooks/useCategorias";
+import { COLOR_CATEGORIA } from "@/models/dominio";
 import type { Invitacion } from "@/models/dominio";
 import css from "./Ajustes.module.css";
 
 export function Ajustes() {
   const { hogar, perfiles, idA, cambiarHogar, reglas, borrar } = useHogar();
   const { usuario, correo, salir } = useSesion();
+  const { opciones, renombrar, restaurar, hayRenombradas } = useCategorias();
 
   const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
   const [correoInvitado, setCorreoInvitado] = useState("");
@@ -177,6 +180,55 @@ export function Ajustes() {
             ))}
           </div>
         )}
+      </section>
+
+      <section className="panel">
+        <header>
+          <div>
+            <h2>Nombres de las categorías</h2>
+            <p className="nota">
+              Llámenlas como las llaman ustedes. Cambiar el nombre no mueve ningún gasto: lo que
+              queda guardado por dentro es siempre la misma categoría, así que nada se pierde.
+            </p>
+          </div>
+          {hayRenombradas && (
+            <button className="pill ghost" onClick={() => void restaurar()}>
+              Volver a los nombres originales
+            </button>
+          )}
+        </header>
+
+        <div className={css.categorias}>
+          {opciones.map((o) => (
+            <label key={o.clave} className={css.categoria}>
+              <span
+                className={css.puntoCategoria}
+                style={{ background: `var(${COLOR_CATEGORIA[o.clave]})` }}
+                aria-hidden="true"
+              />
+              <span className={css.claveCategoria}>{o.clave}</span>
+              <input
+                className="campo"
+                aria-label={`Nombre visible de ${o.clave}`}
+                defaultValue={o.nombre === o.clave ? "" : o.nombre}
+                placeholder={o.clave}
+                maxLength={40}
+                key={`${o.clave}-${o.nombre}`}
+                onBlur={(e) => {
+                  if (e.target.value.trim() !== (o.nombre === o.clave ? "" : o.nombre)) {
+                    void renombrar(o.clave, e.target.value);
+                  }
+                }}
+              />
+            </label>
+          ))}
+        </div>
+
+        <p className={css.pistaCategorias}>
+          El color de cada una es fijo: son nueve tonos verificados para que se distingan entre sí
+          también con daltonismo y sobre fondo claro u oscuro. Deja el campo en blanco para volver
+          al nombre de fábrica.
+        </p>
       </section>
 
       {reglas.length > 0 && (

@@ -6,6 +6,7 @@ import { FilaKpi } from "@/components/ui/Kpi";
 import { Estado } from "@/components/ui/Etiqueta";
 import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
+import { useCategorias } from "@/hooks/useCategorias";
 import { cerrarMes } from "@/services/coleccion.service";
 import { mensajeDeError } from "@/services/supabase";
 import { nombrePeriodo, porcentaje, primerDiaDelMes } from "@/lib/formato";
@@ -15,6 +16,7 @@ import css from "./Historico.module.css";
 export function Historico() {
   const { cierres, hogar, recargar } = useHogar();
   const { $ } = useMoneda();
+  const { etiqueta } = useCategorias();
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 
@@ -191,7 +193,7 @@ export function Historico() {
                   <th className="r">Deuda</th>
                   {categoriasUsadas.map((c) => (
                     <th key={c} className="r">
-                      {c}
+                      {etiqueta(c)}
                     </th>
                   ))}
                 </tr>

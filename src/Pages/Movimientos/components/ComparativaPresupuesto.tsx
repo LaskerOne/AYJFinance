@@ -1,5 +1,6 @@
 import { BarraProgreso } from "@/components/charts/BarraProgreso";
 import { useMoneda } from "@/hooks/useMoneda";
+import { useCategorias } from "@/hooks/useCategorias";
 import { porcentaje } from "@/lib/formato";
 import { COLOR_CATEGORIA, type Categoria } from "@/models/dominio";
 import css from "../Movimientos.module.css";
@@ -17,6 +18,7 @@ export interface LineaComparativa {
  */
 export function ComparativaPresupuesto({ lineas }: { lineas: LineaComparativa[] }) {
   const { $ } = useMoneda();
+  const { etiqueta } = useCategorias();
 
   if (lineas.length === 0) {
     return <p className="vacio">Registra movimientos del mes para comparar contra el presupuesto.</p>;
@@ -36,7 +38,7 @@ export function ComparativaPresupuesto({ lineas }: { lineas: LineaComparativa[] 
                 className={css.puntoCat}
                 style={{ background: `var(${COLOR_CATEGORIA[l.categoria]})` }}
               />
-              {l.categoria}
+              {etiqueta(l.categoria)}
             </span>
 
             <BarraProgreso
@@ -45,7 +47,7 @@ export function ComparativaPresupuesto({ lineas }: { lineas: LineaComparativa[] 
               marca={l.presupuesto > 0 ? 1 : undefined}
               tituloMarca="Presupuesto"
               alto={10}
-              etiqueta={`${l.categoria}: ${$(l.ejecutado)} de ${$(l.presupuesto)}`}
+              etiqueta={`${etiqueta(l.categoria)}: ${$(l.ejecutado)} de ${$(l.presupuesto)}`}
             />
 
             <span className={css.cifrasComparativa}>

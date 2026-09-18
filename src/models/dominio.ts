@@ -74,6 +74,8 @@ export interface Hogar {
   reparto: Reparto;
   estrategia_deuda: EstrategiaDeuda;
   abono_extra: number;
+  /** Nombre propio de cada categoría. Las claves ausentes usan el de fábrica. */
+  etiquetas_categorias: Partial<Record<Categoria, string>>;
   creado_por: string;
   creado_en: string;
 }

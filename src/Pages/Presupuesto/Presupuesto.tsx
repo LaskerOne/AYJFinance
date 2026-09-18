@@ -4,9 +4,9 @@ import { SelectorPersona } from "@/components/ui/SelectorPersona";
 import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
 import { useFinanzas } from "@/hooks/useFinanzas";
+import { useCategorias } from "@/hooks/useCategorias";
 import { ingresoMensual } from "@/lib/calculos";
 import {
-  CATEGORIAS,
   NOMBRE_FRECUENCIA,
   type Frecuencia,
   type TipoGasto,
@@ -18,6 +18,7 @@ export function Presupuesto() {
   const { ingresos, gastos, crear, editar, borrar } = useHogar();
   const { $ } = useMoneda();
   const f = useFinanzas();
+  const { opciones: opcionesCategoria } = useCategorias();
   const [pestania, setPestania] = useState<Pestania>("ingresos");
 
   return (
@@ -184,9 +185,9 @@ export function Presupuesto() {
                           void editar("gastos_presupuesto", g.id, { categoria: e.target.value })
                         }
                       >
-                        {CATEGORIAS.map((c) => (
-                          <option key={c} value={c}>
-                            {c}
+                        {opcionesCategoria.map((c) => (
+                          <option key={c.clave} value={c.clave}>
+                            {c.nombre}
                           </option>
                         ))}
                       </select>

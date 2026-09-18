@@ -3,11 +3,12 @@ import { Estado } from "@/components/ui/Etiqueta";
 import { FilaKpi } from "@/components/ui/Kpi";
 import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
+import { useCategorias } from "@/hooks/useCategorias";
 import { leerCSV, patronDe, type FilaImportada } from "@/services/csv.service";
 import { aprenderRegla } from "@/services/coleccion.service";
 import { mensajeDeError } from "@/services/supabase";
 import { fechaCorta } from "@/lib/formato";
-import { CATEGORIAS, type Categoria } from "@/models/dominio";
+import type { Categoria } from "@/models/dominio";
 import css from "./Importar.module.css";
 
 type Fase = "inicio" | "revision" | "guardando" | "listo";
@@ -15,6 +16,7 @@ type Fase = "inicio" | "revision" | "guardando" | "listo";
 export function Importar() {
   const { movimientos, reglas, crearVarias, hogar, idA } = useHogar();
   const { $ } = useMoneda();
+  const { opciones: opcionesCategoria } = useCategorias();
 
   const entrada = useRef<HTMLInputElement>(null);
   const [fase, setFase] = useState<Fase>("inicio");
@@ -250,9 +252,9 @@ export function Importar() {
                         value={f.categoria}
                         onChange={(e) => cambiarCategoria(f.huella, e.target.value as Categoria)}
                       >
-                        {CATEGORIAS.map((c) => (
-                          <option key={c} value={c}>
-                            {c}
+                        {opcionesCategoria.map((c) => (
+                          <option key={c.clave} value={c.clave}>
+                            {c.nombre}
                           </option>
                         ))}
                       </select>

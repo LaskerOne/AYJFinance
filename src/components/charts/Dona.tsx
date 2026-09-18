@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { COLOR_CATEGORIA, type Categoria } from "@/models/dominio";
 import { useMoneda } from "@/hooks/useMoneda";
+import { useCategorias } from "@/hooks/useCategorias";
 import { porcentaje } from "@/lib/formato";
 import { useTooltip } from "./useTooltip";
 import css from "./charts.module.css";
@@ -43,6 +44,7 @@ function arco(a0: number, a1: number): string {
  */
 export function Dona({ datos, total, titulo = "Distribución" }: Props) {
   const { $, $corto } = useMoneda();
+  const { etiqueta } = useCategorias();
   const { contenedor, mostrar, ocultar, nodo } = useTooltip();
   const [resaltada, setResaltada] = useState<Categoria | null>(null);
 
@@ -123,7 +125,7 @@ export function Dona({ datos, total, titulo = "Distribución" }: Props) {
                 className={css.muestra}
                 style={{ background: `var(${COLOR_CATEGORIA[d.categoria]})` }}
               />
-              <span className={css.nombreCat}>{d.categoria}</span>
+              <span className={css.nombreCat}>{etiqueta(d.categoria)}</span>
               <span className={css.montoCat}>{$(d.monto)}</span>
               <span className={css.pctCat}>{porcentaje(d.monto / total)}</span>
             </div>
