@@ -143,17 +143,6 @@ export interface GastoPresupuesto {
   creado_en: string;
 }
 
-export interface Nota {
-  id: string;
-  hogar_id: string;
-  titulo: string;
-  cuerpo: string;
-  fijada: boolean;
-  autor: string | null;
-  creada_en: string;
-  actualizada_en: string;
-}
-
 export interface Deuda {
   id: string;
   hogar_id: string;
@@ -228,7 +217,6 @@ export interface MapaTablas {
   movimientos: Movimiento;
   reglas_categoria: ReglaCategoria;
   cierres_mensuales: CierreMensual;
-  notas: Nota;
 }
 
 export type NombreTabla = keyof MapaTablas;

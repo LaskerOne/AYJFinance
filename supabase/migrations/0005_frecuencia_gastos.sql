@@ -1,9 +1,9 @@
 -- ============================================================================
---  Frecuencia en los gastos, y un cuaderno de notas
+--  Frecuencia en los gastos
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
---  1. Frecuencia de los gastos
+--  Frecuencia de los gastos
 --
 --  No todo se paga cada mes: el seguro puede ser semestral, el impuesto
 --  anual, el mercado quincenal. Se guarda el monto real y su periodicidad;
@@ -39,7 +39,7 @@ returns numeric language sql immutable as $$
 $$;
 
 -- ---------------------------------------------------------------------------
---  2. cerrar_mes vuelve a escribirse: el presupuesto ahora se normaliza
+--  cerrar_mes vuelve a escribirse: el presupuesto ahora se normaliza
 -- ---------------------------------------------------------------------------
 create or replace function public.cerrar_mes(p_hogar uuid, p_periodo date)
 returns public.cierres_mensuales language plpgsql as $$
@@ -121,56 +121,3 @@ begin
   return v_fila;
 end;
 $$;
-
--- ---------------------------------------------------------------------------
---  3. Notas · el cuaderno del hogar
---
---  Apuntes, proyecciones, acuerdos, pendientes. Lo que no cabe en una tabla
---  de cifras pero sostiene las decisiones que hay detrás.
--- ---------------------------------------------------------------------------
-create table if not exists public.notas (
-  id            uuid primary key default gen_random_uuid(),
-  hogar_id      uuid not null references public.hogares on delete cascade,
-  titulo        text not null default '',
-  cuerpo        text not null default '',
-  fijada        boolean not null default false,
-  autor         uuid references auth.users on delete set null,
-  creada_en     timestamptz not null default now(),
-  actualizada_en timestamptz not null default now()
-);
-
-create index if not exists notas_hogar_idx
-  on public.notas (hogar_id, fijada desc, actualizada_en desc);
-
-alter table public.notas enable row level security;
-
-drop policy if exists notas_todo on public.notas;
-create policy notas_todo on public.notas for all to authenticated
-using (public.es_miembro(hogar_id))
-with check (public.es_miembro(hogar_id));
-
--- La fecha de actualización se lleva sola: si dependiera del cliente,
--- cualquier olvido dejaría el orden de las notas mintiendo.
-create or replace function public.tocar_nota()
-returns trigger language plpgsql as $$
-begin
-  new.actualizada_en := now();
-  return new;
-end;
-$$;
-
-drop trigger if exists al_actualizar_nota on public.notas;
-create trigger al_actualizar_nota
-  before update on public.notas
-  for each row execute function public.tocar_nota();
-
-do $$
-begin
-  begin
-    execute 'alter publication supabase_realtime add table public.notas';
-  exception when duplicate_object then
-    null;
-  end;
-end $$;
-
-alter table public.notas replica identity full;

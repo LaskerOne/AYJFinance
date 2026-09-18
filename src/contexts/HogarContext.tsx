@@ -23,7 +23,6 @@ import type {
   Meta,
   Movimiento,
   NombreTabla,
-  Nota,
   Perfil,
   ReglaCategoria,
 } from "@/models/dominio";
@@ -38,7 +37,6 @@ const TABLAS: NombreTabla[] = [
   "movimientos",
   "reglas_categoria",
   "cierres_mensuales",
-  "notas",
 ];
 
 const ORDEN: Record<NombreTabla, { columna: string; ascendente?: boolean }> = {
@@ -49,7 +47,6 @@ const ORDEN: Record<NombreTabla, { columna: string; ascendente?: boolean }> = {
   movimientos: { columna: "fecha", ascendente: false },
   reglas_categoria: { columna: "creada_en" },
   cierres_mensuales: { columna: "periodo" },
-  notas: { columna: "actualizada_en", ascendente: false },
 };
 
 const VACIO: Filas = {
@@ -60,7 +57,6 @@ const VACIO: Filas = {
   movimientos: [],
   reglas_categoria: [],
   cierres_mensuales: [],
-  notas: [],
 };
 
 interface ValorHogar {
@@ -81,7 +77,6 @@ interface ValorHogar {
   movimientos: Movimiento[];
   reglas: ReglaCategoria[];
   cierres: CierreMensual[];
-  notas: Nota[];
 
   cargando: boolean;
   error: string;
@@ -136,15 +131,35 @@ export function HogarProvider({ children }: { children: ReactNode }) {
   }, [filas]);
 
   const cargarTodo = useCallback(async (hogarId: string) => {
+    const fallidas: string[] = [];
+
+    // Una tabla que falla no puede tumbar la aplicación entera. Pasa, sobre
+    // todo, cuando el código va por delante de las migraciones: la tabla
+    // todavía no existe en la base y antes eso dejaba la pantalla en blanco.
     const resultados = await Promise.all(
-      TABLAS.map((t) => coleccion.listar(t, hogarId, ORDEN[t])),
+      TABLAS.map((t) =>
+        coleccion.listar(t, hogarId, ORDEN[t]).catch((e: unknown) => {
+          fallidas.push(t);
+          console.warn(`No se pudo leer la tabla ${t}:`, e);
+          return [] as never[];
+        }),
+      ),
     );
+
     const nuevas = { ...VACIO } as Filas;
     TABLAS.forEach((t, i) => {
       // El índice coincide porque Promise.all conserva el orden del arreglo.
       nuevas[t] = resultados[i] as never;
     });
     setFilas(nuevas);
+
+    if (fallidas.length > 0) {
+      setErrorEscritura(
+        `No se pudieron leer estas tablas: ${fallidas.join(", ")}. ` +
+          `Suele significar que falta ejecutar alguna migración en Supabase; ` +
+          `el resto del tablero funciona con normalidad.`,
+      );
+    }
   }, []);
 
   // ---- arranque: resolver hogar y traer datos --------------------------
@@ -375,7 +390,6 @@ export function HogarProvider({ children }: { children: ReactNode }) {
       movimientos: filas.movimientos,
       reglas: filas.reglas_categoria,
       cierres: filas.cierres_mensuales,
-      notas: filas.notas,
       cargando,
       error,
       errorEscritura,
