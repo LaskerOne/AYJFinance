@@ -6,6 +6,7 @@ import { SelectorPersona } from "@/components/ui/SelectorPersona";
 import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
 import { useCategorias } from "@/hooks/useCategorias";
+import { gastoMensual } from "@/lib/calculos";
 import { EnlaceEditar } from "@/components/ui/EnlaceEditar";
 import { aNumero, fechaCorta, hoyISO, nombrePeriodo } from "@/lib/formato";
 import { CATEGORIAS, type Categoria, type ClaseMovimiento } from "@/models/dominio";
@@ -58,7 +59,7 @@ export function Movimientos() {
       categoria,
       presupuesto: gastos
         .filter((g) => g.categoria === categoria)
-        .reduce((s, g) => s + Number(g.monto), 0),
+        .reduce((s, g) => s + gastoMensual(g), 0),
       ejecutado: delMes
         .filter((m) => m.clase === "gasto" && m.categoria === categoria)
         .reduce((s, m) => s + Number(m.monto), 0),

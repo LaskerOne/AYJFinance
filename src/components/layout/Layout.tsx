@@ -14,6 +14,7 @@ const SECCIONES = [
   { ruta: "/metas", texto: "Metas" },
   { ruta: "/historico", texto: "Histórico" },
   { ruta: "/sugerencias", texto: "Sugerencias" },
+  { ruta: "/notas", texto: "Notas" },
   { ruta: "/importar", texto: "Importar" },
   { ruta: "/ajustes", texto: "Ajustes" },
 ];

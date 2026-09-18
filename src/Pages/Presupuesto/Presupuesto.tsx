@@ -5,8 +5,9 @@ import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
 import { useFinanzas } from "@/hooks/useFinanzas";
 import { useCategorias } from "@/hooks/useCategorias";
-import { ingresoMensual } from "@/lib/calculos";
+import { gastoMensual, ingresoMensual } from "@/lib/calculos";
 import {
+  FRECUENCIAS,
   NOMBRE_FRECUENCIA,
   type Frecuencia,
   type TipoGasto,
@@ -163,14 +164,16 @@ export function Presupuesto() {
                   <th>Concepto</th>
                   <th>Tipo</th>
                   <th>Quién lo asume</th>
-                  <th className="r">Monto/mes</th>
+                  <th>Frecuencia</th>
+                  <th className="r">Monto</th>
+                  <th className="r">Equivale al mes</th>
                   <th />
                 </tr>
               </thead>
               <tbody>
                 {gastos.length === 0 && (
                   <tr>
-                    <td colSpan={6}>
+                    <td colSpan={8}>
                       <p className="vacio">Todavía no hay gastos presupuestados.</p>
                     </td>
                   </tr>
@@ -223,12 +226,32 @@ export function Presupuesto() {
                         onCambio={(v) => void editar("gastos_presupuesto", g.id, { usuario_id: v })}
                       />
                     </td>
+                    <td>
+                      <select
+                        aria-label="Frecuencia"
+                        value={g.frecuencia ?? "mensual"}
+                        onChange={(e) =>
+                          void editar("gastos_presupuesto", g.id, {
+                            frecuencia: e.target.value as Frecuencia,
+                          })
+                        }
+                      >
+                        {FRECUENCIAS.map((fr) => (
+                          <option key={fr} value={fr}>
+                            {NOMBRE_FRECUENCIA[fr]}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
                     <td className="r">
                       <CampoMoneda
                         valor={Number(g.monto)}
-                        etiqueta="Monto mensual"
+                        etiqueta="Monto del ciclo"
                         onCambio={(v) => void editar("gastos_presupuesto", g.id, { monto: v })}
                       />
+                    </td>
+                    <td className="r num" style={{ fontSize: 12.5, color: "var(--ink-2)" }}>
+                      {$(gastoMensual(g))}
                     </td>
                     <td>
                       <button
@@ -244,7 +267,7 @@ export function Presupuesto() {
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={4}>Total mensual</td>
+                  <td colSpan={6}>Total mensual equivalente</td>
                   <td className="r tot">{$(f.gastos)}</td>
                   <td />
                 </tr>
@@ -258,6 +281,7 @@ export function Presupuesto() {
               void crear("gastos_presupuesto", {
                 usuario_id: null,
                 categoria: "Vivienda",
+                frecuencia: "mensual",
                 concepto: "",
                 monto: 0,
                 tipo: "fijo",

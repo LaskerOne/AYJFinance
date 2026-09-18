@@ -41,24 +41,47 @@ export const COLOR_CATEGORIA: Record<Categoria, string> = {
   Otros: "--cat-otros",
 };
 
-export type Frecuencia = "mensual" | "quincenal" | "anual";
+export type Frecuencia =
+  | "quincenal"
+  | "mensual"
+  | "bimestral"
+  | "trimestral"
+  | "semestral"
+  | "anual";
 export type TipoGasto = "fijo" | "variable";
 export type ClaseMovimiento = "gasto" | "ingreso";
 export type OrigenMovimiento = "manual" | "importado";
 export type Reparto = "proporcional" | "mitad";
 export type EstrategiaDeuda = "avalancha" | "bola";
 
+/** Cuántas veces cabe en un mes. Debe coincidir con `factor_mensual()` en SQL. */
 export const MULTIPLICADOR_FRECUENCIA: Record<Frecuencia, number> = {
-  mensual: 1,
   quincenal: 2,
+  mensual: 1,
+  bimestral: 1 / 2,
+  trimestral: 1 / 3,
+  semestral: 1 / 6,
   anual: 1 / 12,
 };
 
 export const NOMBRE_FRECUENCIA: Record<Frecuencia, string> = {
-  mensual: "Mensual",
   quincenal: "Quincenal",
+  mensual: "Mensual",
+  bimestral: "Bimestral",
+  trimestral: "Trimestral",
+  semestral: "Semestral",
   anual: "Anual",
 };
+
+/** Orden de los desplegables: de lo más frecuente a lo menos. */
+export const FRECUENCIAS: readonly Frecuencia[] = [
+  "quincenal",
+  "mensual",
+  "bimestral",
+  "trimestral",
+  "semestral",
+  "anual",
+];
 
 export interface Perfil {
   id: string;
@@ -113,9 +136,22 @@ export interface GastoPresupuesto {
   categoria: Categoria;
   concepto: string;
   monto: number;
+  /** El monto es el de un ciclo completo, no el mensualizado. */
+  frecuencia: Frecuencia;
   tipo: TipoGasto;
   orden: number;
   creado_en: string;
+}
+
+export interface Nota {
+  id: string;
+  hogar_id: string;
+  titulo: string;
+  cuerpo: string;
+  fijada: boolean;
+  autor: string | null;
+  creada_en: string;
+  actualizada_en: string;
 }
 
 export interface Deuda {
@@ -192,6 +228,7 @@ export interface MapaTablas {
   movimientos: Movimiento;
   reglas_categoria: ReglaCategoria;
   cierres_mensuales: CierreMensual;
+  notas: Nota;
 }
 
 export type NombreTabla = keyof MapaTablas;

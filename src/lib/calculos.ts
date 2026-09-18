@@ -10,9 +10,18 @@ import {
   type Reparto,
 } from "@/models/dominio";
 
-/** Valor mensual equivalente de un ingreso, sea quincenal, mensual o anual. */
+/** Valor mensual equivalente de un ingreso, sea quincenal, anual o lo que sea. */
 export function ingresoMensual(i: Pick<Ingreso, "monto" | "frecuencia">): number {
   return Number(i.monto) * (MULTIPLICADOR_FRECUENCIA[i.frecuencia] ?? 1);
+}
+
+/**
+ * Valor mensual equivalente de un gasto. Un seguro semestral de 600.000
+ * cuenta como 100.000 al mes: así se pueden sumar gastos de periodicidades
+ * distintas sin que el usuario haga la división a mano.
+ */
+export function gastoMensual(g: Pick<GastoPresupuesto, "monto" | "frecuencia">): number {
+  return Number(g.monto) * (MULTIPLICADOR_FRECUENCIA[g.frecuencia] ?? 1);
 }
 
 export interface EntradaCalculo {
@@ -120,7 +129,9 @@ export function calcularFinanzas(e: EntradaCalculo): Finanzas {
   const participacionA = totalBase > 0 ? baseA / totalBase : 0.5;
   const participacionB = 1 - participacionA;
 
-  const monto = (g: { monto: number }) => Number(g.monto);
+  // Todo gasto se mensualiza antes de sumarse: mezclar un pago anual con uno
+  // quincenal sin normalizar daría un total que no significa nada.
+  const monto = gastoMensual;
   const gastos = suma(e.gastos, monto);
   const gastosFijos = suma(e.gastos.filter((g) => g.tipo === "fijo"), monto);
   const gastoComun = suma(e.gastos.filter(comun), monto);

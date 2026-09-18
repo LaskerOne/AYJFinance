@@ -23,6 +23,7 @@ import type {
   Meta,
   Movimiento,
   NombreTabla,
+  Nota,
   Perfil,
   ReglaCategoria,
 } from "@/models/dominio";
@@ -37,6 +38,7 @@ const TABLAS: NombreTabla[] = [
   "movimientos",
   "reglas_categoria",
   "cierres_mensuales",
+  "notas",
 ];
 
 const ORDEN: Record<NombreTabla, { columna: string; ascendente?: boolean }> = {
@@ -47,6 +49,7 @@ const ORDEN: Record<NombreTabla, { columna: string; ascendente?: boolean }> = {
   movimientos: { columna: "fecha", ascendente: false },
   reglas_categoria: { columna: "creada_en" },
   cierres_mensuales: { columna: "periodo" },
+  notas: { columna: "actualizada_en", ascendente: false },
 };
 
 const VACIO: Filas = {
@@ -57,6 +60,7 @@ const VACIO: Filas = {
   movimientos: [],
   reglas_categoria: [],
   cierres_mensuales: [],
+  notas: [],
 };
 
 interface ValorHogar {
@@ -77,6 +81,7 @@ interface ValorHogar {
   movimientos: Movimiento[];
   reglas: ReglaCategoria[];
   cierres: CierreMensual[];
+  notas: Nota[];
 
   cargando: boolean;
   error: string;
@@ -370,6 +375,7 @@ export function HogarProvider({ children }: { children: ReactNode }) {
       movimientos: filas.movimientos,
       reglas: filas.reglas_categoria,
       cierres: filas.cierres_mensuales,
+      notas: filas.notas,
       cargando,
       error,
       errorEscritura,

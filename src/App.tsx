@@ -14,6 +14,7 @@ import { Deudas } from "@/Pages/Deudas/Deudas";
 import { Metas } from "@/Pages/Metas/Metas";
 import { Historico } from "@/Pages/Historico/Historico";
 import { Sugerencias } from "@/Pages/Sugerencias/Sugerencias";
+import { Notas } from "@/Pages/Notas/Notas";
 import { Importar } from "@/Pages/Importar/Importar";
 import { Ajustes } from "@/Pages/Ajustes/Ajustes";
 
@@ -41,6 +42,7 @@ export function App() {
           <Route path="metas" element={<Metas />} />
           <Route path="historico" element={<Historico />} />
           <Route path="sugerencias" element={<Sugerencias />} />
+          <Route path="notas" element={<Notas />} />
           <Route path="importar" element={<Importar />} />
           <Route path="ajustes" element={<Ajustes />} />
         </Route>
