@@ -80,7 +80,9 @@ export function Movimientos() {
     await crear("movimientos", {
       fecha: nuevo.fecha,
       concepto: nuevo.concepto.trim() || "Sin descripción",
-      categoria: nuevo.categoria,
+      // La columna no admite nulos; para un ingreso el valor es indiferente
+      // porque ningún cálculo lo mira.
+      categoria: nuevo.clase === "ingreso" ? "Otros" : nuevo.categoria,
       monto: nuevo.monto,
       clase: nuevo.clase,
       pagado_por: nuevo.pagado_por,
@@ -169,20 +171,24 @@ export function Movimientos() {
             />
           </label>
 
-          <label className={css.campo}>
-            <span className="eyebrow">Categoría</span>
-            <select
-              className="campo"
-              value={nuevo.categoria}
-              onChange={(e) => setNuevo({ ...nuevo, categoria: e.target.value as Categoria })}
-            >
-              {opcionesCategoria.map((c) => (
-                <option key={c.clave} value={c.clave}>
-                  {c.nombre}
-                </option>
-              ))}
-            </select>
-          </label>
+          {/* Un ingreso no tiene categoría de gasto: pedirla obligaba a
+              malgastar una de las nueve para poder clasificar el sueldo. */}
+          {nuevo.clase === "gasto" && (
+            <label className={css.campo}>
+              <span className="eyebrow">Categoría</span>
+              <select
+                className="campo"
+                value={nuevo.categoria}
+                onChange={(e) => setNuevo({ ...nuevo, categoria: e.target.value as Categoria })}
+              >
+                {opcionesCategoria.map((c) => (
+                  <option key={c.clave} value={c.clave}>
+                    {c.nombre}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
           <label className={css.campo}>
             <span className="eyebrow">Tipo</span>
@@ -231,6 +237,16 @@ export function Movimientos() {
             Anotar
           </button>
         </form>
+
+        {/* Se mira un mes y se anota en otro: el movimiento se guarda bien
+            pero desaparece de la vista, y parece que no se hubiera guardado. */}
+        {mesDe(nuevo.fecha) !== mes && (
+          <p className={css.avisoMes}>
+            Esta fecha cae en <b>{nombrePeriodo(`${mesDe(nuevo.fecha)}-01`)}</b>, pero estás viendo{" "}
+            <b>{nombrePeriodo(`${mes}-01`)}</b>. El movimiento se guardará donde dice la fecha y no
+            aparecerá en esta lista.
+          </p>
+        )}
       </section>
 
       <section className="panel">
@@ -291,19 +307,23 @@ export function Movimientos() {
                     />
                   </td>
                   <td>
-                    <select
-                      aria-label="Categoría"
-                      value={m.categoria}
-                      onChange={(e) =>
-                        void editar("movimientos", m.id, { categoria: e.target.value })
-                      }
-                    >
-                      {opcionesCategoria.map((c) => (
-                        <option key={c.clave} value={c.clave}>
-                          {c.nombre}
-                        </option>
-                      ))}
-                    </select>
+                    {m.clase === "ingreso" ? (
+                      <span style={{ color: "var(--ink-3)", fontSize: 13, paddingLeft: 7 }}>—</span>
+                    ) : (
+                      <select
+                        aria-label="Categoría"
+                        value={m.categoria}
+                        onChange={(e) =>
+                          void editar("movimientos", m.id, { categoria: e.target.value })
+                        }
+                      >
+                        {opcionesCategoria.map((c) => (
+                          <option key={c.clave} value={c.clave}>
+                            {c.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   </td>
                   <td>
                     <SelectorPersona

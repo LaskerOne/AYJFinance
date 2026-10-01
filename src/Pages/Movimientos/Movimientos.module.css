@@ -125,3 +125,16 @@
 .malo {
   color: var(--crit-ink);
 }
+
+.avisoMes {
+  margin-top: 14px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--warn-ink);
+  background: color-mix(in srgb, var(--warn) 14%, transparent);
+  border-radius: var(--r-sm);
+  padding: 9px 12px;
+}
+.avisoMes b {
+  text-transform: capitalize;
+}
