@@ -41,6 +41,31 @@ export const COLOR_CATEGORIA: Record<Categoria, string> = {
   Otros: "--cat-otros",
 };
 
+/** Catálogo aparte para los ingresos: comparten columna con las categorías
+ *  de gasto pero nunca el mismo cálculo, porque todo filtra antes por clase. */
+export const CATEGORIAS_INGRESO = [
+  "Salario",
+  "Independiente",
+  "Arriendo",
+  "Bonos",
+  "Otros ingresos",
+] as const;
+
+export type CategoriaIngreso = (typeof CATEGORIAS_INGRESO)[number];
+
+/**
+ * Tonos del desglose de ingresos. Salen de la misma paleta verificada que
+ * las categorías de gasto —son hues, no categorías— y nunca aparecen juntos
+ * en un mismo gráfico, así que no compiten entre sí.
+ */
+export const COLOR_CATEGORIA_INGRESO: Record<CategoriaIngreso, string> = {
+  Salario: "--cat-vivienda", // azul
+  Independiente: "--cat-mercado", // naranja
+  Arriendo: "--cat-transporte", // aguamarina
+  Bonos: "--cat-servicios", // ámbar
+  "Otros ingresos": "--cat-otros", // gris
+};
+
 export type Frecuencia =
   | "quincenal"
   | "mensual"
@@ -169,12 +194,15 @@ export interface Meta {
   creado_en: string;
 }
 
+/** Un movimiento usa un catálogo u otro según sea gasto o ingreso. */
+export type CategoriaMovimiento = Categoria | CategoriaIngreso;
+
 export interface Movimiento {
   id: string;
   hogar_id: string;
   fecha: string;
   concepto: string;
-  categoria: Categoria;
+  categoria: CategoriaMovimiento;
   monto: number;
   clase: ClaseMovimiento;
   pagado_por: string | null;

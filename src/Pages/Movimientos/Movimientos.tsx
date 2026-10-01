@@ -6,10 +6,16 @@ import { SelectorPersona } from "@/components/ui/SelectorPersona";
 import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
 import { useCategorias } from "@/hooks/useCategorias";
+import { BarraApilada, type Segmento } from "@/components/charts/BarraApilada";
 import { gastoMensual } from "@/lib/calculos";
 import { EnlaceEditar } from "@/components/ui/EnlaceEditar";
 import { aNumero, fechaCorta, hoyISO, nombrePeriodo } from "@/lib/formato";
-import { CATEGORIAS, type Categoria, type ClaseMovimiento } from "@/models/dominio";
+import {
+  CATEGORIAS,
+  CATEGORIAS_INGRESO,
+  COLOR_CATEGORIA_INGRESO,
+  type ClaseMovimiento,
+} from "@/models/dominio";
 import {
   ComparativaPresupuesto,
   type LineaComparativa,
@@ -35,7 +41,7 @@ export function Movimientos() {
   const [nuevo, setNuevo] = useState(() => ({
     fecha: hoyISO(),
     concepto: "",
-    categoria: "Mercado" as Categoria,
+    categoria: "Mercado" as string,
     monto: 0,
     clase: "gasto" as ClaseMovimiento,
     pagado_por: idA,
@@ -74,15 +80,26 @@ export function Movimientos() {
   const presupuestoTotal = comparativa.reduce((s, c) => s + c.presupuesto, 0);
   const desviacion = gastosMes - presupuestoTotal;
 
+  // De dónde vino el dinero que entró este mes.
+  const fuentes: Segmento[] = useMemo(
+    () =>
+      CATEGORIAS_INGRESO.map((fuente) => ({
+        nombre: fuente,
+        color: COLOR_CATEGORIA_INGRESO[fuente],
+        valor: delMes
+          .filter((m) => m.clase === "ingreso" && m.categoria === fuente)
+          .reduce((s, m) => s + Number(m.monto), 0),
+      })).filter((s) => s.valor > 0),
+    [delMes],
+  );
+
   const agregar = async (e: FormEvent) => {
     e.preventDefault();
     if (nuevo.monto <= 0) return;
     await crear("movimientos", {
       fecha: nuevo.fecha,
       concepto: nuevo.concepto.trim() || "Sin descripción",
-      // La columna no admite nulos; para un ingreso el valor es indiferente
-      // porque ningún cálculo lo mira.
-      categoria: nuevo.clase === "ingreso" ? "Otros" : nuevo.categoria,
+      categoria: nuevo.categoria,
       monto: nuevo.monto,
       clase: nuevo.clase,
       pagado_por: nuevo.pagado_por,
@@ -139,6 +156,18 @@ export function Movimientos() {
             },
           ]}
         />
+
+        {fuentes.length > 0 && (
+          <div className={css.fuentes}>
+            <span className="eyebrow">De dónde vino</span>
+            <BarraApilada
+              segmentos={fuentes}
+              total={ingresosMes}
+              alto={18}
+              etiqueta="Ingresos del mes por fuente"
+            />
+          </div>
+        )}
       </section>
 
       <section className="panel">
@@ -171,31 +200,42 @@ export function Movimientos() {
             />
           </label>
 
-          {/* Un ingreso no tiene categoría de gasto: pedirla obligaba a
-              malgastar una de las nueve para poder clasificar el sueldo. */}
-          {nuevo.clase === "gasto" && (
-            <label className={css.campo}>
-              <span className="eyebrow">Categoría</span>
-              <select
-                className="campo"
-                value={nuevo.categoria}
-                onChange={(e) => setNuevo({ ...nuevo, categoria: e.target.value as Categoria })}
-              >
-                {opcionesCategoria.map((c) => (
-                  <option key={c.clave} value={c.clave}>
-                    {c.nombre}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
+          <label className={css.campo}>
+            <span className="eyebrow">{nuevo.clase === "ingreso" ? "Fuente" : "Categoría"}</span>
+            <select
+              className="campo"
+              value={nuevo.categoria}
+              onChange={(e) => setNuevo({ ...nuevo, categoria: e.target.value })}
+            >
+              {nuevo.clase === "ingreso"
+                ? CATEGORIAS_INGRESO.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))
+                : opcionesCategoria.map((c) => (
+                    <option key={c.clave} value={c.clave}>
+                      {c.nombre}
+                    </option>
+                  ))}
+            </select>
+          </label>
 
           <label className={css.campo}>
             <span className="eyebrow">Tipo</span>
             <select
               className="campo"
               value={nuevo.clase}
-              onChange={(e) => setNuevo({ ...nuevo, clase: e.target.value as ClaseMovimiento })}
+              onChange={(e) => {
+                // Al cambiar de tipo, la categoría anterior deja de existir
+                // en el catálogo nuevo: se repone con la de arranque.
+                const clase = e.target.value as ClaseMovimiento;
+                setNuevo({
+                  ...nuevo,
+                  clase,
+                  categoria: clase === "ingreso" ? "Salario" : "Mercado",
+                });
+              }}
             >
               <option value="gasto">Gasto</option>
               <option value="ingreso">Ingreso</option>
@@ -307,23 +347,25 @@ export function Movimientos() {
                     />
                   </td>
                   <td>
-                    {m.clase === "ingreso" ? (
-                      <span style={{ color: "var(--ink-3)", fontSize: 13, paddingLeft: 7 }}>—</span>
-                    ) : (
-                      <select
-                        aria-label="Categoría"
-                        value={m.categoria}
-                        onChange={(e) =>
-                          void editar("movimientos", m.id, { categoria: e.target.value })
-                        }
-                      >
-                        {opcionesCategoria.map((c) => (
-                          <option key={c.clave} value={c.clave}>
-                            {c.nombre}
-                          </option>
-                        ))}
-                      </select>
-                    )}
+                    <select
+                      aria-label={m.clase === "ingreso" ? "Fuente del ingreso" : "Categoría"}
+                      value={m.categoria}
+                      onChange={(e) =>
+                        void editar("movimientos", m.id, { categoria: e.target.value })
+                      }
+                    >
+                      {m.clase === "ingreso"
+                        ? CATEGORIAS_INGRESO.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))
+                        : opcionesCategoria.map((c) => (
+                            <option key={c.clave} value={c.clave}>
+                              {c.nombre}
+                            </option>
+                          ))}
+                    </select>
                   </td>
                   <td>
                     <SelectorPersona
