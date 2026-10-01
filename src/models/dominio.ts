@@ -207,6 +207,9 @@ export interface Movimiento {
   clase: ClaseMovimiento;
   pagado_por: string | null;
   compartido: boolean;
+  /** Compra puntual: cuenta en el gasto del mes pero no se compara contra
+   *  el presupuesto, que describe lo recurrente. */
+  extraordinario: boolean;
   metodo: string;
   origen: OrigenMovimiento;
   huella: string | null;

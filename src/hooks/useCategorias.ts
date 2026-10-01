@@ -17,10 +17,14 @@ export function useCategorias() {
     [hogar?.etiquetas_categorias],
   );
 
-  /** Nombre visible de una categoría. Cae al de fábrica si no la renombraron. */
+  /**
+   * Nombre visible de una categoría. Cae al de fábrica si no la renombraron.
+   * Acepta cualquier clave para poder usarse también con las categorías de
+   * ingreso, que no se renombran y se devuelven tal cual.
+   */
   const etiqueta = useCallback(
-    (clave: Categoria): string => {
-      const propia = etiquetas[clave];
+    (clave: string): string => {
+      const propia = etiquetas[clave as Categoria];
       return propia && propia.trim() ? propia.trim() : clave;
     },
     [etiquetas],

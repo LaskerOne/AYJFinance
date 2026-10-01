@@ -35,7 +35,7 @@ function desplazarMes(mes: string, delta: number): string {
 export function Movimientos() {
   const { movimientos, gastos, crear, editar, borrar, ladoDe, idA } = useHogar();
   const { $ } = useMoneda();
-  const { opciones: opcionesCategoria } = useCategorias();
+  const { opciones: opcionesCategoria, etiqueta: etiquetaCategoria } = useCategorias();
 
   const [mes, setMes] = useState(() => mesDe(hoyISO()));
   const [nuevo, setNuevo] = useState(() => ({
@@ -48,6 +48,7 @@ export function Movimientos() {
     // Sin marcar por defecto: marcar algo como del bote común por descuido
     // desvía el reparto entre los dos sin que nadie lo note.
     compartido: false,
+    extraordinario: false,
   }));
 
   const delMes = useMemo(
@@ -62,6 +63,15 @@ export function Movimientos() {
     .filter((m) => m.clase === "gasto")
     .reduce((s, m) => s + Number(m.monto), 0);
 
+  // Lo puntual se aparta: el presupuesto describe lo que se repite, y
+  // mezclarlo con una compra grande hace ver mal un mes que estaba bien.
+  const extraordinarios = useMemo(
+    () => delMes.filter((m) => m.clase === "gasto" && m.extraordinario),
+    [delMes],
+  );
+  const totalExtraordinario = extraordinarios.reduce((s, m) => s + Number(m.monto), 0);
+  const gastosCorrientes = gastosMes - totalExtraordinario;
+
   const comparativa: LineaComparativa[] = useMemo(() => {
     const filas = CATEGORIAS.map((categoria) => ({
       categoria,
@@ -69,7 +79,9 @@ export function Movimientos() {
         .filter((g) => g.categoria === categoria)
         .reduce((s, g) => s + gastoMensual(g), 0),
       ejecutado: delMes
-        .filter((m) => m.clase === "gasto" && m.categoria === categoria)
+        .filter(
+          (m) => m.clase === "gasto" && !m.extraordinario && m.categoria === categoria,
+        )
         .reduce((s, m) => s + Number(m.monto), 0),
     }));
     return filas
@@ -78,7 +90,7 @@ export function Movimientos() {
   }, [gastos, delMes]);
 
   const presupuestoTotal = comparativa.reduce((s, c) => s + c.presupuesto, 0);
-  const desviacion = gastosMes - presupuestoTotal;
+  const desviacion = gastosCorrientes - presupuestoTotal;
 
   // De dónde vino el dinero que entró este mes.
   const fuentes: Segmento[] = useMemo(
@@ -104,11 +116,12 @@ export function Movimientos() {
       clase: nuevo.clase,
       pagado_por: nuevo.pagado_por,
       compartido: nuevo.compartido,
+      extraordinario: nuevo.clase === "gasto" && nuevo.extraordinario,
       origen: "manual",
     });
     // También vuelve a cero la casilla del bote: que quede pegada de un
     // movimiento al siguiente es justo como se marcan cosas sin querer.
-    setNuevo((n) => ({ ...n, concepto: "", monto: 0, compartido: false }));
+    setNuevo((n) => ({ ...n, concepto: "", monto: 0, compartido: false, extraordinario: false }));
     setMes(mesDe(nuevo.fecha));
   };
 
@@ -140,11 +153,23 @@ export function Movimientos() {
           columnas={4}
           datos={[
             { etiqueta: "Entró", valor: $(ingresosMes), detalle: `${delMes.filter((m) => m.clase === "ingreso").length} movimientos` },
-            { etiqueta: "Salió", valor: $(gastosMes), detalle: `${delMes.filter((m) => m.clase === "gasto").length} movimientos` },
+            {
+              etiqueta: "Salió",
+              valor: $(gastosMes),
+              detalle:
+                totalExtraordinario > 0
+                  ? `Incluye ${$(totalExtraordinario)} extraordinarios`
+                  : `${delMes.filter((m) => m.clase === "gasto").length} movimientos`,
+            },
             {
               etiqueta: "Contra el presupuesto",
               valor: `${desviacion >= 0 ? "+" : "−"}${$(Math.abs(desviacion)).replace("−", "")}`,
-              detalle: desviacion >= 0 ? "Por encima de lo planeado" : "Por debajo de lo planeado",
+              detalle:
+                totalExtraordinario > 0
+                  ? "Solo gasto corriente, sin lo extraordinario"
+                  : desviacion >= 0
+                    ? "Por encima de lo planeado"
+                    : "Por debajo de lo planeado",
               tono: desviacion > 0 ? "negativo" : "positivo",
               destacado: true,
             },
@@ -273,6 +298,17 @@ export function Movimientos() {
             <span>Es del bote común</span>
           </label>
 
+          {nuevo.clase === "gasto" && (
+            <label className={`${css.campo} ${css.checkbox}`}>
+              <input
+                type="checkbox"
+                checked={nuevo.extraordinario}
+                onChange={(e) => setNuevo({ ...nuevo, extraordinario: e.target.checked })}
+              />
+              <span title="Compra puntual que no se repite">Es extraordinario</span>
+            </label>
+          )}
+
           <button type="submit" className="pill primaria" disabled={nuevo.monto <= 0}>
             Anotar
           </button>
@@ -298,6 +334,28 @@ export function Movimientos() {
           <EnlaceEditar a="/presupuesto" texto="Editar el presupuesto" />
         </header>
         <ComparativaPresupuesto lineas={comparativa} />
+
+        {extraordinarios.length > 0 && (
+          <div className={css.extraordinarios}>
+            <div className={css.extraCabeza}>
+              <span className="eyebrow">Aparte · gastos extraordinarios</span>
+              <span className={css.extraTotal}>{$(totalExtraordinario)}</span>
+            </div>
+            <p className={css.extraNota}>
+              Compras puntuales que no se repiten. Salieron del bolsillo igual, pero no se
+              comparan contra el presupuesto porque este describe lo recurrente.
+            </p>
+            <ul className={css.extraLista}>
+              {extraordinarios.map((m) => (
+                <li key={m.id}>
+                  <span className={css.extraConcepto}>{m.concepto}</span>
+                  <span className={css.extraCategoria}>{etiquetaCategoria(m.categoria)}</span>
+                  <span className={css.extraMonto}>{$(Number(m.monto))}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </section>
 
       <section className="panel">
@@ -385,6 +443,7 @@ export function Movimientos() {
                   <td style={{ whiteSpace: "nowrap" }}>
                     {m.clase === "ingreso" && <Etiqueta lado="comun" texto="Ingreso" />}
                     {m.compartido && <Etiqueta lado="comun" texto="Bote" />}
+                    {m.extraordinario && <Etiqueta lado="b" texto="Extra" />}
                     {m.origen === "importado" && <Etiqueta lado={ladoDe(m.pagado_por)} texto="CSV" />}
                     <button
                       className="borrar"
