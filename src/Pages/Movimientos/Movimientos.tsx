@@ -39,7 +39,9 @@ export function Movimientos() {
     monto: 0,
     clase: "gasto" as ClaseMovimiento,
     pagado_por: idA,
-    compartido: true,
+    // Sin marcar por defecto: marcar algo como del bote común por descuido
+    // desvía el reparto entre los dos sin que nadie lo note.
+    compartido: false,
   }));
 
   const delMes = useMemo(
@@ -85,7 +87,9 @@ export function Movimientos() {
       compartido: nuevo.compartido,
       origen: "manual",
     });
-    setNuevo((n) => ({ ...n, concepto: "", monto: 0 }));
+    // También vuelve a cero la casilla del bote: que quede pegada de un
+    // movimiento al siguiente es justo como se marcan cosas sin querer.
+    setNuevo((n) => ({ ...n, concepto: "", monto: 0, compartido: false }));
     setMes(mesDe(nuevo.fecha));
   };
 
@@ -318,6 +322,7 @@ export function Movimientos() {
                   </td>
                   <td style={{ whiteSpace: "nowrap" }}>
                     {m.clase === "ingreso" && <Etiqueta lado="comun" texto="Ingreso" />}
+                    {m.compartido && <Etiqueta lado="comun" texto="Bote" />}
                     {m.origen === "importado" && <Etiqueta lado={ladoDe(m.pagado_por)} texto="CSV" />}
                     <button
                       className="borrar"
