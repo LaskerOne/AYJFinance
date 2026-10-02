@@ -9,9 +9,21 @@ import { useMoneda } from "@/hooks/useMoneda";
 import { useCategorias } from "@/hooks/useCategorias";
 import { cerrarMes } from "@/services/coleccion.service";
 import { mensajeDeError } from "@/services/supabase";
-import { nombrePeriodo, porcentaje, primerDiaDelMes } from "@/lib/formato";
+import { nombrePeriodo, porcentaje } from "@/lib/formato";
 import { COLOR_CATEGORIA, type Categoria } from "@/models/dominio";
 import css from "./Historico.module.css";
+
+/** Mes actual en formato YYYY-MM, que es lo que entiende <input type="month">. */
+function mesActual(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function mesAnterior(mes: string): string {
+  const [a, m] = mes.split("-").map(Number);
+  const d = new Date(a, m - 2, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
 
 export function Historico() {
   const { cierres, hogar, recargar } = useHogar();
@@ -19,6 +31,10 @@ export function Historico() {
   const { etiqueta } = useCategorias();
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
+
+  // Un mes se cierra cuando ya terminó, así que lo natural al entrar aquí es
+  // el mes pasado, no el que está corriendo.
+  const [periodo, setPeriodo] = useState(() => mesAnterior(mesActual()));
 
   const ordenados = useMemo(
     () => [...cierres].sort((a, b) => (a.periodo < b.periodo ? -1 : 1)),
@@ -66,7 +82,7 @@ export function Historico() {
     setError("");
     setGuardando(true);
     try {
-      await cerrarMes(hogar.id, primerDiaDelMes());
+      await cerrarMes(hogar.id, `${periodo}-01`);
       await recargar();
     } catch (e) {
       setError(mensajeDeError(e));
@@ -74,6 +90,8 @@ export function Historico() {
       setGuardando(false);
     }
   };
+
+  const yaCerrado = ordenados.some((c) => c.periodo.slice(0, 7) === periodo);
 
   return (
     <>
@@ -86,10 +104,37 @@ export function Historico() {
               cerrar el mismo mes, se recalcula con los datos de hoy.
             </p>
           </div>
-          <button className="pill primaria" onClick={() => void cerrar()} disabled={guardando}>
-            {guardando ? "Cerrando…" : `Cerrar ${nombrePeriodo(primerDiaDelMes())}`}
-          </button>
+          <div className={css.cierre}>
+            <label className={css.selectorMes}>
+              <span className="eyebrow">Mes a cerrar</span>
+              <input
+                className="campo"
+                type="month"
+                value={periodo}
+                max={mesActual()}
+                onChange={(e) => e.target.value && setPeriodo(e.target.value)}
+              />
+            </label>
+            <button className="pill primaria" onClick={() => void cerrar()} disabled={guardando}>
+              {guardando ? "Cerrando…" : yaCerrado ? "Recalcular" : "Cerrar mes"}
+            </button>
+          </div>
         </header>
+
+        <p className={css.pistaCierre}>
+          {yaCerrado ? (
+            <>
+              <b>{nombrePeriodo(`${periodo}-01`)}</b> ya está cerrado. Volver a cerrarlo lo
+              recalcula con los datos de hoy, que es justo lo que hay que hacer después de
+              corregir movimientos.
+            </>
+          ) : (
+            <>
+              Se congelarán los totales de <b>{nombrePeriodo(`${periodo}-01`)}</b>: ingresos,
+              gastos, cuotas, ahorro y deuda, más el desglose por categoría.
+            </>
+          )}
+        </p>
 
         {error && <p className={css.error}>{error}</p>}
 

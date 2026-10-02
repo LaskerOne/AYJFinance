@@ -36,3 +36,30 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+/* --- cierre de mes ------------------------------------------------------ */
+.cierre {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.selectorMes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.selectorMes input {
+  min-width: 160px;
+}
+.pistaCierre {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-3);
+  max-width: 76ch;
+  margin-bottom: 18px;
+}
+.pistaCierre b {
+  color: var(--ink-2);
+  text-transform: capitalize;
+}
