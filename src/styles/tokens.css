@@ -48,20 +48,20 @@
   --crit-ink: #ab3c1e;
 
   /* categorías de gasto · orden fijo, el color sigue a la categoría */
-  --cat-vivienda: #2a78d6;
-  --cat-mercado: #e05512;
-  --cat-servicios: #0e8fa6;
-  --cat-transporte: #e34948;
-  --cat-salud: #6a52d8;
-  --cat-ocio: #1d8a3c;
-  --cat-personal: #c94f78;
-  --cat-educacion: #866a02;
+  --cat-vivienda: #35a271;
+  --cat-mercado: #1d6b38;
+  --cat-servicios: #549e2b;
+  --cat-transporte: #0d6e43;
+  --cat-salud: #7a9a17;
+  --cat-ocio: #265f0b;
+  --cat-personal: #3f9e4f;
+  --cat-educacion: #116b45;
   --cat-otros: #8b968c;
 
   /* segmentos de las barras apiladas */
   --s-ingreso: #637d00;
-  --s-gasto: #c2416b;
-  --s-deuda: #6a52d8;
+  --s-gasto: #7e68ea;
+  --s-deuda: #4f3bb0;
   --s-ahorro: #0e8fa6;
   --s-libre: #b5bfb3;
 
@@ -129,19 +129,19 @@
     --serious: #e8936a;
     --crit-ink: #f59a7e;
 
-    --cat-vivienda: #4a90e8;
-    --cat-mercado: #e05b28;
-    --cat-servicios: #1da5bd;
-    --cat-transporte: #e66767;
-    --cat-salud: #8471e3;
-    --cat-ocio: #35a553;
-    --cat-personal: #d4538a;
-    --cat-educacion: #b78a09;
+    --cat-vivienda: #42a677;
+    --cat-mercado: #27754a;
+    --cat-servicios: #5fa63e;
+    --cat-transporte: #0f7a5c;
+    --cat-salud: #7aa228;
+    --cat-ocio: #27741f;
+    --cat-personal: #67a73a;
+    --cat-educacion: #1f7a46;
     --cat-otros: #7d897e;
 
     --s-ingreso: #74a31c;
-    --s-gasto: #d4538a;
-    --s-deuda: #8471e3;
+    --s-gasto: #8f7cea;
+    --s-deuda: #5f4bc4;
     --s-ahorro: #1da5bd;
     --s-libre: #46544a;
 
@@ -191,19 +191,19 @@
   --serious: #e8936a;
   --crit-ink: #f59a7e;
 
-  --cat-vivienda: #4a90e8;
-  --cat-mercado: #e05b28;
-  --cat-servicios: #1da5bd;
-  --cat-transporte: #e66767;
-  --cat-salud: #8471e3;
-  --cat-ocio: #35a553;
-  --cat-personal: #d4538a;
-  --cat-educacion: #b78a09;
+  --cat-vivienda: #42a677;
+  --cat-mercado: #27754a;
+  --cat-servicios: #5fa63e;
+  --cat-transporte: #0f7a5c;
+  --cat-salud: #7aa228;
+  --cat-ocio: #27741f;
+  --cat-personal: #67a73a;
+  --cat-educacion: #1f7a46;
   --cat-otros: #7d897e;
 
   --s-ingreso: #74a31c;
-  --s-gasto: #d4538a;
-  --s-deuda: #8471e3;
+  --s-gasto: #8f7cea;
+  --s-deuda: #5f4bc4;
   --s-ahorro: #1da5bd;
   --s-libre: #46544a;
 

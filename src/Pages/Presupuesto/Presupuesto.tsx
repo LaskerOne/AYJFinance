@@ -39,7 +39,7 @@ export function Presupuesto() {
       <section className="panel hero heroGrid">
         <div className="heroCifras">
           <span className="eyebrow">Comprometido cada mes</span>
-          <span className="heroNumero heroMag">
+          <span className="heroNumero heroVio">
             <Cifra valor={comprometido} formato={$} />
           </span>
           <span className="heroDetalle">

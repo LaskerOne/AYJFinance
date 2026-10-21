@@ -1,5 +1,4 @@
 import { useMemo, useState, type FormEvent } from "react";
-import { FilaKpi } from "@/components/ui/Kpi";
 import { Cifra } from "@/components/ui/Cifra";
 import { AreaGlow } from "@/components/charts/AreaGlow";
 import { Estado, Etiqueta } from "@/components/ui/Etiqueta";
@@ -222,37 +221,8 @@ export function Movimientos() {
         </div>
       </section>
 
-      <FilaKpi
-        columnas={3}
-        datos={[
-          {
-            etiqueta: "Entró",
-            valor: <Cifra valor={ingresosMes} formato={$} />,
-            detalle: `${delMes.filter((m) => m.clase === "ingreso").length} movimientos`,
-          },
-          {
-            etiqueta: "Salió",
-            valor: <Cifra valor={gastosMes} formato={$} />,
-            detalle:
-              totalExtraordinario > 0
-                ? `Incluye ${$(totalExtraordinario)} extraordinarios`
-                : `${delMes.filter((m) => m.clase === "gasto").length} movimientos`,
-          },
-          {
-            etiqueta: "Contra el presupuesto",
-            valor: `${desviacion >= 0 ? "+" : "−"}${$(Math.abs(desviacion)).replace("−", "")}`,
-            detalle:
-              totalExtraordinario > 0
-                ? "Solo gasto corriente, sin lo extraordinario"
-                : desviacion >= 0
-                  ? "Por encima de lo planeado"
-                  : "Por debajo de lo planeado",
-            tono: desviacion > 0 ? "negativo" : "positivo",
-            destacado: true,
-          },
-        ]}
-      />
-
+      {/* Entró, salió y la desviación ya viven en el héroe: una fila de
+          tarjetas repitiéndolos era ruido. */}
       {fuentes.length > 0 && (
         <section className="panel">
           <header>

@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { EnlaceEditar } from "@/components/ui/EnlaceEditar";
-import { BarraApilada, type Segmento } from "@/components/charts/BarraApilada";
 import { AreaGlow } from "@/components/charts/AreaGlow";
 import { BarrasRanking } from "@/components/charts/BarrasRanking";
 import { BarraProgreso } from "@/components/charts/BarraProgreso";
@@ -22,13 +21,6 @@ export function Resumen() {
   const { $ } = useMoneda();
   const { etiqueta } = useCategorias();
   const { movimientos } = useHogar();
-
-  const flujo: Segmento[] = [
-    { nombre: "Gastos de vida", valor: f.gastos, color: "--s-gasto" },
-    { nombre: "Cuotas de deuda", valor: f.cuotas, color: "--s-deuda" },
-    { nombre: "Aportes a metas", valor: f.aportes, color: "--s-ahorro" },
-    { nombre: "Sin asignar", valor: Math.max(0, f.libre), color: "--s-libre" },
-  ];
 
   const mesesColchon = f.mesesColchon;
   const estadoColchon = mesesColchon >= 6 ? "ok" : mesesColchon >= 3 ? "warn" : "crit";
@@ -114,36 +106,16 @@ export function Resumen() {
 
       <TarjetasPersonas finanzas={f} />
 
-      <section className="panel">
-        <header>
-          <div>
-            <h2>A dónde va cada peso del mes</h2>
-            <p className="nota">Sobre el ingreso total, ya normalizado a valor mensual.</p>
-          </div>
-          <EnlaceEditar a="/presupuesto" texto="Editar en Presupuesto" />
-        </header>
-
-        <BarraApilada segmentos={flujo} total={f.ingreso} etiqueta="Reparto del ingreso mensual" />
-
-        <p className={css.pieFlujo}>
-          De los gastos de vida, <b className="num">{$(f.gastosFijos)}</b> son fijos y{" "}
-          <b className="num">{$(f.gastosVariables)}</b> variables.
-          {esteMes.length > 0 && (
-            <>
-              {" "}
-              Este mes llevan <b className="num">{$(gastadoEsteMes)}</b> ejecutados en{" "}
-              <Link to="/movimientos">{esteMes.length} movimientos</Link>.
-            </>
-          )}
+      {/* El reparto completo del ingreso vive en el héroe de Presupuesto;
+          repetirlo aquí era contar lo mismo dos veces. El descuadre sí se
+          queda: es una alerta, no un detalle. */}
+      {f.libre < 0 && (
+        <p className={css.alerta}>
+          <Estado tono="crit">Descuadre</Estado> Los aportes a metas superan en{" "}
+          <b className="num">{$(-f.libre)}</b> lo que queda después de gastos y cuotas.{" "}
+          <Link to="/presupuesto">Revisar el presupuesto</Link>.
         </p>
-
-        {f.libre < 0 && (
-          <p className={css.alerta}>
-            <Estado tono="crit">Descuadre</Estado> Los aportes a metas superan en{" "}
-            <b className="num">{$(-f.libre)}</b> lo que queda después de gastos y cuotas.
-          </p>
-        )}
-      </section>
+      )}
 
       <div className="grid2">
         <section className="panel">

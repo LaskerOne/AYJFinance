@@ -38,33 +38,7 @@
   box-shadow: var(--shadow), var(--luz-borde), var(--glow-b),
     0 0 20px -8px color-mix(in srgb, var(--a-ink) 40%, transparent);
 }
-/* El borde viajero: un tramo de luz lima da vueltas al perímetro. */
-.kpi::after {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1.5px;
-  background: conic-gradient(
-    from var(--ang),
-    transparent 0 8%,
-    color-mix(in srgb, var(--a-ink) 55%, transparent) 14%,
-    var(--a-ink) 18%,
-    color-mix(in srgb, var(--a-ink) 55%, transparent) 22%,
-    transparent 28% 100%
-  );
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.25s;
-  pointer-events: none;
-}
-.kpi:hover::after {
-  opacity: 1;
-  animation: girarBorde 2.4s linear infinite;
-}
+/* El borde viajero vive en la utilidad global .bordeViajero. */
 /* Todas visten igual; la clase queda por compatibilidad. */
 .destacado {
   border-color: color-mix(in srgb, var(--a) 24%, var(--line));

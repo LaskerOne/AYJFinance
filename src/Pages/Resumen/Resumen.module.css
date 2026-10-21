@@ -254,6 +254,8 @@
   margin-bottom: 14px;
 }
 .colchonNumero {
+  color: var(--a-ink);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--a-ink) 30%, transparent);
   font-family: var(--display);
   font-weight: 800;
   font-size: 38px;

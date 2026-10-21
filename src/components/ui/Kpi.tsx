@@ -34,7 +34,7 @@ export function FilaKpi({ datos, columnas }: { datos: DatoKpi[]; columnas?: numb
       {datos.map((d) => (
         <div
           key={d.etiqueta}
-          className={`${css.kpi} ${d.destacado ? css.destacado : ""}`}
+          className={`bordeViajero ${css.kpi} ${d.destacado ? css.destacado : ""}`}
           onMouseMove={inclinar}
           onMouseLeave={enderezar}
         >
