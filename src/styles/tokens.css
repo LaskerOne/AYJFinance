@@ -41,11 +41,11 @@
   /* estado · nunca se usan como color de serie */
   --ok: #0ca30c;
   --warn: #fab219;
-  --serious: #ec835a;
-  --crit: #d03b3b;
+  --serious: #e07a4e;
+  --crit: #c7502f;
   --ok-ink: #0a7a1e;
   --warn-ink: #8a6200;
-  --crit-ink: #a82c2c;
+  --crit-ink: #ab3c1e;
 
   /* categorías de gasto · orden fijo, el color sigue a la categoría */
   --cat-vivienda: #2a78d6;
@@ -125,7 +125,9 @@
 
     --ok-ink: #5fcb5f;
     --warn-ink: #f4b63a;
-    --crit-ink: #f08080;
+    --crit: #e0593a;
+    --serious: #e8936a;
+    --crit-ink: #f59a7e;
 
     --cat-vivienda: #4a90e8;
     --cat-mercado: #e05b28;
@@ -185,7 +187,9 @@
 
   --ok-ink: #5fcb5f;
   --warn-ink: #f4b63a;
-  --crit-ink: #f08080;
+  --crit: #e0593a;
+  --serious: #e8936a;
+  --crit-ink: #f59a7e;
 
   --cat-vivienda: #4a90e8;
   --cat-mercado: #e05b28;

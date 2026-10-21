@@ -26,12 +26,13 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
-  transition: transform var(--t-1), border-color var(--t-1);
+  transition: transform var(--t-1), border-color var(--t-1), box-shadow var(--t-1);
   animation: aparecer var(--t-2) backwards;
 }
 .kpi:hover {
   transform: translateY(-2px);
-  border-color: var(--line-2);
+  border-color: color-mix(in srgb, var(--a-ink) 45%, var(--line));
+  box-shadow: var(--shadow), var(--luz-borde), var(--glow-a);
 }
 .destacado {
   background: var(--grad-hero);
