@@ -17,8 +17,9 @@
 }
 
 .kpi {
-  background: var(--grad-panel), var(--surface);
-  border: 1px solid var(--line);
+  position: relative;
+  background: var(--grad-hero);
+  border: 1px solid color-mix(in srgb, var(--a) 24%, var(--line));
   border-radius: var(--r-lg);
   box-shadow: var(--shadow), var(--luz-borde);
   padding: 15px 17px 17px;
@@ -34,12 +35,39 @@
 .kpi:hover {
   transform: perspective(750px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg))
     translateY(-3px) scale(1.015);
-  border-color: color-mix(in srgb, var(--a-ink) 45%, var(--line));
-  box-shadow: var(--shadow), var(--luz-borde), var(--glow-a);
+  box-shadow: var(--shadow), var(--luz-borde), var(--glow-b),
+    0 0 20px -8px color-mix(in srgb, var(--a-ink) 40%, transparent);
 }
+/* El borde viajero: un tramo de luz lima da vueltas al perímetro. */
+.kpi::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--ang),
+    transparent 0 8%,
+    color-mix(in srgb, var(--a-ink) 55%, transparent) 14%,
+    var(--a-ink) 18%,
+    color-mix(in srgb, var(--a-ink) 55%, transparent) 22%,
+    transparent 28% 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.kpi:hover::after {
+  opacity: 1;
+  animation: girarBorde 2.4s linear infinite;
+}
+/* Todas visten igual; la clase queda por compatibilidad. */
 .destacado {
-  background: var(--grad-hero);
-  border-color: color-mix(in srgb, var(--a) 26%, var(--line));
+  border-color: color-mix(in srgb, var(--a) 24%, var(--line));
 }
 
 .valor {

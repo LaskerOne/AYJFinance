@@ -34,6 +34,19 @@ function desplazarMes(mes: string, delta: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
+/** Lunes de la semana a la que pertenece la fecha. */
+function inicioSemana(iso: string): string {
+  const d = new Date(`${iso}T00:00:00`);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function sumarDias(iso: string, n: number): string {
+  const d = new Date(`${iso}T00:00:00`);
+  d.setDate(d.getDate() + n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export function Movimientos() {
   const { movimientos, gastos, crear, editar, borrar, ladoDe, idA } = useHogar();
   const { $ } = useMoneda();
@@ -57,6 +70,21 @@ export function Movimientos() {
     () => movimientos.filter((m) => mesDe(m.fecha) === mes),
     [movimientos, mes],
   );
+
+  // El mes entero de corrido se vuelve denso: se agrupa por semanas y cada
+  // una se abre o cierra. Qué está abierto lo decide el usuario; de arranque,
+  // solo la semana más reciente.
+  const [abiertas, setAbiertas] = useState<Record<string, boolean>>({});
+  const semanas = useMemo(() => {
+    const mapa = new Map<string, typeof delMes>();
+    for (const m of delMes) {
+      const clave = inicioSemana(m.fecha);
+      const lista = mapa.get(clave);
+      if (lista) lista.push(m);
+      else mapa.set(clave, [m]);
+    }
+    return [...mapa.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1));
+  }, [delMes]);
 
   const ingresosMes = delMes
     .filter((m) => m.clase === "ingreso")
@@ -413,6 +441,48 @@ export function Movimientos() {
           </div>
         </header>
 
+        {delMes.length === 0 && (
+          <p className="vacio">
+            Sin movimientos en {nombrePeriodo(`${mes}-01`)}. Anota uno arriba o importa el
+            extracto del banco.
+          </p>
+        )}
+
+        {semanas.map(([clave, lista], idx) => {
+          const entroSemana = lista
+            .filter((m) => m.clase === "ingreso")
+            .reduce((s, m) => s + Number(m.monto), 0);
+          const salioSemana = lista
+            .filter((m) => m.clase === "gasto")
+            .reduce((s, m) => s + Number(m.monto), 0);
+          return (
+        <details
+          key={clave}
+          className={css.semana}
+          open={abiertas[clave] ?? idx === 0}
+          onToggle={(e) => {
+            const abierta = e.currentTarget.open;
+            setAbiertas((s) => (s[clave] === abierta ? s : { ...s, [clave]: abierta }));
+          }}
+        >
+          <summary className={css.semanaCabeza}>
+            <span className={css.semanaFlecha} aria-hidden="true">
+              ▸
+            </span>
+            <span className={css.semanaTitulo}>
+              Del {fechaCorta(clave)} al {fechaCorta(sumarDias(clave, 6))}
+            </span>
+            <span className={css.semanaDatos}>
+              {lista.length} {lista.length === 1 ? "movimiento" : "movimientos"}
+              {entroSemana > 0 && (
+                <>
+                  {" "}
+                  · entró <b className="num">{$(entroSemana)}</b>
+                </>
+              )}{" "}
+              · salió <b className="num">{$(salioSemana)}</b>
+            </span>
+          </summary>
         <div className="tablaScroll">
           <table className="datos">
             <thead>
@@ -426,17 +496,7 @@ export function Movimientos() {
               </tr>
             </thead>
             <tbody>
-              {delMes.length === 0 && (
-                <tr>
-                  <td colSpan={6}>
-                    <p className="vacio">
-                      Sin movimientos en {nombrePeriodo(`${mes}-01`)}. Anota uno arriba o importa el
-                      extracto del banco.
-                    </p>
-                  </td>
-                </tr>
-              )}
-              {delMes.map((m) => (
+              {lista.map((m) => (
                 <tr key={m.id}>
                   <td style={{ whiteSpace: "nowrap", fontSize: 12.5, color: "var(--ink-2)" }}>
                     {fechaCorta(m.fecha)}
@@ -505,6 +565,9 @@ export function Movimientos() {
             </tbody>
           </table>
         </div>
+        </details>
+          );
+        })}
       </section>
     </>
   );

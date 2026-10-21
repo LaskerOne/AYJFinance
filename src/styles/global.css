@@ -334,13 +334,15 @@ img {
   border-radius: var(--r-sm);
   transition: width var(--t-2);
 }
+/* La marca del presupuesto: ámbar y con halo, que se vea dónde está la raya. */
 .barra .marca {
   position: absolute;
-  top: -4px;
-  bottom: -4px;
-  width: 2px;
-  background: var(--ink-3);
+  top: -5px;
+  bottom: -5px;
+  width: 3px;
+  background: var(--warn-ink);
   border-radius: 2px;
+  box-shadow: 0 0 7px color-mix(in srgb, var(--warn) 75%, transparent);
 }
 
 /* --- tablas ------------------------------------------------------------- */
@@ -527,4 +529,60 @@ table.datos tbody tr:nth-child(n + 10) { animation-delay: 300ms; }
   border-color: color-mix(in srgb, var(--a-ink) 35%, var(--line));
   box-shadow: var(--shadow), var(--luz-borde),
     0 0 24px -10px color-mix(in srgb, var(--a-ink) 45%, transparent);
+}
+
+/* --- borde viajero ---------------------------------------------------------
+   Un tramo de luz recorre el perímetro de la tarjeta, como una onda.
+   Necesita registrar el ángulo para poder animarse. */
+@property --ang {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes girarBorde {
+  to {
+    --ang: 360deg;
+  }
+}
+
+/* Los números gigantes palpitan: escala y halo respiran juntos. */
+@keyframes palpitar {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.018);
+  }
+}
+.heroNumero {
+  display: inline-block;
+  transform-origin: left center;
+  animation: palpitar 2.8s ease-in-out 1s infinite;
+}
+@keyframes palpitarHaloPos {
+  0%,
+  100% {
+    text-shadow: 0 0 22px color-mix(in srgb, var(--a-ink) 28%, transparent);
+  }
+  50% {
+    text-shadow: 0 0 38px color-mix(in srgb, var(--a-ink) 55%, transparent);
+  }
+}
+.heroPos {
+  animation: palpitar 2.8s ease-in-out 1s infinite,
+    palpitarHaloPos 2.8s ease-in-out 1s infinite;
+}
+@keyframes palpitarHaloNeg {
+  0%,
+  100% {
+    text-shadow: 0 0 22px color-mix(in srgb, var(--crit) 28%, transparent);
+  }
+  50% {
+    text-shadow: 0 0 38px color-mix(in srgb, var(--crit) 55%, transparent);
+  }
+}
+.heroNeg {
+  animation: palpitar 2.8s ease-in-out 1s infinite,
+    palpitarHaloNeg 2.8s ease-in-out 1s infinite;
 }

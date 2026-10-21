@@ -236,3 +236,63 @@
 .filaComparativa:hover :global(.barra) :global(.fill) {
   filter: brightness(1.15);
 }
+
+/* --- semanas desplegables -------------------------------------------------- */
+.semana {
+  border-top: 1px solid var(--line);
+}
+.semana:first-of-type {
+  border-top: none;
+}
+.semanaCabeza {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 11px 6px;
+  margin-inline: -6px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: background var(--t-1);
+}
+.semanaCabeza::-webkit-details-marker {
+  display: none;
+}
+.semanaCabeza:hover {
+  background: var(--surface-2);
+}
+.semanaFlecha {
+  display: inline-block;
+  color: var(--a-ink);
+  font-size: 12px;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.semana[open] .semanaFlecha {
+  transform: rotate(90deg);
+}
+.semanaTitulo {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 13.5px;
+}
+.semanaDatos {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.semanaDatos b {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.semana[open] > :global(.tablaScroll) {
+  animation: despliegaSemana 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes despliegaSemana {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
