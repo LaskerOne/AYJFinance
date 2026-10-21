@@ -602,3 +602,19 @@ table.datos tbody tr:nth-child(n + 10) { animation-delay: 300ms; }
   animation: palpitar 2.8s ease-in-out 1s infinite,
     palpitarHaloVio 2.8s ease-in-out 1s infinite;
 }
+
+/* Variante magenta: los compromisos de gasto visten su color de rol. */
+@keyframes palpitarHaloMag {
+  0%,
+  100% {
+    text-shadow: 0 0 22px color-mix(in srgb, var(--s-gasto) 28%, transparent);
+  }
+  50% {
+    text-shadow: 0 0 38px color-mix(in srgb, var(--s-gasto) 55%, transparent);
+  }
+}
+.heroMag {
+  color: var(--s-gasto);
+  animation: palpitar 2.8s ease-in-out 1s infinite,
+    palpitarHaloMag 2.8s ease-in-out 1s infinite;
+}

@@ -56,3 +56,28 @@
 .pie b {
   color: var(--ink);
 }
+
+/* --- vida de la lista ------------------------------------------------------- */
+@keyframes entraMeta {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.meta {
+  animation: entraMeta 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+  border-radius: var(--r-sm);
+  transition: background var(--t-1), transform var(--t-1);
+}
+.meta:hover {
+  background: var(--surface-2);
+  transform: translateX(4px);
+}
+.meta:hover :global(.barra) :global(.fill) {
+  filter: brightness(1.15);
+}
+.meta {
+  padding-inline: 6px;
+  margin-inline: -6px;
+}

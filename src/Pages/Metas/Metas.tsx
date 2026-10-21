@@ -1,4 +1,7 @@
+import { useMemo } from "react";
 import { BarraProgreso } from "@/components/charts/BarraProgreso";
+import { AreaGlow } from "@/components/charts/AreaGlow";
+import { Cifra } from "@/components/ui/Cifra";
 import { Estado, Etiqueta } from "@/components/ui/Etiqueta";
 import { CampoMoneda } from "@/components/ui/CampoMoneda";
 import { SelectorPersona } from "@/components/ui/SelectorPersona";
@@ -13,8 +16,62 @@ export function Metas() {
   const { $ } = useMoneda();
   const f = useFinanzas();
 
+  const acumuladoTotal = metas.reduce((s, m) => s + Number(m.acumulado), 0);
+  const objetivoTotal = metas.reduce((s, m) => s + Number(m.objetivo), 0);
+  const cumplidas = metas.filter(
+    (m) => Number(m.objetivo) > 0 && Number(m.acumulado) >= Number(m.objetivo),
+  ).length;
+
+  // Cómo crece el ahorro total al ritmo actual: desde hoy hasta alcanzar el
+  // objetivo (con un par de meses de aire), tope de 36 para que se lea.
+  const proyeccion = useMemo(() => {
+    const falta = Math.max(0, objetivoTotal - acumuladoTotal);
+    const horizonte =
+      f.aportes > 0 ? Math.min(36, Math.max(6, Math.ceil(falta / f.aportes) + 2)) : 12;
+    return Array.from({ length: horizonte + 1 }, (_, i) => acumuladoTotal + f.aportes * i);
+  }, [acumuladoTotal, objetivoTotal, f.aportes]);
+
   return (
     <>
+      {metas.length > 0 && (
+        <section className="panel hero heroGrid">
+          <div className="heroCifras">
+            <span className="eyebrow">Ahorrado entre todas las metas</span>
+            <span className="heroNumero heroPos">
+              <Cifra valor={acumuladoTotal} formato={$} />
+            </span>
+            <span className="heroDetalle">
+              De {$(objetivoTotal)} entre {metas.length}{" "}
+              {metas.length === 1 ? "meta" : "metas"}.
+            </span>
+            <div className="heroChips">
+              {f.aportes > 0 ? (
+                <Estado tono="ok">Aportan {$(f.aportes)} al mes</Estado>
+              ) : (
+                <Estado tono="warn">Sin aportes mensuales</Estado>
+              )}
+              {cumplidas > 0 && (
+                <Estado tono="neutro">
+                  {cumplidas} de {metas.length} cumplidas
+                </Estado>
+              )}
+            </div>
+          </div>
+          <div className="heroGrafico">
+            <span className="eyebrow">Así crece al ritmo actual</span>
+            <AreaGlow
+              puntos={proyeccion}
+              etiqueta="Proyección del ahorro total contra el objetivo"
+              etiquetaX={(i) => (i === 0 ? "hoy" : `+${i} m`)}
+              referencia={objetivoTotal}
+              etiquetaReferencia="objetivo"
+              color="--a-ink"
+              alto={185}
+            />
+          </div>
+        </section>
+      )}
+
       <section className="panel">
         <header>
           <div>
@@ -38,7 +95,7 @@ export function Metas() {
               const lista = falta <= 0;
 
               return (
-                <div key={m.id} className={css.meta}>
+                <div key={m.id} className={css.meta} style={{ ["--i" as string]: String(metas.indexOf(m)) }}>
                   <div className={css.cabeza}>
                     <span className={css.nombre}>
                       {m.nombre || "Sin nombre"}

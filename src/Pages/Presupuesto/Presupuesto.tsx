@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { Cifra } from "@/components/ui/Cifra";
+import { Estado } from "@/components/ui/Etiqueta";
+import { BarraApilada, type Segmento } from "@/components/charts/BarraApilada";
 import { CampoMoneda } from "@/components/ui/CampoMoneda";
 import { SelectorPersona } from "@/components/ui/SelectorPersona";
 import { useHogar } from "@/contexts/HogarContext";
@@ -22,7 +25,78 @@ export function Presupuesto() {
   const { opciones: opcionesCategoria } = useCategorias();
   const [pestania, setPestania] = useState<Pestania>("ingresos");
 
+  // Lo comprometido cada mes: gastos de vida, cuotas y aportes a metas.
+  const comprometido = f.gastos + f.cuotas + f.aportes;
+  const fraccionComprometida = f.ingreso > 0 ? comprometido / f.ingreso : 0;
+  const ingresoHogar = Math.max(0, f.ingreso - f.ingresoA - f.ingresoB);
+  const fuentesIngreso: Segmento[] = [
+    { nombre: "Ingresos de los dos", valor: f.ingresoA + f.ingresoB, color: "--a" },
+    { nombre: "Del hogar", valor: ingresoHogar, color: "--comun" },
+  ];
+
   return (
+    <>
+      <section className="panel hero heroGrid">
+        <div className="heroCifras">
+          <span className="eyebrow">Comprometido cada mes</span>
+          <span className="heroNumero heroMag">
+            <Cifra valor={comprometido} formato={$} />
+          </span>
+          <span className="heroDetalle">
+            Gastos de vida, cuotas y aportes a metas, sobre {$(f.ingreso)} que entran.
+          </span>
+          <div className="heroChips">
+            <Estado
+              tono={
+                fraccionComprometida <= 0.8
+                  ? "ok"
+                  : fraccionComprometida <= 1
+                    ? "warn"
+                    : "crit"
+              }
+            >
+              {Math.round(fraccionComprometida * 100)} % del ingreso
+            </Estado>
+            <Estado tono={f.libre >= 0 ? "neutro" : "crit"}>
+              {f.libre >= 0 ? `Queda ${$(f.libre)} sin asignar` : `Descuadre de ${$(-f.libre)}`}
+            </Estado>
+          </div>
+        </div>
+        <div className="heroGrafico">
+          <span className="eyebrow">A dónde va cada peso presupuestado</span>
+          <BarraApilada
+            segmentos={[
+              { nombre: "Gastos de vida", valor: f.gastos, color: "--s-gasto" },
+              { nombre: "Cuotas", valor: f.cuotas, color: "--s-deuda" },
+              { nombre: "Metas", valor: f.aportes, color: "--s-ahorro" },
+              { nombre: "Sin asignar", valor: Math.max(0, f.libre), color: "--s-libre" },
+            ]}
+            total={f.ingreso}
+            etiqueta="Reparto del ingreso presupuestado"
+          />
+          {fuentesIngreso[0].valor + fuentesIngreso[1].valor > 0 && (
+            <>
+              <span className="eyebrow" style={{ marginTop: 10 }}>
+                De dónde sale
+              </span>
+              <BarraApilada
+                segmentos={
+                  f.ingresoA + f.ingresoB > 0 && ingresoHogar > 0
+                    ? fuentesIngreso
+                    : [
+                        { nombre: "Tuyo", valor: f.ingresoA, color: "--a" },
+                        { nombre: "De tu pareja", valor: f.ingresoB, color: "--b" },
+                      ]
+                }
+                total={f.ingreso}
+                alto={16}
+                etiqueta="Ingreso por persona"
+              />
+            </>
+          )}
+        </div>
+      </section>
+
     <section className="panel">
       <header>
         <div>
@@ -294,5 +368,6 @@ export function Presupuesto() {
         </>
       )}
     </section>
+    </>
   );
 }
