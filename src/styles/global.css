@@ -19,14 +19,33 @@ body,
 
 body {
   margin: 0;
-  background: var(--grad-bg), var(--bg);
-  background-attachment: fixed;
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--body);
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   transition: background-color var(--t-1), color var(--t-1);
+}
+
+/* Las luces de esquina viven en su propia capa fija y derivan muy lento,
+   como si la habitación tuviera una lámpara que se mueve. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -22%;
+  z-index: -1;
+  background: var(--grad-bg);
+  animation: derivaLuces 26s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes derivaLuces {
+  from {
+    transform: translate3d(-2.5%, -1.5%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2.5%, 2%, 0) scale(1.07);
+  }
 }
 
 h1,

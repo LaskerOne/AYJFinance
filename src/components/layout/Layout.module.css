@@ -87,6 +87,7 @@
 }
 
 .enlace {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 11px;
@@ -98,23 +99,41 @@
   text-decoration: none;
   transition: color var(--t-1), background var(--t-1);
 }
+/* El indicador de sección activa: una barrita lima que se despliega. */
+.enlace::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 20px;
+  border-radius: var(--r-full);
+  background: var(--a-ink);
+  transform: translateY(-50%) scaleY(0);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
 .icono {
   display: grid;
   place-items: center;
-  transition: transform var(--t-1);
+  transition: transform var(--t-1), filter var(--t-1);
 }
 .enlace:hover {
   color: var(--ink);
   background: var(--surface-2);
 }
 .enlace:hover .icono {
-  transform: translateX(2px) scale(1.1);
+  transform: translateX(2px) scale(1.12);
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--a-ink) 45%, transparent));
 }
 .activo,
 .activo:hover {
   color: var(--a-ink);
   background: color-mix(in srgb, var(--a) 13%, transparent);
   font-weight: 600;
+}
+.activo::before {
+  transform: translateY(-50%) scaleY(1);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--a-ink) 70%, transparent);
 }
 .activo .icono {
   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--a-ink) 55%, transparent));
@@ -184,6 +203,44 @@
   gap: 20px;
 }
 
+/* Cascada de entrada: cada bloque de la página llega un pelo después del
+   anterior. Como el contenido se remonta al cambiar de ruta, esto también
+   es la transición entre secciones. */
+@keyframes entradaSeccion {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.contenido > * {
+  animation: entradaSeccion 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.contenido > *:nth-child(2) {
+  animation-delay: 70ms;
+}
+.contenido > *:nth-child(3) {
+  animation-delay: 140ms;
+}
+.contenido > *:nth-child(4) {
+  animation-delay: 210ms;
+}
+.contenido > *:nth-child(5) {
+  animation-delay: 280ms;
+}
+.contenido > *:nth-child(6) {
+  animation-delay: 350ms;
+}
+.contenido > *:nth-child(7) {
+  animation-delay: 420ms;
+}
+.contenido > *:nth-child(n + 8) {
+  animation-delay: 490ms;
+}
+
 /* --- aviso de fallo al guardar -------------------------------------------- */
 .avisoError {
   display: flex;
@@ -241,6 +298,10 @@
   .enlace {
     padding: 7px 11px;
     white-space: nowrap;
+  }
+  /* En fila horizontal la barrita lateral no tiene sentido. */
+  .enlace::before {
+    display: none;
   }
   .pieLateral {
     border-top: none;

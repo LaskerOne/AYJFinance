@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useSesion } from "@/contexts/SesionContext";
 import { useHogar } from "@/contexts/HogarContext";
 import { Cargando } from "@/components/ui/Cargando";
@@ -21,6 +21,7 @@ const SECCIONES: { ruta: string; texto: string; icono: NombreIcono; exacta?: boo
 
 export function Layout() {
   const { salir, correo } = useSesion();
+  const { pathname } = useLocation();
   const {
     hogar,
     cargando,
@@ -127,7 +128,9 @@ export function Layout() {
           </div>
         )}
 
-        <main className={css.contenido}>
+        {/* La clave por ruta remonta el contenido al navegar, y con él
+            vuelve a correr la cascada de entrada: esa es la transición. */}
+        <main className={css.contenido} key={pathname}>
           <Outlet />
         </main>
       </div>
