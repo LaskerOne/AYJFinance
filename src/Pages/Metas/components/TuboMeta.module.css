@@ -1,0 +1,71 @@
+.tanque {
+  width: 108px;
+  height: auto;
+  overflow: visible;
+}
+
+.vidrio {
+  fill: color-mix(in srgb, var(--surface-3) 55%, transparent);
+  stroke: var(--line-2);
+  stroke-width: 1.5;
+}
+.boca {
+  fill: color-mix(in srgb, var(--surface-2) 40%, transparent);
+  stroke: var(--line-2);
+  stroke-width: 1.5;
+}
+.brillo {
+  fill: rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+/* El líquido sube desde el fondo hasta su nivel al entrar la pantalla. */
+.liquido {
+  animation: subeLiquido 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+}
+@keyframes subeLiquido {
+  from {
+    transform: translateY(var(--sube, 0px));
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Dos olas viajando en sentidos opuestos: eso es lo que lo hace líquido. */
+.ola1 {
+  opacity: 0.95;
+  animation: marea 4.2s linear infinite;
+}
+.ola2 {
+  opacity: 0.5;
+  animation: marea 3.1s linear infinite reverse;
+}
+@keyframes marea {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(76px);
+  }
+}
+
+/* La lámina de la superficie, apenas más clara, se mece. */
+.superficie {
+  fill: color-mix(in srgb, var(--cta-bg-2) 70%, transparent);
+  animation: mecer 3.6s ease-in-out infinite;
+}
+@keyframes mecer {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(2.5px);
+  }
+}
+
+/* Meta cumplida: el tanque entero resplandece. */
+.lleno {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--a-ink) 55%, transparent));
+}

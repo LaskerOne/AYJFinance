@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { BarraProgreso } from "@/components/charts/BarraProgreso";
+import { TuboMeta } from "./components/TuboMeta";
 import { AreaGlow } from "@/components/charts/AreaGlow";
 import { Cifra } from "@/components/ui/Cifra";
 import { Estado, Etiqueta } from "@/components/ui/Etiqueta";
@@ -84,8 +84,8 @@ export function Metas() {
         {metas.length === 0 ? (
           <p className="vacio">Sin metas todavía. Agrega la primera abajo.</p>
         ) : (
-          <div className={css.lista}>
-            {metas.map((m) => {
+          <div className={css.tubos}>
+            {metas.map((m, i) => {
               const objetivo = Number(m.objetivo);
               const acumulado = Number(m.acumulado);
               const aporte = Number(m.aporte);
@@ -95,47 +95,41 @@ export function Metas() {
               const lista = falta <= 0;
 
               return (
-                <div key={m.id} className={css.meta} style={{ ["--i" as string]: String(metas.indexOf(m)) }}>
-                  <div className={css.cabeza}>
-                    <span className={css.nombre}>
-                      {m.nombre || "Sin nombre"}
-                      {m.es_emergencia && <Estado tono="ok">Colchón</Estado>}
-                      <Etiqueta lado={ladoDe(m.usuario_id)} texto={nombreDe(m.usuario_id)} />
-                    </span>
-                    <span className={css.cifras}>
-                      <b>{$(acumulado)}</b> de {$(objetivo)}
-                    </span>
-                  </div>
+                <article
+                  key={m.id}
+                  className={css.tubo}
+                  style={{ ["--i" as string]: String(i) }}
+                  aria-label={`${m.nombre}: ${porcentaje(avance)} completo`}
+                >
+                  <span className={css.tuboNombre}>
+                    {m.nombre || "Sin nombre"}
+                    {m.es_emergencia && <Estado tono="ok">Colchón</Estado>}
+                  </span>
 
-                  <BarraProgreso
-                    fraccion={avance}
-                    color={lista ? "--ok" : "--a"}
-                    etiqueta={`${m.nombre}: ${porcentaje(avance)} completo`}
-                  />
+                  <TuboMeta fraccion={avance} cumplida={lista} />
+                  <span className={css.tuboPct}>{porcentaje(avance)}</span>
 
-                  <div className={css.pie}>
-                    <span>{porcentaje(avance)} completo</span>
+                  <span className={css.tuboCifras}>
+                    <b>{$(acumulado)}</b> de {$(objetivo)}
+                  </span>
+                  <Etiqueta lado={ladoDe(m.usuario_id)} texto={nombreDe(m.usuario_id)} />
+
+                  <span className={css.tuboPie}>
                     {lista ? (
                       <Estado tono="ok">Meta cumplida</Estado>
+                    ) : Number.isFinite(meses) ? (
+                      <>
+                        Faltan <b className="num">{$(falta)}</b> · {enMeses(meses)} al ritmo
+                        actual · ≈ {dentroDe(meses)}
+                      </>
                     ) : (
                       <>
-                        <span>
-                          Faltan <b className="num">{$(falta)}</b>
-                        </span>
-                        {Number.isFinite(meses) ? (
-                          <>
-                            <span>
-                              {enMeses(meses)} al ritmo de {$(aporte)}/mes
-                            </span>
-                            <span style={{ color: "var(--ink-3)" }}>≈ {dentroDe(meses)}</span>
-                          </>
-                        ) : (
-                          <Estado tono="warn">Sin aporte mensual</Estado>
-                        )}
+                        Faltan <b className="num">{$(falta)}</b> ·{" "}
+                        <Estado tono="warn">Sin aporte mensual</Estado>
                       </>
                     )}
-                  </div>
-                </div>
+                  </span>
+                </article>
               );
             })}
           </div>
