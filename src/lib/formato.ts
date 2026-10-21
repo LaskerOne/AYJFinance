@@ -1,13 +1,10 @@
 /** Formato de números, monedas y fechas. Sin dependencias: `Intl` basta. */
 
+/* Solo las dos monedas de la casa: los datos viven en COP y el USD es una
+   vista convertida con la tasa del día (services/tasas.ts). */
 export const MONEDAS = [
   { codigo: "COP", etiqueta: "COP $", locale: "es-CO", decimales: 0 },
-  { codigo: "MXN", etiqueta: "MXN $", locale: "es-MX", decimales: 0 },
   { codigo: "USD", etiqueta: "USD US$", locale: "en-US", decimales: 2 },
-  { codigo: "EUR", etiqueta: "EUR €", locale: "es-ES", decimales: 2 },
-  { codigo: "ARS", etiqueta: "ARS $", locale: "es-AR", decimales: 0 },
-  { codigo: "CLP", etiqueta: "CLP $", locale: "es-CL", decimales: 0 },
-  { codigo: "PEN", etiqueta: "PEN S/", locale: "es-PE", decimales: 2 },
 ] as const;
 
 const SIMBOLO: Record<string, string> = {

@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent } from "react";
+import { useEffect, useId, useRef, useState, type MouseEvent } from "react";
 import { useMoneda } from "@/hooks/useMoneda";
 import css from "./charts.module.css";
 
@@ -20,12 +20,63 @@ interface Props {
 const W = 720;
 const PAD = { arriba: 16, derecha: 18, abajo: 28, izquierda: 62 };
 
+/**
+ * Cuando los datos cambian (p. ej. al mover un deslizador), la curva no
+ * salta: fluye hacia su nueva forma. Cada cuadro acerca el valor pintado al
+ * objetivo; las series que se acortan se rellenan con ceros y al aterrizar
+ * quedan exactas. Con `prefers-reduced-motion` devuelve el objetivo directo.
+ */
+function usarSeriesFluidas(series: Serie[]): Serie[] {
+  const [pintadas, setPintadas] = useState(series);
+  const objetivo = useRef(series);
+  objetivo.current = series;
+  const valores = useRef(new Map<string, number[]>());
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setPintadas(series);
+      return;
+    }
+    let marco = 0;
+    const paso = () => {
+      let llego = true;
+      const prox = objetivo.current.map((s) => {
+        const previos = valores.current.get(s.nombre) ?? s.puntos;
+        const largo = Math.max(previos.length, s.puntos.length);
+        const pts = Array.from({ length: largo }, (_, i) => {
+          const a = previos[i] ?? 0;
+          const b = s.puntos[i] ?? 0;
+          if (Math.abs(b - a) < Math.max(1, Math.abs(b)) * 0.002) return b;
+          llego = false;
+          return a + (b - a) * 0.22;
+        });
+        return { ...s, puntos: pts };
+      });
+      prox.forEach((s) => valores.current.set(s.nombre, s.puntos));
+      if (llego) {
+        // Aterrizaje exacto: fuera los ceros de relleno, datos tal cual.
+        objetivo.current.forEach((s) => valores.current.set(s.nombre, s.puntos));
+        setPintadas(objetivo.current);
+      } else {
+        setPintadas(prox);
+        marco = requestAnimationFrame(paso);
+      }
+    };
+    marco = requestAnimationFrame(paso);
+    return () => cancelAnimationFrame(marco);
+  }, [series]);
+
+  return pintadas;
+}
+
 /** Serie temporal con cruceta: al pasar el puntero se leen todos los valores
  *  de ese mes a la vez, que es la comparación que interesa. */
-export function LineaTiempo({ series, etiqueta, alto = 200, etiquetaX }: Props) {
+export function LineaTiempo({ series: objetivo, etiqueta, alto = 200, etiquetaX }: Props) {
   const { $, $corto } = useMoneda();
   const svgRef = useRef<SVGSVGElement>(null);
   const [foco, setFoco] = useState<number | null>(null);
+  const idGrad = useId();
+  const series = usarSeriesFluidas(objetivo);
 
   const n = Math.max(2, ...series.map((s) => s.puntos.length));
   const maxY = Math.max(1, ...series.flatMap((s) => s.puntos));
@@ -53,7 +104,7 @@ export function LineaTiempo({ series, etiqueta, alto = 200, etiquetaX }: Props) 
       <svg
         ref={svgRef}
         viewBox={`0 0 ${W} ${alto}`}
-        className={css.svgPleno}
+        className={`${css.svgPleno} ${css.escena3d}`}
         role="img"
         aria-label={etiqueta}
         onMouseMove={alMover}
@@ -110,6 +161,32 @@ export function LineaTiempo({ series, etiqueta, alto = 200, etiquetaX }: Props) 
           />
         )}
 
+        <defs>
+          {series.map(
+            (s, k) =>
+              !s.punteada && (
+                <linearGradient key={s.nombre} id={`${idGrad}-${k}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={`var(${s.color})`} stopOpacity="0.26" />
+                  <stop offset="100%" stopColor={`var(${s.color})`} stopOpacity="0" />
+                </linearGradient>
+              ),
+          )}
+        </defs>
+
+        {/* El relleno bajo cada curva sólida le da cuerpo al gráfico. */}
+        {series.map((s, k) => {
+          if (s.punteada || s.puntos.length === 0) return null;
+          const base = y(0);
+          return (
+            <path
+              key={`area-${s.nombre}`}
+              d={`${trazo(s)} L${x(n - 1).toFixed(1)} ${base} L${x(0).toFixed(1)} ${base} Z`}
+              fill={`url(#${idGrad}-${k})`}
+              className={css.areaRelleno}
+            />
+          );
+        })}
+
         {series.map((s) => (
           <path
             key={s.nombre}
@@ -120,9 +197,11 @@ export function LineaTiempo({ series, etiqueta, alto = 200, etiquetaX }: Props) 
             strokeDasharray={s.punteada ? "5 4" : undefined}
             strokeLinejoin="round"
             // La animación de trazado pisa el dasharray, así que las series
-            // punteadas no se animan: conservan su patrón.
+            // punteadas no se animan: conservan su patrón. Las sólidas llevan
+            // el neón de la casa.
             pathLength={s.punteada ? undefined : 1}
-            className={s.punteada ? undefined : css.traza}
+            className={s.punteada ? undefined : `${css.traza} ${css.conGlow}`}
+            style={s.punteada ? undefined : { color: `var(${s.color})` }}
           />
         ))}
 

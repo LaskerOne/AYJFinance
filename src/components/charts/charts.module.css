@@ -404,3 +404,14 @@
   color: var(--ink-3);
   text-align: right;
 }
+
+/* --- escena 3D --------------------------------------------------------------
+   Al posar el mouse, el gráfico se inclina apenas, como una lámina que gira
+   hacia ti. La cruceta sigue funcionando: la inclinación es leve a propósito. */
+.escena3d {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: center bottom;
+}
+.marco:hover .escena3d {
+  transform: perspective(900px) rotateX(7deg) scale(1.012);
+}

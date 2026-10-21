@@ -4,7 +4,8 @@ import { useHogar } from "@/contexts/HogarContext";
 import { Cargando } from "@/components/ui/Cargando";
 import { SelectorTema } from "@/components/ui/SelectorTema";
 import { Icono, type NombreIcono } from "@/components/ui/Icono";
-import { MONEDAS } from "@/lib/formato";
+import { useMoneda } from "@/hooks/useMoneda";
+import { MONEDAS, moneda as fmtMoneda } from "@/lib/formato";
 import css from "./Layout.module.css";
 
 const SECCIONES: { ruta: string; texto: string; icono: NombreIcono; exacta?: boolean }[] = [
@@ -18,6 +19,19 @@ const SECCIONES: { ruta: string; texto: string; icono: NombreIcono; exacta?: boo
   { ruta: "/importar", texto: "Importar", icono: "importar" },
   { ruta: "/ajustes", texto: "Ajustes", icono: "ajustes" },
 ];
+
+/** Cuando el hogar mira en USD, dice con qué tasa se está convirtiendo. */
+function IndicadorTasa() {
+  const { elegido, convierte, tasa } = useMoneda();
+  if (elegido !== "USD") return null;
+  return (
+    <span className={css.tasa} title="Tasa del día, de open.er-api.com">
+      {convierte && tasa
+        ? `1 US$ ≈ ${fmtMoneda(tasa, "COP")}`
+        : "Sin tasa aún · mostrando COP"}
+    </span>
+  );
+}
 
 export function Layout() {
   const { salir, correo } = useSesion();
@@ -96,6 +110,7 @@ export function Layout() {
 
       <div className={css.principal}>
         <header className={css.topbar}>
+          <IndicadorTasa />
           <select
             className="pill"
             aria-label="Moneda"
