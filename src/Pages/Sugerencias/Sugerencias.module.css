@@ -164,3 +164,65 @@
   padding: 10px 13px;
   line-height: 1.55;
 }
+
+/* --- el oráculo ------------------------------------------------------------- */
+.oraculo {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: center;
+}
+@media (max-width: 760px) {
+  .oraculo {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}
+.consejoCaja {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+@keyframes llegaConsejo {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+}
+.consejoVivo {
+  animation: llegaConsejo 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pistaOraculo {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* --- todos los consejos, plegados ------------------------------------------ */
+.todasCabeza {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14.5px;
+}
+.todasCabeza::-webkit-details-marker {
+  display: none;
+}
+.todasFlecha {
+  display: inline-block;
+  color: var(--a-ink);
+  font-size: 12px;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.todas[open] .todasFlecha {
+  transform: rotate(90deg);
+}
+.todas[open] .lista {
+  margin-top: 16px;
+  animation: llegaConsejo 0.35s ease;
+}

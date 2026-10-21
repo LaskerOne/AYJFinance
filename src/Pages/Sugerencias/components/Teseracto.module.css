@@ -1,0 +1,78 @@
+.caja {
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--r-lg);
+  transition: transform var(--t-1);
+  -webkit-tap-highlight-color: transparent;
+}
+.caja:hover {
+  transform: scale(1.05);
+}
+.caja:active {
+  transform: scale(0.96);
+}
+.caja:focus-visible {
+  outline: 2px solid var(--a-ink);
+  outline-offset: 6px;
+}
+
+.svg {
+  width: min(250px, 60vw);
+  height: auto;
+  overflow: visible;
+  animation: pulsoTeseracto 3.2s ease-in-out infinite;
+}
+@keyframes pulsoTeseracto {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.045);
+  }
+}
+
+/* Cada cubo oscila entre los dos colores de la casa, en contrafase:
+   cuando uno está en lima el otro va en violeta, y se cruzan a mitad de
+   camino. El glow acompaña porque usa currentColor. */
+@keyframes oscilaColor {
+  0%,
+  100% {
+    color: var(--a-ink);
+  }
+  50% {
+    color: var(--b-ink);
+  }
+}
+.cuboA {
+  color: var(--a-ink);
+  animation: oscilaColor 7s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, currentColor 80%, transparent))
+    drop-shadow(0 0 14px color-mix(in srgb, currentColor 40%, transparent));
+}
+.cuboB {
+  color: var(--b-ink);
+  animation: oscilaColor 7s ease-in-out -3.5s infinite;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, currentColor 80%, transparent))
+    drop-shadow(0 0 14px color-mix(in srgb, currentColor 40%, transparent));
+}
+
+.arista {
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  fill: none;
+}
+.vertice {
+  fill: currentColor;
+}
+
+.conectores {
+  color: var(--comun);
+  opacity: 0.4;
+}
+.conectores .arista {
+  stroke-width: 1.1;
+}

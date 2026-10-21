@@ -8,6 +8,7 @@ import { useMoneda } from "@/hooks/useMoneda";
 import { enMeses, porcentaje, aNumero } from "@/lib/formato";
 import { simularDeudas } from "@/lib/deudas";
 import { generarSugerencias, rentabilidadObjetivo } from "@/lib/sugerencias";
+import { Teseracto } from "./components/Teseracto";
 import css from "./Sugerencias.module.css";
 
 export function Sugerencias() {
@@ -17,6 +18,7 @@ export function Sugerencias() {
   const estrategia = hogar?.estrategia_deuda ?? "avalancha";
 
   const [ensayo, setEnsayo] = useState<number>(0);
+  const [indice, setIndice] = useState(0);
 
   const sugerencias = useMemo(
     () =>
@@ -48,25 +50,68 @@ export function Sugerencias() {
 
   const topeEnsayo = Math.max(100_000, Math.round(Math.max(f.libre, f.ingreso * 0.2) / 10_000) * 10_000);
 
+  const consejo =
+    sugerencias.length > 0 ? sugerencias[indice % sugerencias.length] : null;
+
   return (
     <>
-      <section className="panel">
+      <section className="panel hero">
         <header>
           <div>
             <h2>Qué conviene hacer con su plata</h2>
             <p className="nota">
               Recomendaciones calculadas sobre sus propias cifras, ordenadas por lo que más pesa.
-              Cada una dice cuánto cambia el resultado en meses y en pesos.
+              Tóquenle el teseracto: gira, piensa y suelta el siguiente consejo.
             </p>
           </div>
         </header>
 
-        {sugerencias.length === 0 ? (
-          <p className="vacio">
-            Con sus números actuales no hay nada urgente que ajustar. Cuando cambien ingresos,
-            gastos o deudas, esta página se recalcula sola.
-          </p>
-        ) : (
+        <div className={css.oraculo}>
+          <Teseracto
+            onClic={() => setIndice((i) => i + 1)}
+            etiqueta="Mostrar el siguiente consejo"
+          />
+
+          <div className={css.consejoCaja}>
+            {consejo ? (
+              <article
+                key={`${consejo.id}-${indice}`}
+                className={`${css.tarjeta} ${css.consejoVivo}`}
+                data-tono={consejo.tono}
+              >
+                <span className="eyebrow">
+                  Consejo {(indice % sugerencias.length) + 1} de {sugerencias.length}
+                </span>
+                <div className={css.cabeza}>
+                  <h3 className={css.titulo}>{consejo.titulo}</h3>
+                  {consejo.impacto && <Estado tono={consejo.tono}>{consejo.impacto}</Estado>}
+                </div>
+                <p className={css.cuerpo}>{consejo.cuerpo}</p>
+                {consejo.comoSeCalcula && <p className={css.calculo}>{consejo.comoSeCalcula}</p>}
+              </article>
+            ) : (
+              <p className="vacio">
+                Con sus números actuales no hay nada urgente que ajustar. Cuando cambien
+                ingresos, gastos o deudas, el oráculo tendrá algo nuevo que decir.
+              </p>
+            )}
+            {sugerencias.length > 1 && (
+              <p className={css.pistaOraculo}>
+                Un clic en el teseracto trae el siguiente de los {sugerencias.length}.
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {sugerencias.length > 1 && (
+        <details className={`panel ${css.todas}`}>
+          <summary className={css.todasCabeza}>
+            <span className={css.todasFlecha} aria-hidden="true">
+              ▸
+            </span>
+            Ver los {sugerencias.length} consejos de corrido
+          </summary>
           <div className={css.lista}>
             {sugerencias.map((s) => (
               <article key={s.id} className={css.tarjeta} data-tono={s.tono}>
@@ -79,8 +124,8 @@ export function Sugerencias() {
               </article>
             ))}
           </div>
-        )}
-      </section>
+        </details>
+      )}
 
       {hayDeuda && (
         <section className="panel">
