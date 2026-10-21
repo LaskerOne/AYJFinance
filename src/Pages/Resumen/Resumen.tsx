@@ -55,14 +55,14 @@ export function Resumen() {
 
   return (
     <>
-      <section className={`panel hero ${css.heroMes}`}>
-        <div className={css.heroCifras}>
+      <section className="panel hero heroGrid">
+        <div className="heroCifras">
           <span className="eyebrow">Queda libre este mes</span>
-          <span className={`${css.heroNumero} ${f.disponible >= 0 ? css.heroPos : css.heroNeg}`}>
+          <span className={`heroNumero ${f.disponible >= 0 ? "heroPos" : "heroNeg"}`}>
             <Cifra valor={f.disponible} formato={$} />
           </span>
-          <span className={css.heroDetalle}>Para metas y colchón, después de gastos y cuotas.</span>
-          <div className={css.heroChips}>
+          <span className="heroDetalle">Para metas y colchón, después de gastos y cuotas.</span>
+          <div className="heroChips">
             <Estado tono={f.tasaAhorro >= 0.2 ? "ok" : f.tasaAhorro < 0 ? "crit" : "warn"}>
               Ahorro {porcentaje(f.tasaAhorro)}
             </Estado>
@@ -71,7 +71,7 @@ export function Resumen() {
             </Estado>
           </div>
         </div>
-        <div className={css.heroGrafico}>
+        <div className="heroGrafico">
           <span className="eyebrow">Gasto acumulado del mes</span>
           <AreaGlow
             puntos={acumulado}

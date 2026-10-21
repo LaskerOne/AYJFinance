@@ -26,13 +26,13 @@ export function ComparativaPresupuesto({ lineas }: { lineas: LineaComparativa[] 
 
   return (
     <div className={css.comparativa}>
-      {lineas.map((l) => {
+      {lineas.map((l, i) => {
         const avance = l.presupuesto > 0 ? l.ejecutado / l.presupuesto : l.ejecutado > 0 ? 1.5 : 0;
         const excedido = l.presupuesto > 0 && l.ejecutado > l.presupuesto;
         const diferencia = l.ejecutado - l.presupuesto;
 
         return (
-          <div key={l.categoria} className={css.filaComparativa}>
+          <div key={l.categoria} className={css.filaComparativa} style={{ ["--i" as string]: String(i) }}>
             <span className={css.catNombre}>
               <span
                 className={css.puntoCat}

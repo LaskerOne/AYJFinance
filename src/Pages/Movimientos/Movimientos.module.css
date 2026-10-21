@@ -214,3 +214,25 @@
   font-weight: 600;
   white-space: nowrap;
 }
+
+/* --- vida de la comparativa ---------------------------------------------- */
+@keyframes entraFila {
+  from {
+    opacity: 0;
+  }
+}
+.filaComparativa {
+  padding: 3px 6px;
+  margin: -3px -6px;
+  border-radius: var(--r-sm);
+  animation: entraFila 0.45s ease backwards;
+  animation-delay: calc(var(--i, 0) * 55ms);
+  transition: background var(--t-1), transform var(--t-1);
+}
+.filaComparativa:hover {
+  background: var(--surface-2);
+  transform: translateX(4px);
+}
+.filaComparativa:hover :global(.barra) :global(.fill) {
+  filter: brightness(1.15);
+}

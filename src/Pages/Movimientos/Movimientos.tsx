@@ -1,6 +1,8 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { FilaKpi } from "@/components/ui/Kpi";
-import { Etiqueta } from "@/components/ui/Etiqueta";
+import { Cifra } from "@/components/ui/Cifra";
+import { AreaGlow } from "@/components/charts/AreaGlow";
+import { Estado, Etiqueta } from "@/components/ui/Etiqueta";
 import { CampoMoneda } from "@/components/ui/CampoMoneda";
 import { SelectorPersona } from "@/components/ui/SelectorPersona";
 import { useHogar } from "@/contexts/HogarContext";
@@ -91,6 +93,24 @@ export function Movimientos() {
 
   const presupuestoTotal = comparativa.reduce((s, c) => s + c.presupuesto, 0);
   const desviacion = gastosCorrientes - presupuestoTotal;
+  const balanceMes = ingresosMes - gastosMes;
+
+  // Gasto corriente acumulado día a día del mes que se está viendo. En el
+  // mes corriente llega hasta hoy; en uno cerrado, hasta su último día.
+  const acumulado = useMemo(() => {
+    const [a, m] = mes.split("-").map(Number);
+    const esActual = mes === mesDe(hoyISO());
+    const dias = esActual ? Math.max(2, new Date().getDate()) : new Date(a, m, 0).getDate();
+    const porDia = Array.from({ length: dias }, () => 0);
+    for (const mov of delMes) {
+      if (mov.clase !== "gasto" || mov.extraordinario) continue;
+      const dia = Number(mov.fecha.slice(8, 10));
+      if (dia >= 1 && dia <= dias) porDia[dia - 1] += Number(mov.monto);
+    }
+    const suma: number[] = [];
+    for (const [i, v] of porDia.entries()) suma.push((suma[i - 1] ?? 0) + v);
+    return suma;
+  }, [delMes, mes]);
 
   // De dónde vino el dinero que entró este mes.
   const fuentes: Segmento[] = useMemo(
@@ -127,12 +147,8 @@ export function Movimientos() {
 
   return (
     <>
-      <section className="panel">
-        <header>
-          <div>
-            <h2>Movimientos de {nombrePeriodo(`${mes}-01`)}</h2>
-            <p className="nota">Lo que de verdad pasó, frente a lo que habían presupuestado.</p>
-          </div>
+      <section className="panel hero heroGrid">
+        <div className="heroCifras">
           <div className={css.navegaMes}>
             <button className="pill" onClick={() => setMes(desplazarMes(mes, -1))} aria-label="Mes anterior">
               ←
@@ -147,53 +163,84 @@ export function Movimientos() {
               →
             </button>
           </div>
-        </header>
-
-        <FilaKpi
-          columnas={4}
-          datos={[
-            { etiqueta: "Entró", valor: $(ingresosMes), detalle: `${delMes.filter((m) => m.clase === "ingreso").length} movimientos` },
-            {
-              etiqueta: "Salió",
-              valor: $(gastosMes),
-              detalle:
-                totalExtraordinario > 0
-                  ? `Incluye ${$(totalExtraordinario)} extraordinarios`
-                  : `${delMes.filter((m) => m.clase === "gasto").length} movimientos`,
-            },
-            {
-              etiqueta: "Contra el presupuesto",
-              valor: `${desviacion >= 0 ? "+" : "−"}${$(Math.abs(desviacion)).replace("−", "")}`,
-              detalle:
-                totalExtraordinario > 0
-                  ? "Solo gasto corriente, sin lo extraordinario"
-                  : desviacion >= 0
-                    ? "Por encima de lo planeado"
-                    : "Por debajo de lo planeado",
-              tono: desviacion > 0 ? "negativo" : "positivo",
-              destacado: true,
-            },
-            {
-              etiqueta: "Balance del mes",
-              valor: $(ingresosMes - gastosMes),
-              detalle: "Solo movimientos registrados",
-              tono: ingresosMes - gastosMes >= 0 ? "positivo" : "negativo",
-            },
-          ]}
-        />
-
-        {fuentes.length > 0 && (
-          <div className={css.fuentes}>
-            <span className="eyebrow">De dónde vino</span>
-            <BarraApilada
-              segmentos={fuentes}
-              total={ingresosMes}
-              alto={18}
-              etiqueta="Ingresos del mes por fuente"
-            />
+          <span className="eyebrow">Balance del mes</span>
+          <span className={`heroNumero ${balanceMes >= 0 ? "heroPos" : "heroNeg"}`}>
+            <Cifra valor={balanceMes} formato={$} />
+          </span>
+          <span className="heroDetalle">
+            Entró {$(ingresosMes)}, salió {$(gastosMes)}. Solo movimientos registrados.
+          </span>
+          <div className="heroChips">
+            <Estado tono={desviacion > 0 ? "crit" : "ok"}>
+              {desviacion >= 0 ? "+" : "−"}
+              {$(Math.abs(desviacion)).replace("−", "")} contra el presupuesto
+            </Estado>
+            {totalExtraordinario > 0 && (
+              <Estado tono="neutro">{$(totalExtraordinario)} extraordinarios aparte</Estado>
+            )}
           </div>
-        )}
+        </div>
+        <div className="heroGrafico">
+          <span className="eyebrow">Gasto corriente acumulado</span>
+          <AreaGlow
+            puntos={acumulado}
+            etiqueta={`Gasto corriente acumulado de ${nombrePeriodo(`${mes}-01`)} contra el presupuesto`}
+            etiquetaX={(i) => `día ${i + 1}`}
+            referencia={presupuestoTotal}
+            etiquetaReferencia="presupuesto"
+            color="--a-ink"
+            alto={185}
+          />
+        </div>
       </section>
+
+      <FilaKpi
+        columnas={3}
+        datos={[
+          {
+            etiqueta: "Entró",
+            valor: <Cifra valor={ingresosMes} formato={$} />,
+            detalle: `${delMes.filter((m) => m.clase === "ingreso").length} movimientos`,
+          },
+          {
+            etiqueta: "Salió",
+            valor: <Cifra valor={gastosMes} formato={$} />,
+            detalle:
+              totalExtraordinario > 0
+                ? `Incluye ${$(totalExtraordinario)} extraordinarios`
+                : `${delMes.filter((m) => m.clase === "gasto").length} movimientos`,
+          },
+          {
+            etiqueta: "Contra el presupuesto",
+            valor: `${desviacion >= 0 ? "+" : "−"}${$(Math.abs(desviacion)).replace("−", "")}`,
+            detalle:
+              totalExtraordinario > 0
+                ? "Solo gasto corriente, sin lo extraordinario"
+                : desviacion >= 0
+                  ? "Por encima de lo planeado"
+                  : "Por debajo de lo planeado",
+            tono: desviacion > 0 ? "negativo" : "positivo",
+            destacado: true,
+          },
+        ]}
+      />
+
+      {fuentes.length > 0 && (
+        <section className="panel">
+          <header>
+            <div>
+              <h2>De dónde vino</h2>
+              <p className="nota">Los ingresos del mes, por fuente.</p>
+            </div>
+          </header>
+          <BarraApilada
+            segmentos={fuentes}
+            total={ingresosMes}
+            alto={18}
+            etiqueta="Ingresos del mes por fuente"
+          />
+        </section>
+      )}
 
       <section className="panel">
         <header>

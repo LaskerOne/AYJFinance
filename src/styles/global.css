@@ -448,3 +448,83 @@ table.datos tfoot .tot {
   color: var(--a-ink);
   background: var(--a-soft);
 }
+
+/* --- héroe de pantalla ----------------------------------------------------
+   El bloque protagonista: cifra enorme a la izquierda, gráfico a la derecha.
+   Es compartido porque cada módulo abre con el suyo. */
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.8fr) 1.6fr;
+  gap: 26px;
+  align-items: center;
+}
+@media (max-width: 860px) {
+  .heroGrid {
+    grid-template-columns: 1fr;
+  }
+}
+.heroCifras {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.heroNumero {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(34px, 4.2vw, 50px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.heroPos {
+  color: var(--a-ink);
+  text-shadow: 0 0 28px color-mix(in srgb, var(--a-ink) 36%, transparent);
+}
+.heroNeg {
+  color: var(--crit-ink);
+  text-shadow: 0 0 28px color-mix(in srgb, var(--crit) 36%, transparent);
+}
+.heroDetalle {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  max-width: 30ch;
+}
+.heroChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.heroGrafico {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Las filas de toda tabla entran en una cascada corta. */
+@keyframes filaEntra {
+  from {
+    opacity: 0;
+  }
+}
+table.datos tbody tr {
+  animation: filaEntra 0.35s ease backwards;
+}
+table.datos tbody tr:nth-child(1) { animation-delay: 30ms; }
+table.datos tbody tr:nth-child(2) { animation-delay: 60ms; }
+table.datos tbody tr:nth-child(3) { animation-delay: 90ms; }
+table.datos tbody tr:nth-child(4) { animation-delay: 120ms; }
+table.datos tbody tr:nth-child(5) { animation-delay: 150ms; }
+table.datos tbody tr:nth-child(6) { animation-delay: 180ms; }
+table.datos tbody tr:nth-child(7) { animation-delay: 210ms; }
+table.datos tbody tr:nth-child(8) { animation-delay: 240ms; }
+table.datos tbody tr:nth-child(9) { animation-delay: 270ms; }
+table.datos tbody tr:nth-child(n + 10) { animation-delay: 300ms; }
+
+/* Un panel con un formulario en uso se enciende: se nota dónde estás. */
+.panel:focus-within {
+  border-color: color-mix(in srgb, var(--a-ink) 35%, var(--line));
+  box-shadow: var(--shadow), var(--luz-borde),
+    0 0 24px -10px color-mix(in srgb, var(--a-ink) 45%, transparent);
+}
