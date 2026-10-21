@@ -134,15 +134,25 @@ export function AreaGlow({
         />
 
         {puntos.length > 0 && (
-          <circle
-            cx={x(puntos.length - 1)}
-            cy={y(en(puntos.length - 1))}
-            r={4.5}
-            fill={`var(${color})`}
-            stroke="var(--surface)"
-            strokeWidth={2}
-            className={css.llegaTarde}
-          />
+          <g className={css.llegaTarde}>
+            <circle
+              cx={x(puntos.length - 1)}
+              cy={y(en(puntos.length - 1))}
+              r={5}
+              fill="none"
+              stroke={`var(${color})`}
+              strokeWidth={1.5}
+              className={css.anillo}
+            />
+            <circle
+              cx={x(puntos.length - 1)}
+              cy={y(en(puntos.length - 1))}
+              r={4.5}
+              fill={`var(${color})`}
+              stroke="var(--surface)"
+              strokeWidth={2}
+            />
+          </g>
         )}
 
         {foco !== null && (

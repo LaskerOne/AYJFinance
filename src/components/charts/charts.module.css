@@ -242,8 +242,41 @@
 .areaRelleno {
   animation: llenarArea 1s ease 0.5s backwards;
 }
+/* Neón de verdad: un halo apretado, uno medio y uno amplio, que además
+   respira. El color lo da `color` en el propio trazo (currentColor). */
 .conGlow {
-  filter: drop-shadow(0 0 7px color-mix(in srgb, currentColor 55%, transparent));
+  filter: drop-shadow(0 0 2.5px color-mix(in srgb, currentColor 85%, transparent))
+    drop-shadow(0 0 9px color-mix(in srgb, currentColor 55%, transparent))
+    drop-shadow(0 0 22px color-mix(in srgb, currentColor 32%, transparent));
+  animation: respirarNeon 3.6s ease-in-out 1.4s infinite;
+}
+@keyframes respirarNeon {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
+/* Anillo de radar en el último punto: late para decir "esto está vivo". */
+.anillo {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: latir 2.6s cubic-bezier(0.22, 1, 0.36, 1) 1.3s infinite;
+  pointer-events: none;
+}
+@keyframes latir {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.75;
+  }
+  70%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
 }
 
 /* --- ranking monocromo ----------------------------------------------------- */
@@ -258,7 +291,26 @@
   gap: 12px;
   align-items: center;
   font-size: 13px;
+  padding: 2px 6px;
+  margin: -2px -6px;
+  border-radius: var(--r-sm);
   animation: llenarArea 0.5s ease backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+  transition: background var(--t-1), transform var(--t-1);
+}
+.filaRanking:hover {
+  background: var(--surface-2);
+  transform: translateX(4px);
+}
+.filaRanking:hover .rankBarra {
+  filter: brightness(1.18) saturate(1.1);
+  box-shadow: 0 0 16px -2px color-mix(in srgb, var(--a-ink) 75%, transparent);
+}
+.filaRanking:hover .rankNombre {
+  color: var(--ink);
+}
+.filaRanking:hover .rankValor {
+  color: var(--a-ink);
 }
 @media (max-width: 560px) {
   .filaRanking {
@@ -282,15 +334,55 @@
   overflow: hidden;
 }
 .rankBarra {
+  position: relative;
   display: block;
   height: 100%;
   border-radius: var(--r-full);
   background: linear-gradient(90deg, color-mix(in srgb, var(--a) 55%, var(--a-ink)), var(--a-ink));
   transform-origin: left;
+  overflow: hidden;
   animation: crecerAncho 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+  transition: filter var(--t-1), box-shadow var(--t-1);
 }
+/* Un destello recorre cada barra cada pocos segundos, en cascada. */
+.rankBarra::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.38) 50%,
+    transparent 65%
+  );
+  background-size: 250% 100%;
+  background-position: 160% 0;
+  animation: destello 4.2s ease-in-out infinite;
+  animation-delay: calc(0.9s + var(--i, 0) * 0.35s);
+}
+@keyframes destello {
+  0% {
+    background-position: 160% 0;
+  }
+  22%,
+  100% {
+    background-position: -90% 0;
+  }
+}
+/* La protagonista respira: su halo sube y baja todo el tiempo. */
 .rankTop {
-  box-shadow: 0 0 12px -2px color-mix(in srgb, var(--a-ink) 60%, transparent);
+  animation: crecerAncho 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards,
+    respirarBarra 3.4s ease-in-out 1.2s infinite;
+}
+@keyframes respirarBarra {
+  0%,
+  100% {
+    box-shadow: 0 0 10px -2px color-mix(in srgb, var(--a-ink) 50%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 20px 0 color-mix(in srgb, var(--a-ink) 80%, transparent);
+  }
 }
 @keyframes crecerAncho {
   from {

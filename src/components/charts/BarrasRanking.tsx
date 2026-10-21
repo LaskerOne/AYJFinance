@@ -32,7 +32,11 @@ export function BarrasRanking({
   return (
     <div className={css.ranking} role="img" aria-label={etiqueta}>
       {ordenadas.map((f, i) => (
-        <div key={f.nombre} className={css.filaRanking} style={{ animationDelay: `${i * 55}ms` }}>
+        <div
+          key={f.nombre}
+          className={css.filaRanking}
+          style={{ ["--i" as string]: String(i) }}
+        >
           <span className={css.rankNombre}>{f.nombre}</span>
           <span className={css.rankPista}>
             <span

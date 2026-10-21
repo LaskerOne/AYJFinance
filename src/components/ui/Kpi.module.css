@@ -26,11 +26,14 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
-  transition: transform var(--t-1), border-color var(--t-1), box-shadow var(--t-1);
+  transform: perspective(750px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.12s ease-out, border-color var(--t-1), box-shadow var(--t-1);
   animation: aparecer var(--t-2) backwards;
+  will-change: transform;
 }
 .kpi:hover {
-  transform: translateY(-2px);
+  transform: perspective(750px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg))
+    translateY(-3px) scale(1.015);
   border-color: color-mix(in srgb, var(--a-ink) 45%, var(--line));
   box-shadow: var(--shadow), var(--luz-borde), var(--glow-a);
 }

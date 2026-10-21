@@ -1,5 +1,21 @@
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import css from "./Kpi.module.css";
+
+/** Inclina la tarjeta hacia el puntero (3D sutil). Con reduced-motion no hace nada. */
+function inclinar(e: MouseEvent<HTMLDivElement>) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const el = e.currentTarget;
+  const caja = el.getBoundingClientRect();
+  const px = (e.clientX - caja.left) / caja.width - 0.5;
+  const py = (e.clientY - caja.top) / caja.height - 0.5;
+  el.style.setProperty("--rx", `${(-py * 5).toFixed(2)}deg`);
+  el.style.setProperty("--ry", `${(px * 7).toFixed(2)}deg`);
+}
+
+function enderezar(e: MouseEvent<HTMLDivElement>) {
+  e.currentTarget.style.setProperty("--rx", "0deg");
+  e.currentTarget.style.setProperty("--ry", "0deg");
+}
 
 export interface DatoKpi {
   etiqueta: string;
@@ -16,7 +32,12 @@ export function FilaKpi({ datos, columnas }: { datos: DatoKpi[]; columnas?: numb
   return (
     <div className={css.fila} style={{ ["--columnas" as string]: String(n) }}>
       {datos.map((d) => (
-        <div key={d.etiqueta} className={`${css.kpi} ${d.destacado ? css.destacado : ""}`}>
+        <div
+          key={d.etiqueta}
+          className={`${css.kpi} ${d.destacado ? css.destacado : ""}`}
+          onMouseMove={inclinar}
+          onMouseLeave={enderezar}
+        >
           <span className="eyebrow">{d.etiqueta}</span>
           <span className={`${css.valor} ${d.tono === "positivo" ? css.pos : ""} ${d.tono === "negativo" ? css.neg : ""}`}>
             {d.valor}
