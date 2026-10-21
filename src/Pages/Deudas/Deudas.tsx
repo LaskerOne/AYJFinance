@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { LineaTiempo, type Serie } from "@/components/charts/LineaTiempo";
 import { FilaKpi } from "@/components/ui/Kpi";
+import { Cifra } from "@/components/ui/Cifra";
 import { Estado, Etiqueta } from "@/components/ui/Etiqueta";
 import { CampoMoneda } from "@/components/ui/CampoMoneda";
 import { SelectorPersona } from "@/components/ui/SelectorPersona";
@@ -62,6 +63,55 @@ export function Deudas() {
 
   return (
     <>
+      <section className="panel hero heroGrid">
+        <div className="heroCifras">
+          <span className="eyebrow">Deuda total pendiente</span>
+          <span className="heroNumero heroVio">
+            <Cifra valor={f.deudaTotal} formato={$} />
+          </span>
+          <span className="heroDetalle">
+            {pendientes.length === 0
+              ? "Sin saldos pendientes. Esas cuotas ya pueden irse a las metas."
+              : `${pendientes.length} ${pendientes.length === 1 ? "deuda activa" : "deudas activas"} · ${$(f.cuotas)} en cuotas al mes.`}
+          </span>
+          <div className="heroChips">
+            {pendientes.length > 0 && !plan.estancado && (
+              <Estado tono="ok">Libres en {enMeses(plan.meses)}</Estado>
+            )}
+            {pendientes.length > 0 &&
+              !base.estancado &&
+              !plan.estancado &&
+              ahorroIntereses > 0 && (
+                <Estado tono="neutro">El plan ahorra {$(ahorroIntereses)} en intereses</Estado>
+              )}
+            {pendientes.length > 0 && (base.estancado || plan.estancado) && (
+              <Estado tono="crit">Las cuotas no bajan el saldo</Estado>
+            )}
+            {pendientes.length === 0 && <Estado tono="ok">En cero</Estado>}
+          </div>
+        </div>
+        <div className="heroGrafico">
+          <span className="eyebrow">Cómo baja el saldo, mes a mes</span>
+          {pendientes.length > 0 ? (
+            <>
+              <LineaTiempo series={series} etiqueta="Saldo total de deuda mes a mes" alto={185} />
+              <div className={css.leyendaLinea}>
+                <span className={css.itemLinea}>
+                  <span className={css.trazoPunteado} />
+                  Solo las cuotas
+                </span>
+                <span className={css.itemLinea}>
+                  <span className={css.trazoSolido} />
+                  Con abono extra y reinversión de cuotas
+                </span>
+              </div>
+            </>
+          ) : (
+            <p className="vacio">Sin deudas que proyectar. Ojalá siga así.</p>
+          )}
+        </div>
+      </section>
+
       <section className="panel">
         <header>
           <div>
@@ -238,28 +288,13 @@ export function Deudas() {
               ]}
             />
 
-            <div className={css.grafico}>
-              <LineaTiempo series={series} etiqueta="Saldo total de deuda mes a mes" alto={200} />
-            </div>
-
-            <div className={css.leyendaLinea}>
-              <span className={css.itemLinea}>
-                <span className={css.trazoPunteado} />
-                Solo las cuotas
-              </span>
-              <span className={css.itemLinea}>
-                <span className={css.trazoSolido} />
-                Con abono extra y reinversión de cuotas
-              </span>
-            </div>
-
             <div className={css.lista}>
               {ordenadas.map((d, i) => {
                 const im = tasaMensual(d.tasa_ea);
                 const interesMes = Number(d.saldo) * im;
                 const cubre = Number(d.cuota) > interesMes;
                 return (
-                  <div key={d.id} className={`${css.item} ${i === 0 ? css.foco : ""}`}>
+                  <div key={d.id} className={`${css.item} ${i === 0 ? css.foco : ""}`} style={{ ["--i" as string]: String(i) }}>
                     <span className={css.orden}>{i + 1}</span>
                     <span>
                       <span className={css.nombre}>

@@ -586,3 +586,19 @@ table.datos tbody tr:nth-child(n + 10) { animation-delay: 300ms; }
   animation: palpitar 2.8s ease-in-out 1s infinite,
     palpitarHaloNeg 2.8s ease-in-out 1s infinite;
 }
+
+/* Variante violeta del número gigante: la deuda viste su color de rol. */
+@keyframes palpitarHaloVio {
+  0%,
+  100% {
+    text-shadow: 0 0 22px color-mix(in srgb, var(--b-ink) 28%, transparent);
+  }
+  50% {
+    text-shadow: 0 0 38px color-mix(in srgb, var(--b-ink) 55%, transparent);
+  }
+}
+.heroVio {
+  color: var(--b-ink);
+  animation: palpitar 2.8s ease-in-out 1s infinite,
+    palpitarHaloVio 2.8s ease-in-out 1s infinite;
+}

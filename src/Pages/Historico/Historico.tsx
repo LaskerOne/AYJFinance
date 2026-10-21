@@ -139,60 +139,50 @@ export function Historico() {
 
         {error && <p className={css.error}>{error}</p>}
 
-        {ordenados.length === 0 ? (
+        {ordenados.length === 0 && (
           <p className="vacio">
             Todavía no hay meses cerrados. Cierra el mes actual para empezar a construir el
             histórico: con dos o tres meses ya se ven las tendencias.
           </p>
-        ) : (
-          <>
-            <FilaKpi
-              columnas={4}
-              datos={[
-                {
-                  etiqueta: "Meses registrados",
-                  valor: String(ordenados.length),
-                  detalle: `Desde ${nombrePeriodo(ordenados[0].periodo)}`,
-                },
-                {
-                  etiqueta: "Ahorro del último mes",
-                  valor: <Cifra valor={Number(ultimo?.ahorro ?? 0)} formato={$} />,
-                  detalle: (() => {
-                    const v = variacion("ahorro");
-                    return v === null
-                      ? "Sin mes anterior para comparar"
-                      : `${v >= 0 ? "+" : "−"}${porcentaje(Math.abs(v))} contra el mes pasado`;
-                  })(),
-                  tono: Number(ultimo?.ahorro ?? 0) >= 0 ? "positivo" : "negativo",
-                  destacado: true,
-                },
-                {
-                  etiqueta: "Deuda al último cierre",
-                  valor: <Cifra valor={Number(ultimo?.deuda_total ?? 0)} formato={$} />,
-                  detalle: (() => {
-                    const v = variacion("deuda_total");
-                    if (v === null) return "Sin mes anterior para comparar";
-                    return v <= 0
-                      ? `Bajó ${porcentaje(Math.abs(v))}`
-                      : `Subió ${porcentaje(v)}`;
-                  })(),
-                  tono: (variacion("deuda_total") ?? 0) <= 0 ? "positivo" : "negativo",
-                },
-                {
-                  etiqueta: "Gasto promedio",
-                  valor: (
-                    <Cifra
-                      valor={ordenados.reduce((s, c) => s + Number(c.gastos), 0) / ordenados.length}
-                      formato={$}
-                    />
-                  ),
-                  detalle: "Media de los meses cerrados",
-                },
-              ]}
-            />
+        )}
+      </section>
 
-            <div className={css.bloque}>
-              <h3 className={css.subtitulo}>Mes a mes</h3>
+      {ordenados.length > 0 && (
+        <>
+          <section className="panel hero heroGrid">
+            <div className="heroCifras">
+              <span className="eyebrow">Ahorro del último mes</span>
+              <span
+                className={`heroNumero ${Number(ultimo?.ahorro ?? 0) >= 0 ? "heroPos" : "heroNeg"}`}
+              >
+                <Cifra valor={Number(ultimo?.ahorro ?? 0)} formato={$} />
+              </span>
+              <span className="heroDetalle" style={{ textTransform: "capitalize" }}>
+                {ultimo ? nombrePeriodo(ultimo.periodo) : ""}
+              </span>
+              <div className="heroChips">
+                {(() => {
+                  const v = variacion("ahorro");
+                  return v === null ? null : (
+                    <Estado tono={v >= 0 ? "ok" : "warn"}>
+                      {v >= 0 ? "+" : "−"}
+                      {porcentaje(Math.abs(v))} contra el mes pasado
+                    </Estado>
+                  );
+                })()}
+                {(() => {
+                  const v = variacion("deuda_total");
+                  if (v === null) return null;
+                  return v <= 0 ? (
+                    <Estado tono="ok">Deuda bajó {porcentaje(Math.abs(v))}</Estado>
+                  ) : (
+                    <Estado tono="crit">Deuda subió {porcentaje(v)}</Estado>
+                  );
+                })()}
+              </div>
+            </div>
+            <div className="heroGrafico">
+              <span className="eyebrow">Mes a mes</span>
               <BarrasMensuales meses={columnas} etiqueta="Ingresos, gastos y ahorro por mes" />
               <LeyendaSegmentos
                 segmentos={[
@@ -203,23 +193,59 @@ export function Historico() {
                 conValores={false}
               />
             </div>
+          </section>
 
-            {ordenados.length > 1 && (
-              <div className={css.bloque}>
-                <h3 className={css.subtitulo}>Cómo va bajando la deuda</h3>
-                <LineaTiempo
-                  series={serieDeuda}
-                  etiqueta="Deuda total por mes"
-                  alto={180}
-                  etiquetaX={(i) =>
-                    ordenados[i] ? nombrePeriodo(ordenados[i].periodo).slice(0, 3) : ""
-                  }
-                />
-              </div>
-            )}
-          </>
-        )}
-      </section>
+          <FilaKpi
+            columnas={3}
+            datos={[
+              {
+                etiqueta: "Meses registrados",
+                valor: String(ordenados.length),
+                detalle: `Desde ${nombrePeriodo(ordenados[0].periodo)}`,
+              },
+              {
+                etiqueta: "Deuda al último cierre",
+                valor: <Cifra valor={Number(ultimo?.deuda_total ?? 0)} formato={$} />,
+                detalle: (() => {
+                  const v = variacion("deuda_total");
+                  if (v === null) return "Sin mes anterior para comparar";
+                  return v <= 0 ? `Bajó ${porcentaje(Math.abs(v))}` : `Subió ${porcentaje(v)}`;
+                })(),
+                tono: (variacion("deuda_total") ?? 0) <= 0 ? "positivo" : "negativo",
+              },
+              {
+                etiqueta: "Gasto promedio",
+                valor: (
+                  <Cifra
+                    valor={ordenados.reduce((s, c) => s + Number(c.gastos), 0) / ordenados.length}
+                    formato={$}
+                  />
+                ),
+                detalle: "Media de los meses cerrados",
+              },
+            ]}
+          />
+
+          {ordenados.length > 1 && (
+            <section className="panel">
+              <header>
+                <div>
+                  <h2>Cómo va bajando la deuda</h2>
+                  <p className="nota">El saldo total al cierre de cada mes.</p>
+                </div>
+              </header>
+              <LineaTiempo
+                series={serieDeuda}
+                etiqueta="Deuda total por mes"
+                alto={180}
+                etiquetaX={(i) =>
+                  ordenados[i] ? nombrePeriodo(ordenados[i].periodo).slice(0, 3) : ""
+                }
+              />
+            </section>
+          )}
+        </>
+      )}
 
       {ordenados.length > 0 && (
         <section className="panel">
