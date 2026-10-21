@@ -25,6 +25,11 @@
       } catch (e) {
         document.documentElement.setAttribute("data-theme", "dark");
       }
+      // El color dominante, igual: antes de pintar, para que no destelle.
+      try {
+        if (localStorage.getItem("cuentas-de-dos:acento") === "violeta")
+          document.documentElement.setAttribute("data-acento", "violeta");
+      } catch (e) {}
     </script>
   </head>
   <body>

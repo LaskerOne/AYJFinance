@@ -33,6 +33,10 @@
   --comun: #56655c;
   --comun-soft: #e6ebe2;
 
+  /* colores de marca fijos: no cambian con el acento (muestras del interruptor) */
+  --marca-lima: #b5e237;
+  --marca-violeta: #8f7cea;
+
   /* acción primaria · lima vivo con tinta casi negra, igual en ambos temas */
   --cta-bg: #b5e237;
   --cta-bg-2: #c9ef5b;
@@ -220,4 +224,159 @@
     radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #8471e3 8%, transparent), transparent 70%);
   --grad-panel: linear-gradient(170deg, color-mix(in srgb, #ecf2ea 4.5%, transparent), transparent 46%);
   --grad-hero: linear-gradient(135deg, color-mix(in srgb, var(--a) 22%, var(--surface)), var(--surface) 52%, color-mix(in srgb, var(--b) 16%, var(--surface)));
+}
+
+
+/* ============================================================================
+   Acento violeta (interruptor en Ajustes)
+   Los dos colores de la casa invierten sus papeles: el violeta manda y el
+   lima acompaña. Las superficies toman un tinte violeta y las categorías
+   pasan a una rampa violeta/índigo/orquídea, validadas igual que las de
+   fábrica (vecinos con CVD, banda de luminosidad, croma y contraste).
+   La especificidad está escalonada para que el claro nunca pise al oscuro:
+   claro (0,2,0) < oscuro (0,3,0).
+   ========================================================================= */
+:root[data-acento="violeta"] {
+  --bg: #efedf3;
+  --surface: #fbfafd;
+  --surface-2: #f3f1f7;
+  --surface-3: #e9e6f0;
+  --ink: #17141f;
+  --ink-2: #5c566a;
+  --ink-3: #847e92;
+  --line: #e0dce8;
+  --line-2: #c8c2d4;
+
+  --a: #6a52d8;
+  --a-soft: #ebe6fb;
+  --a-ink: #5540bb;
+  --b: #637d00;
+  --b-soft: #eaf1cf;
+  --b-ink: #4c6400;
+  --comun: #5e5870;
+  --comun-soft: #e9e6f0;
+
+  --cta-bg: #8f7cea;
+  --cta-bg-2: #a596f2;
+  --cta-ink: #120c26;
+
+  --cat-vivienda: #7976ca;
+  --cat-mercado: #7b27a4;
+  --cat-servicios: #1781bc;
+  --cat-transporte: #97316a;
+  --cat-salud: #3879f0;
+  --cat-ocio: #56489a;
+  --cat-personal: #b75ebf;
+  --cat-educacion: #1b56c2;
+  --cat-otros: #8b8796;
+
+  --s-ingreso: #7e68ea;
+  --s-gasto: #7a9a10;
+  --s-deuda: #1f6b3c;
+  --s-ahorro: #0e8fa6;
+  --s-libre: #c0bacb;
+
+  --grid: #e7e4ee;
+  --axis: #c8c2d4;
+
+  --grad-bg: radial-gradient(900px 420px at 12% -8%, color-mix(in srgb, #8f7cea 10%, transparent), transparent 70%),
+    radial-gradient(800px 420px at 95% -10%, color-mix(in srgb, #b5e237 8%, transparent), transparent 70%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-acento="violeta"]:not([data-theme="light"]) {
+    --bg: #0c0a12;
+    --surface: #15121d;
+    --surface-2: #1b1726;
+    --surface-3: #231e31;
+    --ink: #eeebf5;
+    --ink-2: #aaa4bb;
+    --ink-3: #847e96;
+    --line: #262033;
+    --line-2: #3b3350;
+
+    --a: #8471e3;
+    --a-soft: #231d3e;
+    --a-ink: #b3a6f4;
+    --b: #74a31c;
+    --b-soft: #1b2607;
+    --b-ink: #b9e24e;
+    --comun: #958ea3;
+    --comun-soft: #231e31;
+
+    --cta-bg: #a090f4;
+    --cta-bg-2: #b8acf8;
+    --cta-ink: #120c26;
+
+    --cat-vivienda: #887efe;
+    --cat-mercado: #8e47b6;
+    --cat-servicios: #1098e9;
+    --cat-transporte: #ad4f82;
+    --cat-salud: #638fe3;
+    --cat-ocio: #7150d2;
+    --cat-personal: #b571b8;
+    --cat-educacion: #276cd8;
+    --cat-otros: #847e96;
+
+    --s-ingreso: #8f7cea;
+    --s-gasto: #7ea51c;
+    --s-deuda: #3a7d45;
+    --s-ahorro: #1da5bd;
+    --s-libre: #4a4458;
+
+    --grid: #201b2c;
+    --axis: #3b3350;
+
+    --grad-bg: radial-gradient(900px 460px at 12% -8%, color-mix(in srgb, #a090f4 9%, transparent), transparent 70%),
+      radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #b8ef4a 6%, transparent), transparent 70%);
+    --grad-panel: linear-gradient(170deg, color-mix(in srgb, #eeebf5 4.5%, transparent), transparent 46%);
+  }
+}
+
+:root[data-acento="violeta"][data-theme="dark"] {
+  --bg: #0c0a12;
+  --surface: #15121d;
+  --surface-2: #1b1726;
+  --surface-3: #231e31;
+  --ink: #eeebf5;
+  --ink-2: #aaa4bb;
+  --ink-3: #847e96;
+  --line: #262033;
+  --line-2: #3b3350;
+
+  --a: #8471e3;
+  --a-soft: #231d3e;
+  --a-ink: #b3a6f4;
+  --b: #74a31c;
+  --b-soft: #1b2607;
+  --b-ink: #b9e24e;
+  --comun: #958ea3;
+  --comun-soft: #231e31;
+
+  --cta-bg: #a090f4;
+  --cta-bg-2: #b8acf8;
+  --cta-ink: #120c26;
+
+  --cat-vivienda: #887efe;
+  --cat-mercado: #8e47b6;
+  --cat-servicios: #1098e9;
+  --cat-transporte: #ad4f82;
+  --cat-salud: #638fe3;
+  --cat-ocio: #7150d2;
+  --cat-personal: #b571b8;
+  --cat-educacion: #276cd8;
+  --cat-otros: #847e96;
+
+  --s-ingreso: #8f7cea;
+  --s-gasto: #7ea51c;
+  --s-deuda: #3a7d45;
+  --s-ahorro: #1da5bd;
+  --s-libre: #4a4458;
+
+  --grid: #201b2c;
+  --axis: #3b3350;
+
+  --grad-bg: radial-gradient(900px 460px at 12% -8%, color-mix(in srgb, #a090f4 9%, transparent), transparent 70%),
+    radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #b8ef4a 6%, transparent), transparent 70%);
+  --grad-panel: linear-gradient(170deg, color-mix(in srgb, #eeebf5 4.5%, transparent), transparent 46%);
 }

@@ -11,6 +11,7 @@ import {
 import { mensajeDeError } from "@/services/supabase";
 import { MONEDAS } from "@/lib/formato";
 import { useCategorias } from "@/hooks/useCategorias";
+import { useAcento } from "@/hooks/useAcento";
 import { COLOR_CATEGORIA } from "@/models/dominio";
 import type { Invitacion } from "@/models/dominio";
 import css from "./Ajustes.module.css";
@@ -19,6 +20,7 @@ export function Ajustes() {
   const { hogar, perfiles, idA, cambiarHogar, reglas, borrar } = useHogar();
   const { usuario, correo, salir } = useSesion();
   const { opciones, renombrar, restaurar, hayRenombradas } = useCategorias();
+  const { acento, setAcento } = useAcento();
 
   const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
   const [correoInvitado, setCorreoInvitado] = useState("");
@@ -102,6 +104,39 @@ export function Ajustes() {
               }}
             />
           </label>
+        </div>
+      </section>
+
+      <section className="panel">
+        <header>
+          <div>
+            <h2>Apariencia</h2>
+            <p className="nota">
+              El color que manda en toda la aplicación. Se recuerda en este navegador, así que
+              cada uno elige el suyo sin cambiárselo al otro.
+            </p>
+          </div>
+        </header>
+        <div className={css.acento}>
+          <span className={`${css.acentoNombre} ${acento === "lima" ? css.acentoActivo : ""}`}>
+            <span className={`${css.muestra} ${css.muestraLima}`} aria-hidden="true" />
+            Lima
+          </span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={acento === "violeta"}
+            aria-label="Usar violeta como color principal"
+            className={css.interruptor}
+            data-violeta={acento === "violeta"}
+            onClick={() => setAcento(acento === "violeta" ? "lima" : "violeta")}
+          >
+            <span className={css.perilla} />
+          </button>
+          <span className={`${css.acentoNombre} ${acento === "violeta" ? css.acentoActivo : ""}`}>
+            <span className={`${css.muestra} ${css.muestraVioleta}`} aria-hidden="true" />
+            Violeta
+          </span>
         </div>
       </section>
 
