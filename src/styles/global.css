@@ -1,7 +1,7 @@
 @import "./tokens.css";
 
 /* ============================================================================
-   Primitivas compartidas por toda la aplicación.
+   Primitivas compartidas por toda la aplicación · piel 2.0 «Forest Noir».
    Lo específico de un módulo vive en su propio *.module.css.
    ========================================================================= */
 
@@ -19,12 +19,14 @@ body,
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--grad-bg), var(--bg);
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--body);
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  transition: background-color var(--t-1), color var(--t-1);
 }
 
 h1,
@@ -34,7 +36,7 @@ h3 {
   font-weight: 700;
   margin: 0;
   text-wrap: balance;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
 }
 p {
   margin: 0;
@@ -53,9 +55,9 @@ img {
   max-width: 100%;
 }
 :focus-visible {
-  outline: 2px solid var(--a);
+  outline: 2px solid var(--a-ink);
   outline-offset: 2px;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -64,6 +66,42 @@ img {
     transition: none !important;
     animation: none !important;
   }
+}
+
+/* --- movimiento ---------------------------------------------------------- */
+/* Entrada de contenido: sube un poco y aclara. Los paneles la usan al montar. */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes brillar {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+/* Esqueleto de carga: un destello que recorre el bloque. */
+.esqueleto {
+  border-radius: var(--r-sm);
+  background: linear-gradient(
+    100deg,
+    var(--surface-2) 40%,
+    var(--surface-3) 50%,
+    var(--surface-2) 60%
+  );
+  background-size: 200% 100%;
+  animation: brillar 1.4s linear infinite;
+  color: transparent;
+  user-select: none;
 }
 
 /* --- tipografía utilitaria --------------------------------------------- */
@@ -93,11 +131,19 @@ img {
 
 /* --- paneles ------------------------------------------------------------ */
 .panel {
-  background: var(--surface);
+  position: relative;
+  background: var(--grad-panel), var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   padding: 20px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), var(--luz-borde);
+  animation: aparecer var(--t-2) backwards;
+}
+/* Un panel protagonista (el héroe de una pantalla) lleva el degradado
+   de marca y un borde que capta la luz. */
+.panel.hero {
+  background: var(--grad-hero);
+  border-color: color-mix(in srgb, var(--a) 24%, var(--line));
 }
 .panel > header {
   display: flex;
@@ -134,15 +180,20 @@ img {
   border: 1px solid var(--line);
   color: var(--ink);
   border-radius: var(--r-full);
-  padding: 7px 13px;
+  padding: 7px 14px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color var(--t-1), background var(--t-1), transform var(--t-1),
+    box-shadow var(--t-1);
 }
 .pill:hover:not(:disabled) {
   border-color: var(--line-2);
   background: var(--surface-2);
+  transform: translateY(-1px);
+}
+.pill:active:not(:disabled) {
+  transform: translateY(0);
 }
 .pill:disabled {
   opacity: 0.55;
@@ -152,14 +203,13 @@ img {
   background: transparent;
 }
 .pill.primaria {
-  background: var(--a);
-  border-color: var(--a);
-  color: #fff;
-  font-weight: 600;
+  background: linear-gradient(180deg, var(--cta-bg-2), var(--cta-bg));
+  border-color: transparent;
+  color: var(--cta-ink);
+  font-weight: 700;
 }
 .pill.primaria:hover:not(:disabled) {
-  background: var(--a-ink);
-  border-color: var(--a-ink);
+  box-shadow: var(--glow-a);
 }
 
 .campo {
@@ -169,9 +219,11 @@ img {
   border-radius: var(--r-sm);
   padding: 9px 11px;
   font-size: 14px;
+  transition: border-color var(--t-1), box-shadow var(--t-1);
 }
 .campo:focus {
   border-color: var(--a);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--a) 18%, transparent);
   outline: none;
 }
 
@@ -192,11 +244,12 @@ img {
   font-weight: 600;
   cursor: pointer;
   color: var(--ink-2);
+  transition: background var(--t-1), color var(--t-1);
 }
 .segmentado button[aria-pressed="true"] {
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
 }
 
 /* --- etiquetas y estados ------------------------------------------------ */
@@ -233,7 +286,7 @@ img {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 1px 6px;
-  border-radius: 4px;
+  border-radius: 5px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -260,6 +313,7 @@ img {
 .barra .fill {
   height: 100%;
   border-radius: var(--r-sm);
+  transition: width var(--t-2);
 }
 .barra .marca {
   position: absolute;
@@ -301,6 +355,9 @@ table.datos td {
   padding: 4px 8px;
   border-bottom: 1px solid var(--line);
   vertical-align: middle;
+}
+table.datos tbody tr {
+  transition: background var(--t-1);
 }
 table.datos tbody tr:hover {
   background: var(--surface-2);
@@ -348,6 +405,7 @@ table.datos tfoot .tot {
   border-radius: var(--r-sm);
   font-size: 15px;
   line-height: 1;
+  transition: background var(--t-1), color var(--t-1);
 }
 .borrar:hover {
   background: color-mix(in srgb, var(--crit) 14%, transparent);
@@ -364,6 +422,7 @@ table.datos tfoot .tot {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  transition: border-color var(--t-1), color var(--t-1), background var(--t-1);
 }
 .agregar:hover {
   border-color: var(--a);

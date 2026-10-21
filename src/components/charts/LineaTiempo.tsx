@@ -119,6 +119,10 @@ export function LineaTiempo({ series, etiqueta, alto = 200, etiquetaX }: Props) 
             strokeWidth={s.punteada ? 2 : 2.5}
             strokeDasharray={s.punteada ? "5 4" : undefined}
             strokeLinejoin="round"
+            // La animación de trazado pisa el dasharray, así que las series
+            // punteadas no se animan: conservan su patrón.
+            pathLength={s.punteada ? undefined : 1}
+            className={s.punteada ? undefined : css.traza}
           />
         ))}
 
@@ -134,6 +138,7 @@ export function LineaTiempo({ series, etiqueta, alto = 200, etiquetaX }: Props) 
               fill={`var(${s.color})`}
               stroke="var(--surface)"
               strokeWidth={2}
+              className={css.llegaTarde}
             />
           );
         })}

@@ -9,9 +9,10 @@ function leer(): Tema {
     const v = localStorage.getItem(CLAVE);
     if (v === "claro" || v === "oscuro" || v === "sistema") return v;
   } catch {
-    // Navegación privada o almacenamiento bloqueado: se sigue con el del sistema.
+    // Navegación privada o almacenamiento bloqueado: se sigue con el oscuro.
   }
-  return "sistema";
+  // Dark-first: sin preferencia guardada, la aplicación abre en oscuro.
+  return "oscuro";
 }
 
 /**

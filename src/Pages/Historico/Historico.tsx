@@ -3,6 +3,7 @@ import { BarrasMensuales, type ColumnaMes } from "@/components/charts/BarrasMens
 import { LineaTiempo, type Serie } from "@/components/charts/LineaTiempo";
 import { LeyendaSegmentos } from "@/components/charts/BarraApilada";
 import { FilaKpi } from "@/components/ui/Kpi";
+import { Cifra } from "@/components/ui/Cifra";
 import { Estado } from "@/components/ui/Etiqueta";
 import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
@@ -155,7 +156,7 @@ export function Historico() {
                 },
                 {
                   etiqueta: "Ahorro del último mes",
-                  valor: $(Number(ultimo?.ahorro ?? 0)),
+                  valor: <Cifra valor={Number(ultimo?.ahorro ?? 0)} formato={$} />,
                   detalle: (() => {
                     const v = variacion("ahorro");
                     return v === null
@@ -167,7 +168,7 @@ export function Historico() {
                 },
                 {
                   etiqueta: "Deuda al último cierre",
-                  valor: $(Number(ultimo?.deuda_total ?? 0)),
+                  valor: <Cifra valor={Number(ultimo?.deuda_total ?? 0)} formato={$} />,
                   detalle: (() => {
                     const v = variacion("deuda_total");
                     if (v === null) return "Sin mes anterior para comparar";
@@ -179,8 +180,11 @@ export function Historico() {
                 },
                 {
                   etiqueta: "Gasto promedio",
-                  valor: $(
-                    ordenados.reduce((s, c) => s + Number(c.gastos), 0) / ordenados.length,
+                  valor: (
+                    <Cifra
+                      valor={ordenados.reduce((s, c) => s + Number(c.gastos), 0) / ordenados.length}
+                      formato={$}
+                    />
                   ),
                   detalle: "Media de los meses cerrados",
                 },

@@ -1,31 +1,42 @@
 /* ============================================================================
-   Sistema de diseño · Cuentas de Dos
-   Paleta validada con el verificador de daltonismo y contraste:
-   separación CVD ΔE ≥ 8 entre colores adyacentes y ≥ 3:1 contra el fondo.
+   Sistema de diseño 2.0 · Cuentas de Dos · «Forest Noir»
+   Oscuro primero: negro con tinte verde, acento lima, violeta secundario.
+   El claro no es una inversión: son los mismos acabados con la luz encendida
+   (crema/salvia), para que cambiar de tema no sea un salto de casa.
+
+   Paleta de series validada con el verificador (dataviz):
+   banda de luminosidad, croma ≥ 0.1, CVD ΔE ≥ 8 entre vecinos (el único par
+   en banda 6–8 va siempre acompañado de etiqueta directa), contraste ≥ 3:1.
+   «Otros» es un neutro deliberado: significa "lo demás" y siempre lleva texto.
    Todo color del sistema nace aquí; ningún componente escribe un hex suelto.
    ========================================================================= */
 
 :root {
-  /* superficies y tinta */
-  --bg: #eceff0;
-  --surface: #ffffff;
-  --surface-2: #f4f7f7;
-  --surface-3: #e8edee;
-  --ink: #131a1d;
-  --ink-2: #53636a;
-  --ink-3: #7e8c92;
-  --line: #dbe2e3;
-  --line-2: #c2ccce;
+  /* superficies y tinta · crema/salvia */
+  --bg: #f0efe6;
+  --surface: #fbfbf7;
+  --surface-2: #f3f2e9;
+  --surface-3: #e9e8dc;
+  --ink: #161c16;
+  --ink-2: #57635a;
+  --ink-3: #7f8b81;
+  --line: #e0dfd2;
+  --line-2: #c7c6b7;
 
-  /* identidad de cada persona (teal / ciruela) */
-  --a: #0b8f86;
-  --a-soft: #e0f1ef;
-  --a-ink: #06645e;
-  --b: #a84fb8;
-  --b-soft: #f4e8f6;
-  --b-ink: #7d3389;
-  --comun: #56656c;
-  --comun-soft: #e6ebec;
+  /* identidad de cada persona (lima / violeta) · lima es también la marca */
+  --a: #637d00;
+  --a-soft: #eaf1cf;
+  --a-ink: #4c6400;
+  --b: #6a52d8;
+  --b-soft: #ebe6fb;
+  --b-ink: #5540bb;
+  --comun: #56655c;
+  --comun-soft: #e6ebe2;
+
+  /* acción primaria · lima vivo con tinta casi negra, igual en ambos temas */
+  --cta-bg: #b5e237;
+  --cta-bg-2: #c9ef5b;
+  --cta-ink: #141a05;
 
   /* estado · nunca se usan como color de serie */
   --ok: #0ca30c;
@@ -38,126 +49,171 @@
 
   /* categorías de gasto · orden fijo, el color sigue a la categoría */
   --cat-vivienda: #2a78d6;
-  --cat-mercado: #eb6834;
-  --cat-servicios: #eda100;
-  --cat-transporte: #1baf7a;
-  --cat-salud: #008300;
-  --cat-ocio: #e87ba4;
-  --cat-personal: #4a3aa7;
-  --cat-educacion: #e34948;
-  --cat-otros: #8b969c;
+  --cat-mercado: #e05512;
+  --cat-servicios: #0e8fa6;
+  --cat-transporte: #e34948;
+  --cat-salud: #6a52d8;
+  --cat-ocio: #1d8a3c;
+  --cat-personal: #c94f78;
+  --cat-educacion: #866a02;
+  --cat-otros: #8b968c;
 
   /* segmentos de las barras apiladas */
   --s-ingreso: #2a78d6;
-  --s-gasto: #eb6834;
-  --s-deuda: #4a3aa7;
-  --s-ahorro: #1baf7a;
-  --s-libre: #b3bec2;
+  --s-gasto: #e05512;
+  --s-deuda: #6a52d8;
+  --s-ahorro: #0e8a67;
+  --s-libre: #b5bfb3;
 
-  --grid: #e6eced;
-  --axis: #c2ccce;
-  --shadow: 0 1px 2px rgba(19, 26, 29, 0.05), 0 8px 24px -14px rgba(19, 26, 29, 0.22);
+  --grid: #e7e6da;
+  --axis: #c7c6b7;
 
-  --display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
-  --body: "Public Sans", "Segoe UI", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", Consolas, ui-monospace, monospace;
+  /* profundidad · sombra difusa + un hilo de luz arriba del panel */
+  --shadow: 0 1px 2px rgba(22, 28, 22, 0.05), 0 10px 30px -16px rgba(22, 28, 22, 0.25);
+  --luz-borde: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --glow-a: 0 0 0 1px color-mix(in srgb, var(--a) 28%, transparent),
+    0 0 22px -6px color-mix(in srgb, var(--a) 45%, transparent);
+  --glow-b: 0 0 22px -6px color-mix(in srgb, var(--b) 40%, transparent);
 
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 14px;
+  /* gradientes · el fondo respira, los paneles apenas */
+  --grad-bg: radial-gradient(900px 420px at 12% -8%, color-mix(in srgb, #b5e237 9%, transparent), transparent 70%),
+    radial-gradient(800px 420px at 95% -10%, color-mix(in srgb, #6a52d8 7%, transparent), transparent 70%);
+  --grad-panel: linear-gradient(170deg, color-mix(in srgb, #ffffff 55%, transparent), transparent 42%);
+  --grad-hero: linear-gradient(135deg, color-mix(in srgb, var(--a) 14%, var(--surface)), var(--surface) 52%, color-mix(in srgb, var(--b) 9%, var(--surface)));
+
+  --display: "Space Grotesk", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", Consolas, ui-monospace, monospace;
+
+  --r-sm: 9px;
+  --r-md: 13px;
+  --r-lg: 18px;
+  --r-xl: 24px;
   --r-full: 999px;
+
+  /* movimiento · rápido para controles, amplio para entradas de contenido */
+  --t-1: 0.16s ease;
+  --t-2: 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* El tema oscuro es una selección, no una inversión automática:
-   cada color se volvió a escoger contra el fondo oscuro y se revalidó. */
+   cada color se volvió a escoger contra el negro verdoso y se revalidó. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f141a;
-    --surface: #171d23;
-    --surface-2: #1d242b;
-    --surface-3: #222b33;
-    --ink: #e6ecef;
-    --ink-2: #9aa7af;
-    --ink-3: #77858d;
-    --line: #28323b;
-    --line-2: #3a4752;
+    --bg: #0a0f0b;
+    --surface: #121a15;
+    --surface-2: #182319;
+    --surface-3: #1f2d22;
+    --ink: #ecf2ea;
+    --ink-2: #a3b1a5;
+    --ink-3: #7d8b7f;
+    --line: #222b24;
+    --line-2: #37453a;
 
-    --a: #1fa295;
-    --a-soft: #10312f;
-    --a-ink: #4fc9bc;
-    --b: #ac5bc0;
-    --b-soft: #2c1b31;
-    --b-ink: #d08be0;
-    --comun: #8b99a1;
-    --comun-soft: #222b33;
+    --a: #74a31c;
+    --a-soft: #1b2607;
+    --a-ink: #b9e24e;
+    --b: #8471e3;
+    --b-soft: #231d3e;
+    --b-ink: #b3a6f4;
+    --comun: #8b998e;
+    --comun-soft: #1f2d22;
 
-    --ok-ink: #57c957;
-    --warn-ink: #fab219;
-    --crit-ink: #f07f7f;
+    --cta-bg: #b8ef4a;
+    --cta-bg-2: #cdf876;
+    --cta-ink: #0d1403;
 
-    --cat-vivienda: #3987e5;
-    --cat-mercado: #d95926;
-    --cat-servicios: #c98500;
-    --cat-transporte: #199e70;
-    --cat-salud: #008300;
-    --cat-ocio: #d55181;
-    --cat-personal: #9085e9;
-    --cat-educacion: #e66767;
-    --cat-otros: #7d8990;
+    --ok-ink: #5fcb5f;
+    --warn-ink: #f4b63a;
+    --crit-ink: #f08080;
 
-    --s-ingreso: #3987e5;
-    --s-gasto: #d95926;
-    --s-deuda: #9085e9;
-    --s-ahorro: #199e70;
-    --s-libre: #4c5a63;
+    --cat-vivienda: #4a90e8;
+    --cat-mercado: #e05b28;
+    --cat-servicios: #1da5bd;
+    --cat-transporte: #e66767;
+    --cat-salud: #8471e3;
+    --cat-ocio: #35a553;
+    --cat-personal: #d4538a;
+    --cat-educacion: #b78a09;
+    --cat-otros: #7d897e;
 
-    --grid: #222b33;
-    --axis: #3a4752;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -16px rgba(0, 0, 0, 0.8);
+    --s-ingreso: #4a90e8;
+    --s-gasto: #e05b28;
+    --s-deuda: #8471e3;
+    --s-ahorro: #1fa47d;
+    --s-libre: #46544a;
+
+    --grid: #1c2920;
+    --axis: #37453a;
+
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 14px 34px -18px rgba(0, 0, 0, 0.85);
+    --luz-borde: inset 0 1px 0 rgba(236, 242, 234, 0.07);
+    --glow-a: 0 0 0 1px color-mix(in srgb, var(--a-ink) 30%, transparent),
+      0 0 26px -6px color-mix(in srgb, var(--a-ink) 50%, transparent);
+    --glow-b: 0 0 26px -6px color-mix(in srgb, var(--b-ink) 45%, transparent);
+
+    --grad-bg: radial-gradient(900px 460px at 12% -8%, color-mix(in srgb, #b8ef4a 7%, transparent), transparent 70%),
+      radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #8471e3 8%, transparent), transparent 70%);
+    --grad-panel: linear-gradient(170deg, color-mix(in srgb, #ecf2ea 4.5%, transparent), transparent 46%);
+    --grad-hero: linear-gradient(135deg, color-mix(in srgb, var(--a) 22%, var(--surface)), var(--surface) 52%, color-mix(in srgb, var(--b) 16%, var(--surface)));
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #0f141a;
-  --surface: #171d23;
-  --surface-2: #1d242b;
-  --surface-3: #222b33;
-  --ink: #e6ecef;
-  --ink-2: #9aa7af;
-  --ink-3: #77858d;
-  --line: #28323b;
-  --line-2: #3a4752;
+  --bg: #0a0f0b;
+  --surface: #121a15;
+  --surface-2: #182319;
+  --surface-3: #1f2d22;
+  --ink: #ecf2ea;
+  --ink-2: #a3b1a5;
+  --ink-3: #7d8b7f;
+  --line: #222b24;
+  --line-2: #37453a;
 
-  --a: #1fa295;
-  --a-soft: #10312f;
-  --a-ink: #4fc9bc;
-  --b: #ac5bc0;
-  --b-soft: #2c1b31;
-  --b-ink: #d08be0;
-  --comun: #8b99a1;
-  --comun-soft: #222b33;
+  --a: #74a31c;
+  --a-soft: #1b2607;
+  --a-ink: #b9e24e;
+  --b: #8471e3;
+  --b-soft: #231d3e;
+  --b-ink: #b3a6f4;
+  --comun: #8b998e;
+  --comun-soft: #1f2d22;
 
-  --ok-ink: #57c957;
-  --warn-ink: #fab219;
-  --crit-ink: #f07f7f;
+  --cta-bg: #b8ef4a;
+  --cta-bg-2: #cdf876;
+  --cta-ink: #0d1403;
 
-  --cat-vivienda: #3987e5;
-  --cat-mercado: #d95926;
-  --cat-servicios: #c98500;
-  --cat-transporte: #199e70;
-  --cat-salud: #008300;
-  --cat-ocio: #d55181;
-  --cat-personal: #9085e9;
-  --cat-educacion: #e66767;
-  --cat-otros: #7d8990;
+  --ok-ink: #5fcb5f;
+  --warn-ink: #f4b63a;
+  --crit-ink: #f08080;
 
-  --s-ingreso: #3987e5;
-  --s-gasto: #d95926;
-  --s-deuda: #9085e9;
-  --s-ahorro: #199e70;
-  --s-libre: #4c5a63;
+  --cat-vivienda: #4a90e8;
+  --cat-mercado: #e05b28;
+  --cat-servicios: #1da5bd;
+  --cat-transporte: #e66767;
+  --cat-salud: #8471e3;
+  --cat-ocio: #35a553;
+  --cat-personal: #d4538a;
+  --cat-educacion: #b78a09;
+  --cat-otros: #7d897e;
 
-  --grid: #222b33;
-  --axis: #3a4752;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -16px rgba(0, 0, 0, 0.8);
+  --s-ingreso: #4a90e8;
+  --s-gasto: #e05b28;
+  --s-deuda: #8471e3;
+  --s-ahorro: #1fa47d;
+  --s-libre: #46544a;
+
+  --grid: #1c2920;
+  --axis: #37453a;
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 14px 34px -18px rgba(0, 0, 0, 0.85);
+  --luz-borde: inset 0 1px 0 rgba(236, 242, 234, 0.07);
+  --glow-a: 0 0 0 1px color-mix(in srgb, var(--a-ink) 30%, transparent),
+    0 0 26px -6px color-mix(in srgb, var(--a-ink) 50%, transparent);
+  --glow-b: 0 0 26px -6px color-mix(in srgb, var(--b-ink) 45%, transparent);
+
+  --grad-bg: radial-gradient(900px 460px at 12% -8%, color-mix(in srgb, #b8ef4a 7%, transparent), transparent 70%),
+    radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #8471e3 8%, transparent), transparent 70%);
+  --grad-panel: linear-gradient(170deg, color-mix(in srgb, #ecf2ea 4.5%, transparent), transparent 46%);
+  --grad-hero: linear-gradient(135deg, color-mix(in srgb, var(--a) 22%, var(--surface)), var(--surface) 52%, color-mix(in srgb, var(--b) 16%, var(--surface)));
 }

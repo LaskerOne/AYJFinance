@@ -4,6 +4,7 @@ import { BarraApilada, type Segmento } from "@/components/charts/BarraApilada";
 import { Dona } from "@/components/charts/Dona";
 import { BarraProgreso } from "@/components/charts/BarraProgreso";
 import { FilaKpi } from "@/components/ui/Kpi";
+import { Cifra } from "@/components/ui/Cifra";
 import { Estado } from "@/components/ui/Etiqueta";
 import { useFinanzas } from "@/hooks/useFinanzas";
 import { useMoneda } from "@/hooks/useMoneda";
@@ -45,19 +46,31 @@ export function Resumen() {
       <FilaKpi
         columnas={5}
         datos={[
-          { etiqueta: "Entra", valor: $(f.ingreso), detalle: "Ingreso mensual de los dos" },
-          { etiqueta: "Sale", valor: $(f.gastos), detalle: "Gastos de vida presupuestados" },
-          { etiqueta: "Cuotas de deuda", valor: $(f.cuotas), detalle: `${$(f.deudaTotal)} pendientes` },
+          {
+            etiqueta: "Entra",
+            valor: <Cifra valor={f.ingreso} formato={$} />,
+            detalle: "Ingreso mensual de los dos",
+          },
+          {
+            etiqueta: "Sale",
+            valor: <Cifra valor={f.gastos} formato={$} />,
+            detalle: "Gastos de vida presupuestados",
+          },
+          {
+            etiqueta: "Cuotas de deuda",
+            valor: <Cifra valor={f.cuotas} formato={$} />,
+            detalle: `${$(f.deudaTotal)} pendientes`,
+          },
           {
             etiqueta: "Queda libre",
-            valor: $(f.disponible),
+            valor: <Cifra valor={f.disponible} formato={$} />,
             detalle: "Para metas y colchón",
             tono: f.disponible >= 0 ? "positivo" : "negativo",
             destacado: true,
           },
           {
             etiqueta: "Tasa de ahorro",
-            valor: porcentaje(f.tasaAhorro),
+            valor: <Cifra valor={f.tasaAhorro} formato={porcentaje} />,
             detalle: f.disponible >= 0 ? "De cada peso que entra" : "Estás gastando de más",
             tono: f.tasaAhorro >= 0.2 ? "positivo" : f.tasaAhorro < 0 ? "negativo" : "neutro",
             destacado: true,
