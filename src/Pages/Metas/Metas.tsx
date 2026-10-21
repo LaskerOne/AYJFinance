@@ -85,7 +85,11 @@ export function Metas() {
           <p className="vacio">Sin metas todavía. Agrega la primera abajo.</p>
         ) : (
           <div className={css.tubos}>
-            {metas.map((m, i) => {
+            {/* Primero las que ya tienen plata adentro, de más a menos; las vacías
+                al final. La tabla de edición conserva su orden propio. */}
+            {[...metas]
+              .sort((a, b) => Number(b.acumulado) - Number(a.acumulado))
+              .map((m, i) => {
               const objetivo = Number(m.objetivo);
               const acumulado = Number(m.acumulado);
               const aporte = Number(m.aporte);
