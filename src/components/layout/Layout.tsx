@@ -3,19 +3,20 @@ import { useSesion } from "@/contexts/SesionContext";
 import { useHogar } from "@/contexts/HogarContext";
 import { Cargando } from "@/components/ui/Cargando";
 import { SelectorTema } from "@/components/ui/SelectorTema";
+import { Icono, type NombreIcono } from "@/components/ui/Icono";
 import { MONEDAS } from "@/lib/formato";
 import css from "./Layout.module.css";
 
-const SECCIONES = [
-  { ruta: "/", texto: "Resumen", exacta: true },
-  { ruta: "/movimientos", texto: "Movimientos" },
-  { ruta: "/presupuesto", texto: "Presupuesto" },
-  { ruta: "/deudas", texto: "Deudas" },
-  { ruta: "/metas", texto: "Metas" },
-  { ruta: "/historico", texto: "Histórico" },
-  { ruta: "/sugerencias", texto: "Sugerencias" },
-  { ruta: "/importar", texto: "Importar" },
-  { ruta: "/ajustes", texto: "Ajustes" },
+const SECCIONES: { ruta: string; texto: string; icono: NombreIcono; exacta?: boolean }[] = [
+  { ruta: "/", texto: "Resumen", icono: "resumen", exacta: true },
+  { ruta: "/movimientos", texto: "Movimientos", icono: "movimientos" },
+  { ruta: "/presupuesto", texto: "Presupuesto", icono: "presupuesto" },
+  { ruta: "/deudas", texto: "Deudas", icono: "deudas" },
+  { ruta: "/metas", texto: "Metas", icono: "metas" },
+  { ruta: "/historico", texto: "Histórico", icono: "historico" },
+  { ruta: "/sugerencias", texto: "Sugerencias", icono: "sugerencias" },
+  { ruta: "/importar", texto: "Importar", icono: "importar" },
+  { ruta: "/ajustes", texto: "Ajustes", icono: "ajustes" },
 ];
 
 export function Layout() {
@@ -48,11 +49,11 @@ export function Layout() {
   }
 
   return (
-    <div className={css.marco}>
-      <header className={css.barra}>
+    <div className={css.app}>
+      <aside className={css.lateral}>
         <div className={css.marca}>
           <span className={css.logo} aria-hidden="true">CD</span>
-          <div>
+          <div className={css.marcaTexto}>
             <h1 className={css.titulo}>{hogar?.nombre ?? "Cuentas de Dos"}</h1>
             <p className={css.sub}>
               {perfiles.length > 1
@@ -62,12 +63,38 @@ export function Layout() {
           </div>
         </div>
 
-        <div className={css.acciones}>
-          <span className={`${css.vivo} ${enVivo ? css.vivoOn : ""}`} title={enVivo ? "Cambios en vivo" : "Sin conexión en vivo"}>
-            <span className={css.punto} />
-            {enVivo ? "En vivo" : "Sin conexión"}
-          </span>
+        <nav className={css.nav} aria-label="Secciones">
+          {SECCIONES.map((s) => (
+            <NavLink
+              key={s.ruta}
+              to={s.ruta}
+              end={s.exacta}
+              className={({ isActive }) => `${css.enlace} ${isActive ? css.activo : ""}`}
+            >
+              <span className={css.icono}>
+                <Icono nombre={s.icono} tamano={18} />
+              </span>
+              {s.texto}
+            </NavLink>
+          ))}
+        </nav>
 
+        <div className={css.pieLateral}>
+          <span
+            className={`${css.vivo} ${enVivo ? css.vivoOn : ""}`}
+            title={enVivo ? "Cambios en vivo" : "Sin conexión en vivo"}
+          >
+            <span className={css.punto} />
+            {enVivo ? "Sincronizado en vivo" : "Sin conexión en vivo"}
+          </span>
+          <span className={css.correo} title={correo}>
+            {correo}
+          </span>
+        </div>
+      </aside>
+
+      <div className={css.principal}>
+        <header className={css.topbar}>
           <select
             className="pill"
             aria-label="Moneda"
@@ -86,37 +113,24 @@ export function Layout() {
           <button className="pill ghost" onClick={() => void salir()} title={correo}>
             Salir
           </button>
-        </div>
-      </header>
+        </header>
 
-      <nav className={css.nav} aria-label="Secciones">
-        {SECCIONES.map((s) => (
-          <NavLink
-            key={s.ruta}
-            to={s.ruta}
-            end={s.exacta}
-            className={({ isActive }) => `${css.enlace} ${isActive ? css.activo : ""}`}
-          >
-            {s.texto}
-          </NavLink>
-        ))}
-      </nav>
-
-      {errorEscritura && (
-        <div className={css.avisoError} role="alert">
-          <div>
-            <strong>No se pudo guardar el cambio.</strong>
-            <p className={css.detalleError}>{errorEscritura}</p>
+        {errorEscritura && (
+          <div className={css.avisoError} role="alert">
+            <div>
+              <strong>No se pudo guardar el cambio.</strong>
+              <p className={css.detalleError}>{errorEscritura}</p>
+            </div>
+            <button className="pill" onClick={descartarErrorEscritura}>
+              Entendido
+            </button>
           </div>
-          <button className="pill" onClick={descartarErrorEscritura}>
-            Entendido
-          </button>
-        </div>
-      )}
+        )}
 
-      <main className={css.contenido}>
-        <Outlet />
-      </main>
+        <main className={css.contenido}>
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

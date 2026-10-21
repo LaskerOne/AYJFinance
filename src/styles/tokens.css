@@ -59,10 +59,10 @@
   --cat-otros: #8b968c;
 
   /* segmentos de las barras apiladas */
-  --s-ingreso: #2a78d6;
-  --s-gasto: #e05512;
+  --s-ingreso: #637d00;
+  --s-gasto: #c2416b;
   --s-deuda: #6a52d8;
-  --s-ahorro: #0e8a67;
+  --s-ahorro: #0e8fa6;
   --s-libre: #b5bfb3;
 
   --grid: #e7e6da;
@@ -137,10 +137,10 @@
     --cat-educacion: #b78a09;
     --cat-otros: #7d897e;
 
-    --s-ingreso: #4a90e8;
-    --s-gasto: #e05b28;
+    --s-ingreso: #74a31c;
+    --s-gasto: #d4538a;
     --s-deuda: #8471e3;
-    --s-ahorro: #1fa47d;
+    --s-ahorro: #1da5bd;
     --s-libre: #46544a;
 
     --grid: #1c2920;
@@ -197,10 +197,10 @@
   --cat-educacion: #b78a09;
   --cat-otros: #7d897e;
 
-  --s-ingreso: #4a90e8;
-  --s-gasto: #e05b28;
+  --s-ingreso: #74a31c;
+  --s-gasto: #d4538a;
   --s-deuda: #8471e3;
-  --s-ahorro: #1fa47d;
+  --s-ahorro: #1da5bd;
   --s-libre: #46544a;
 
   --grid: #1c2920;

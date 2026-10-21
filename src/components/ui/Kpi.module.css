@@ -1,11 +1,8 @@
+/* Cada KPI es su propia tarjeta de vidrio, no una celda de una franja. */
 .fila {
   display: grid;
   grid-template-columns: repeat(var(--columnas, 4), 1fr);
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  overflow: hidden;
+  gap: 12px;
 }
 
 @media (max-width: 900px) {
@@ -20,22 +17,32 @@
 }
 
 .kpi {
-  background: var(--surface);
-  padding: 16px 18px 18px;
+  background: var(--grad-panel), var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow), var(--luz-borde);
+  padding: 15px 17px 17px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
+  transition: transform var(--t-1), border-color var(--t-1);
+  animation: aparecer var(--t-2) backwards;
+}
+.kpi:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-2);
 }
 .destacado {
-  background: var(--surface-2);
+  background: var(--grad-hero);
+  border-color: color-mix(in srgb, var(--a) 26%, var(--line));
 }
 
 .valor {
   font-family: var(--display);
-  font-weight: 800;
-  font-size: clamp(19px, 2.3vw, 26px);
-  line-height: 1.15;
+  font-weight: 700;
+  font-size: clamp(21px, 2.4vw, 28px);
+  line-height: 1.12;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }

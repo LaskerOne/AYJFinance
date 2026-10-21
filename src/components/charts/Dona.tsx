@@ -94,7 +94,7 @@ export function Dona({ datos, total, titulo = "Distribución" }: Props) {
             y="86"
             textAnchor="middle"
             fontSize="10.5"
-            fontFamily="IBM Plex Mono, monospace"
+            fontFamily="JetBrains Mono, monospace"
             letterSpacing="1.2"
             fill="var(--ink-3)"
           >

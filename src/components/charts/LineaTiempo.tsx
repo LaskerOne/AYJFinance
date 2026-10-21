@@ -76,7 +76,7 @@ export function LineaTiempo({ series, etiqueta, alto = 200, etiquetaX }: Props) 
                 y={vy + 3.5}
                 textAnchor="end"
                 fontSize="10"
-                fontFamily="IBM Plex Mono, monospace"
+                fontFamily="JetBrains Mono, monospace"
                 fill="var(--ink-3)"
               >
                 {$corto(maxY * f)}
@@ -92,7 +92,7 @@ export function LineaTiempo({ series, etiqueta, alto = 200, etiquetaX }: Props) 
             y={alto - 9}
             textAnchor={k === 0 ? "start" : k === 2 ? "end" : "middle"}
             fontSize="10"
-            fontFamily="IBM Plex Mono, monospace"
+            fontFamily="JetBrains Mono, monospace"
             fill="var(--ink-3)"
           >
             {nombreX(i)}
