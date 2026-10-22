@@ -8,7 +8,7 @@ import { Estado } from "@/components/ui/Etiqueta";
 import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
 import { useCategorias } from "@/hooks/useCategorias";
-import { cerrarMes } from "@/services/coleccion.service";
+import { useCerrarMes } from "@/hooks/useSalud";
 import { mensajeDeError } from "@/services/supabase";
 import { nombrePeriodo, porcentaje } from "@/lib/formato";
 import { COLOR_CATEGORIA, type Categoria } from "@/models/dominio";
@@ -27,7 +27,8 @@ function mesAnterior(mes: string): string {
 }
 
 export function Historico() {
-  const { cierres, hogar, recargar } = useHogar();
+  const { cierres, hogar } = useHogar();
+  const cerrarMesConPuntaje = useCerrarMes();
   const { $ } = useMoneda();
   const { etiqueta } = useCategorias();
   const [guardando, setGuardando] = useState(false);
@@ -52,6 +53,7 @@ export function Historico() {
   }));
 
   // El patrimonio aparece cuando algún cierre ya registró activos (0011).
+  const conPuntaje = ordenados.filter((c) => c.puntaje !== null && c.puntaje !== undefined);
   const conPatrimonio = ordenados.some((c) => Number(c.activos_total ?? 0) > 0);
   const serieDeuda: Serie[] = [
     {
@@ -94,8 +96,7 @@ export function Historico() {
     setError("");
     setGuardando(true);
     try {
-      await cerrarMes(hogar.id, `${periodo}-01`);
-      await recargar();
+      await cerrarMesConPuntaje(periodo);
     } catch (e) {
       setError(mensajeDeError(e));
     } finally {
@@ -207,8 +208,21 @@ export function Historico() {
           </section>
 
           <FilaKpi
-            columnas={3}
+            columnas={conPuntaje.length > 0 ? 4 : 3}
             datos={[
+              ...(conPuntaje.length > 0
+                ? [
+                    {
+                      etiqueta: "Puntaje de salud",
+                      valor: `${conPuntaje[conPuntaje.length - 1].puntaje} / 100`,
+                      detalle:
+                        conPuntaje.length > 1
+                          ? `${Number(conPuntaje[conPuntaje.length - 1].puntaje) - Number(conPuntaje[conPuntaje.length - 2].puntaje) >= 0 ? "+" : "−"}${Math.abs(Number(conPuntaje[conPuntaje.length - 1].puntaje) - Number(conPuntaje[conPuntaje.length - 2].puntaje))} contra el cierre anterior`
+                          : "Primer cierre con puntaje",
+                      tono: "neutro" as const,
+                    },
+                  ]
+                : []),
               {
                 etiqueta: "Meses registrados",
                 valor: String(ordenados.length),

@@ -355,3 +355,10 @@
 .regla[open] .reglaFlecha {
   transform: rotate(90deg);
 }
+.puntajeEnlace {
+  text-decoration: none;
+  transition: filter var(--t-1);
+}
+.puntajeEnlace:hover {
+  filter: brightness(1.15);
+}

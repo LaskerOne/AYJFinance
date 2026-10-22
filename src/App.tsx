@@ -13,6 +13,8 @@ import { Habitos } from "@/Pages/Habitos/Habitos";
 import { Proyeccion } from "@/Pages/Proyeccion/Proyeccion";
 import { Credito } from "@/Pages/Credito/Credito";
 import { Patrimonio } from "@/Pages/Patrimonio/Patrimonio";
+import { Reunion } from "@/Pages/Reunion/Reunion";
+import { Ruta } from "@/Pages/Ruta/Ruta";
 import { Presupuesto } from "@/Pages/Presupuesto/Presupuesto";
 import { Deudas } from "@/Pages/Deudas/Deudas";
 import { Metas } from "@/Pages/Metas/Metas";
@@ -41,6 +43,8 @@ export function App() {
           <Route index element={<Resumen />} />
           <Route path="movimientos" element={<Movimientos />} />
           <Route path="habitos" element={<Habitos />} />
+          <Route path="reunion" element={<Reunion />} />
+          <Route path="ruta" element={<Ruta />} />
           <Route path="presupuesto" element={<Presupuesto />} />
           <Route path="deudas" element={<Deudas />} />
           <Route path="credito" element={<Credito />} />

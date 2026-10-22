@@ -1,0 +1,304 @@
+/* --- puntaje ---------------------------------------------------------------- */
+.puntaje {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.anillo {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  flex: none;
+}
+.anillo svg {
+  width: 100%;
+  height: 100%;
+}
+.anilloRiel {
+  fill: none;
+  stroke: var(--surface-3);
+  stroke-width: 12;
+}
+@keyframes llenarAnillo {
+  from {
+    stroke-dashoffset: var(--total);
+  }
+}
+.anilloValor {
+  fill: none;
+  stroke: var(--a-ink);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dashoffset: var(--falta);
+  animation: llenarAnillo 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--a-ink) 60%, transparent));
+}
+.anilloNumero {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  padding-top: 52px;
+  gap: 4px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 38px;
+  letter-spacing: -0.03em;
+  color: var(--a-ink);
+}
+.anilloDe {
+  font-size: 13px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.partes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+@keyframes entraParte {
+  from {
+    opacity: 0;
+  }
+}
+.partes li {
+  display: grid;
+  grid-template-columns: 150px 1fr 48px;
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+  animation: entraParte 0.4s ease backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+.parteNombre {
+  color: var(--ink-2);
+}
+.partePuntos {
+  text-align: right;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+/* --- ruta --------------------------------------------------------------------- */
+.ruta {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+@keyframes entraNivel {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+}
+.nivel {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 14px;
+  padding: 12px 0;
+  position: relative;
+  animation: entraNivel 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+/* La línea que une los niveles. */
+.nivel:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 19px;
+  top: 52px;
+  bottom: -12px;
+  width: 2px;
+  background: var(--line-2);
+}
+.nivel[data-estado="logrado"]:not(:last-child)::before {
+  background: var(--a);
+}
+.nivelNumero {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 16px;
+  background: var(--surface-3);
+  color: var(--ink-3);
+  box-shadow: var(--relieve);
+  position: relative;
+  z-index: 1;
+}
+.nivel[data-estado="logrado"] .nivelNumero {
+  background: linear-gradient(180deg, var(--cta-bg-2), var(--cta-bg));
+  color: var(--cta-ink);
+}
+.nivel[data-estado="actual"] .nivelNumero {
+  background: var(--surface);
+  color: var(--a-ink);
+  box-shadow: var(--relieve), 0 0 0 2px var(--a), 0 0 18px -2px color-mix(in srgb, var(--a-ink) 70%, transparent);
+  animation: latirNivel 2.6s ease-in-out infinite;
+}
+@keyframes latirNivel {
+  0%,
+  100% {
+    box-shadow: var(--relieve), 0 0 0 2px var(--a), 0 0 12px -4px color-mix(in srgb, var(--a-ink) 60%, transparent);
+  }
+  50% {
+    box-shadow: var(--relieve), 0 0 0 2px var(--a), 0 0 22px 0 color-mix(in srgb, var(--a-ink) 75%, transparent);
+  }
+}
+.nivelCuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px 0 4px;
+}
+.nivel[data-estado="actual"] .nivelCuerpo {
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid color-mix(in srgb, var(--a) 40%, var(--line));
+  background: var(--grad-hero);
+}
+.nivel[data-estado="futuro"] .nivelCuerpo {
+  opacity: 0.6;
+}
+.nivelCabeza {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.nivelTitulo {
+  font-size: 15px;
+}
+.nivelEtiqueta {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.nivel[data-estado="actual"] .nivelEtiqueta {
+  color: var(--a-ink);
+}
+.nivelEstado {
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.nivelPorque {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-3);
+}
+.nivelSiguiente {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.nivelSiguiente b {
+  color: var(--a-ink);
+}
+
+/* --- lecciones ------------------------------------------------------------------ */
+.lecciones {
+  display: flex;
+  flex-direction: column;
+}
+.leccion {
+  border-top: 1px solid var(--line);
+}
+.leccion:first-child {
+  border-top: none;
+}
+.leccionCabeza {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 6px;
+  margin-inline: -6px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: background var(--t-1);
+}
+.leccionCabeza::-webkit-details-marker {
+  display: none;
+}
+.leccionCabeza:hover {
+  background: var(--surface-2);
+}
+.leccionFlecha {
+  display: inline-block;
+  color: var(--a-ink);
+  font-size: 12px;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.leccion[open] .leccionFlecha {
+  transform: rotate(90deg);
+}
+.leccionTitulo {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14.5px;
+}
+.leccionSuya,
+.leccionVista {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: var(--r-full);
+}
+.leccionSuya {
+  background: var(--a-soft);
+  color: var(--a-ink);
+}
+.leccionVista {
+  color: var(--ink-3);
+  margin-left: auto;
+}
+@keyframes abreLeccion {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.leccionCuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 0 16px 22px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 82ch;
+  animation: abreLeccion 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.leccionNumeros {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 11px 13px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  box-shadow: var(--hundido);
+  color: var(--ink);
+}
+.leccionNumeros b {
+  color: var(--a-ink);
+}
+.leccionHacer {
+  color: var(--ink-2);
+}

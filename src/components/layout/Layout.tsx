@@ -8,20 +8,45 @@ import { useMoneda } from "@/hooks/useMoneda";
 import { MONEDAS, moneda as fmtMoneda } from "@/lib/formato";
 import css from "./Layout.module.css";
 
-const SECCIONES: { ruta: string; texto: string; icono: NombreIcono; exacta?: boolean }[] = [
-  { ruta: "/", texto: "Resumen", icono: "resumen", exacta: true },
-  { ruta: "/movimientos", texto: "Movimientos", icono: "movimientos" },
-  { ruta: "/habitos", texto: "Hábitos", icono: "habitos" },
-  { ruta: "/presupuesto", texto: "Presupuesto", icono: "presupuesto" },
-  { ruta: "/deudas", texto: "Deudas", icono: "deudas" },
-  { ruta: "/credito", texto: "Laboratorio de crédito", icono: "credito" },
-  { ruta: "/metas", texto: "Metas", icono: "metas" },
-  { ruta: "/patrimonio", texto: "Patrimonio", icono: "patrimonio" },
-  { ruta: "/proyeccion", texto: "Proyección", icono: "proyeccion" },
-  { ruta: "/historico", texto: "Histórico", icono: "historico" },
-  { ruta: "/sugerencias", texto: "Sugerencias", icono: "sugerencias" },
-  { ruta: "/importar", texto: "Importar", icono: "importar" },
-  { ruta: "/ajustes", texto: "Ajustes", icono: "ajustes" },
+type Seccion = { ruta: string; texto: string; icono: NombreIcono; exacta?: boolean };
+
+/** Las secciones agrupadas por para qué sirven, en el orden en que se usan. */
+const GRUPOS: { titulo: string; secciones: Seccion[] }[] = [
+  {
+    titulo: "Día a día",
+    secciones: [
+      { ruta: "/", texto: "Resumen", icono: "resumen", exacta: true },
+      { ruta: "/movimientos", texto: "Movimientos", icono: "movimientos" },
+      { ruta: "/habitos", texto: "Hábitos", icono: "habitos" },
+      { ruta: "/reunion", texto: "Reunión del mes", icono: "reunion" },
+    ],
+  },
+  {
+    titulo: "Planear",
+    secciones: [
+      { ruta: "/presupuesto", texto: "Presupuesto", icono: "presupuesto" },
+      { ruta: "/deudas", texto: "Deudas", icono: "deudas" },
+      { ruta: "/metas", texto: "Metas", icono: "metas" },
+      { ruta: "/proyeccion", texto: "Proyección", icono: "proyeccion" },
+    ],
+  },
+  {
+    titulo: "Crecer",
+    secciones: [
+      { ruta: "/ruta", texto: "Ruta financiera", icono: "ruta" },
+      { ruta: "/patrimonio", texto: "Patrimonio", icono: "patrimonio" },
+      { ruta: "/credito", texto: "Laboratorio de crédito", icono: "credito" },
+      { ruta: "/sugerencias", texto: "Sugerencias", icono: "sugerencias" },
+    ],
+  },
+  {
+    titulo: "Registro",
+    secciones: [
+      { ruta: "/historico", texto: "Histórico", icono: "historico" },
+      { ruta: "/importar", texto: "Importar", icono: "importar" },
+      { ruta: "/ajustes", texto: "Ajustes", icono: "ajustes" },
+    ],
+  },
 ];
 
 /** Cuando el hogar mira en USD, dice con qué tasa se está convirtiendo. */
@@ -83,18 +108,23 @@ export function Layout() {
         </div>
 
         <nav className={css.nav} aria-label="Secciones">
-          {SECCIONES.map((s) => (
-            <NavLink
-              key={s.ruta}
-              to={s.ruta}
-              end={s.exacta}
-              className={({ isActive }) => `${css.enlace} ${isActive ? css.activo : ""}`}
-            >
-              <span className={css.icono}>
-                <Icono nombre={s.icono} tamano={18} />
-              </span>
-              {s.texto}
-            </NavLink>
+          {GRUPOS.map((g) => (
+            <div key={g.titulo} className={css.grupo}>
+              <span className={css.grupoTitulo}>{g.titulo}</span>
+              {g.secciones.map((s) => (
+                <NavLink
+                  key={s.ruta}
+                  to={s.ruta}
+                  end={s.exacta}
+                  className={({ isActive }) => `${css.enlace} ${isActive ? css.activo : ""}`}
+                >
+                  <span className={css.icono}>
+                    <Icono nombre={s.icono} tamano={18} />
+                  </span>
+                  {s.texto}
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
 

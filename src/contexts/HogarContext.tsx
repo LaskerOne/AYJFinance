@@ -16,6 +16,7 @@ import { useSesion } from "./SesionContext";
 import type {
   Activo,
   CierreMensual,
+  Decision,
   Deuda,
   GastoPresupuesto,
   Hogar,
@@ -39,6 +40,7 @@ const TABLAS: NombreTabla[] = [
   "reglas_categoria",
   "cierres_mensuales",
   "activos",
+  "decisiones",
 ];
 
 const ORDEN: Record<NombreTabla, { columna: string; ascendente?: boolean }> = {
@@ -50,6 +52,7 @@ const ORDEN: Record<NombreTabla, { columna: string; ascendente?: boolean }> = {
   reglas_categoria: { columna: "creada_en" },
   cierres_mensuales: { columna: "periodo" },
   activos: { columna: "orden" },
+  decisiones: { columna: "orden" },
 };
 
 const VACIO: Filas = {
@@ -61,6 +64,7 @@ const VACIO: Filas = {
   reglas_categoria: [],
   cierres_mensuales: [],
   activos: [],
+  decisiones: [],
 };
 
 interface ValorHogar {
@@ -82,6 +86,7 @@ interface ValorHogar {
   reglas: ReglaCategoria[];
   cierres: CierreMensual[];
   activos: Activo[];
+  decisiones: Decision[];
 
   cargando: boolean;
   error: string;
@@ -396,6 +401,7 @@ export function HogarProvider({ children }: { children: ReactNode }) {
       reglas: filas.reglas_categoria,
       cierres: filas.cierres_mensuales,
       activos: filas.activos,
+      decisiones: filas.decisiones,
       cargando,
       error,
       errorEscritura,

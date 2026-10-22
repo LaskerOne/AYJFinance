@@ -5,6 +5,8 @@ import { Medidor, type Zona } from "@/components/ui/Medidor";
 import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
 import { mesEnQueBajaDe } from "@/lib/deudas";
+import { useSalud } from "@/hooks/useSalud";
+import { textoPuntaje } from "@/lib/salud";
 import { enMeses, porcentaje } from "@/lib/formato";
 import type { Finanzas } from "@/lib/calculos";
 import { ReglaCincuenta } from "./ReglaCincuenta";
@@ -58,6 +60,8 @@ function Indicador({
 export function SaludFinanciera({ finanzas: f }: { finanzas: Finanzas }) {
   const { deudas, idA, idB, nombreDe } = useHogar();
   const { $ } = useMoneda();
+  const { puntaje } = useSalud();
+  const estadoPuntaje = textoPuntaje(puntaje.total);
 
   // 1 · Endeudamiento: cuotas sobre ingreso.
   const dti = f.ingreso > 0 ? f.cuotas / f.ingreso : 0;
@@ -113,6 +117,11 @@ export function SaludFinanciera({ finanzas: f }: { finanzas: Finanzas }) {
             lo que la movería.
           </p>
         </div>
+        <Link to="/ruta" className={css.puntajeEnlace} title="Ver la ruta financiera">
+          <Estado tono={estadoPuntaje.tono}>
+            Puntaje {puntaje.total} / 100 · {estadoPuntaje.texto}
+          </Estado>
+        </Link>
       </header>
 
       <div className={css.indicadores}>

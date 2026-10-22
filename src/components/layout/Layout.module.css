@@ -323,3 +323,32 @@
   margin-right: auto;
   white-space: nowrap;
 }
+
+/* --- grupos de la navegación ---------------------------------------------------- */
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.grupo + .grupo {
+  margin-top: 10px;
+}
+.grupoTitulo {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 4px 12px 3px;
+}
+@media (max-width: 940px) {
+  .grupo {
+    flex-direction: row;
+  }
+  .grupo + .grupo {
+    margin-top: 0;
+  }
+  .grupoTitulo {
+    display: none;
+  }
+}

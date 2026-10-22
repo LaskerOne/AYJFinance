@@ -73,3 +73,17 @@ export async function aprenderRegla(
   });
   if (error) throw error;
 }
+
+/**
+ * Guarda el puntaje de salud en el cierre del mes. Va aparte de cerrar_mes
+ * porque el puntaje lo calcula la aplicación; si la columna aún no existe
+ * (migración 0012 sin correr) se ignora el error: el cierre ya quedó hecho.
+ */
+export async function guardarPuntaje(hogarId: string, periodo: string, puntaje: number): Promise<void> {
+  const { error } = await supabase
+    .from("cierres_mensuales")
+    .update({ puntaje: Math.max(0, Math.min(100, Math.round(puntaje))) })
+    .eq("hogar_id", hogarId)
+    .eq("periodo", periodo);
+  if (error) console.warn("No se pudo guardar el puntaje del cierre:", error.message);
+}

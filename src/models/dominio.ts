@@ -256,6 +256,8 @@ export interface CierreMensual {
   por_categoria: Partial<Record<Categoria, number>>;
   /** Total de activos al cierre (migración 0011); con deuda_total da el patrimonio. */
   activos_total?: number;
+  /** Puntaje de salud (0–100) al cerrar, migración 0012. */
+  puntaje?: number | null;
   cerrado_en: string;
 }
 
@@ -329,6 +331,21 @@ export interface Activo {
   creado_en: string;
 }
 
+/** Un acuerdo de la reunión mensual. */
+export interface Decision {
+  id: string;
+  hogar_id: string;
+  /** YYYY-MM-01 */
+  periodo: string;
+  texto: string;
+  responsable: string | null;
+  cumplida: boolean;
+  /** Id de la sugerencia de la app de la que salió, si aplica. */
+  origen: string | null;
+  orden: number;
+  creado_en: string;
+}
+
 /** Nombre de tabla → forma de la fila. Le da tipos al hook genérico. */
 export interface MapaTablas {
   ingresos: Ingreso;
@@ -339,6 +356,7 @@ export interface MapaTablas {
   reglas_categoria: ReglaCategoria;
   cierres_mensuales: CierreMensual;
   activos: Activo;
+  decisiones: Decision;
 }
 
 export type NombreTabla = keyof MapaTablas;

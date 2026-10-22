@@ -29,6 +29,23 @@ const TRAZOS: Record<string, JSX.Element> = {
       <path d="M9 8.4 7.5 5.5M11 8.4l1.5-2.9M9 11.6l-1.5 2.9M11 11.6l1.5 2.9M4.2 8 3 5.6" />
     </>
   ),
+  // Dos sillas a una mesa: la reunión del mes.
+  reunion: (
+    <>
+      <circle cx="6" cy="5.5" r="2" />
+      <circle cx="14" cy="5.5" r="2" />
+      <path d="M2.8 12c0-2 1.4-3.4 3.2-3.4S9.2 10 9.2 12M10.8 12c0-2 1.4-3.4 3.2-3.4s3.2 1.4 3.2 3.4" />
+      <path d="M2.5 14.5h15M5 14.5v3M15 14.5v3" />
+    </>
+  ),
+  // Un camino con banderín: la ruta de madurez.
+  ruta: (
+    <>
+      <path d="M4 17c0-3 3-3.5 5-5s2-4.5 6-5" strokeDasharray="2.2 2.2" />
+      <circle cx="4" cy="17" r="1.4" fill="currentColor" stroke="none" />
+      <path d="M15 7V2.5l3.5 1.6L15 5.7" />
+    </>
+  ),
   presupuesto: (
     <>
       <path d="M4 5h12" />

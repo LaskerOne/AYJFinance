@@ -1,0 +1,169 @@
+.pasos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+@keyframes entraPaso {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.paso {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--grad-panel), var(--surface);
+  box-shadow: var(--shadow), var(--luz-borde);
+  animation: entraPaso 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+.paso[data-listo="false"] {
+  border-color: color-mix(in srgb, var(--a) 35%, var(--line));
+}
+.pasoNumero {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 16px;
+  background: var(--surface-3);
+  color: var(--a-ink);
+  box-shadow: var(--relieve);
+}
+.paso[data-listo="true"] .pasoNumero {
+  background: linear-gradient(180deg, var(--cta-bg-2), var(--cta-bg));
+  color: var(--cta-ink);
+}
+.pasoCuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.pasoCabeza {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pasoTitulo {
+  font-size: 16px;
+}
+.texto {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 82ch;
+}
+.texto b {
+  color: var(--ink);
+}
+.texto .bien {
+  color: var(--a-ink);
+}
+.texto .mal {
+  color: var(--crit-ink);
+}
+.accion {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.error {
+  font-size: 12.5px;
+  color: var(--crit-ink);
+}
+
+/* --- decisiones ------------------------------------------------------------------ */
+.decisiones {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.decision {
+  display: grid;
+  grid-template-columns: auto 1fr minmax(130px, 170px) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  box-shadow: var(--hundido);
+}
+.decision > input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--a);
+}
+.decision select {
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  padding: 5px 6px;
+  font-size: 12.5px;
+}
+.decisionCampo {
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  padding: 6px 7px;
+  font-size: 13.5px;
+}
+.decisionCampo:focus {
+  border-color: var(--a);
+  outline: none;
+  background: var(--surface);
+}
+.decisionTexto {
+  font-size: 13.5px;
+}
+.decision[data-cumplida="true"] .decisionTexto,
+.decision[data-cumplida="true"] .decisionCampo {
+  text-decoration: line-through;
+  color: var(--ink-3);
+}
+@media (max-width: 600px) {
+  .decision {
+    grid-template-columns: auto 1fr auto;
+  }
+  .decision select {
+    grid-column: 2 / 3;
+  }
+}
+
+.sugeridas {
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line-2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sugerida {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--ink);
+}
+.impacto {
+  color: var(--ink-3);
+  font-size: 12.5px;
+}
