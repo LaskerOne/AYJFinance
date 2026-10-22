@@ -296,3 +296,100 @@
     transform: translateY(-6px);
   }
 }
+
+/* --- liquidación del bote ---------------------------------------------------- */
+.entreUstedes {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  padding-left: 7px;
+}
+.liqVeredicto {
+  display: flex;
+  align-items: baseline;
+  gap: 8px 14px;
+  flex-wrap: wrap;
+}
+.liqFrase {
+  font-size: 15px;
+  color: var(--ink-2);
+}
+.liqFrase b {
+  color: var(--ink);
+}
+.liqMonto {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 30px;
+  letter-spacing: -0.02em;
+  color: var(--a-ink);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--a-ink) 35%, transparent);
+}
+.liqBarra {
+  margin: 18px 0 10px;
+}
+.liqBarra :global(.barra) {
+  background: var(--b);
+}
+.liqPersonas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
+}
+@media (max-width: 560px) {
+  .liqPersonas {
+    grid-template-columns: 1fr;
+  }
+}
+.liqPersona {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+.liqPersona:last-child {
+  text-align: right;
+  align-items: flex-end;
+}
+.liqNombre {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+.liqCifras {
+  color: var(--ink-3);
+  font-size: 12.5px;
+}
+.liqCifras b {
+  color: var(--ink-2);
+}
+.liqTransferencias {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  box-shadow: var(--hundido);
+  font-size: 12.5px;
+  color: var(--ink-2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.liqAcciones {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.liqPrestamos {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line-2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ink-2);
+}

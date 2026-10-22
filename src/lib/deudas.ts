@@ -118,3 +118,44 @@ export function ordenarPorEstrategia(deudas: Deuda[], estrategia: EstrategiaDeud
         : tasaMensual(b.tasa_ea) - tasaMensual(a.tasa_ea),
     );
 }
+
+/**
+ * Meses que tarda una deuda en quedar en cero pagando solo su cuota, con la
+ * fórmula cerrada de amortización. Infinity si la cuota no cubre los intereses.
+ */
+export function mesesConSuCuota(d: Pick<Deuda, "saldo" | "cuota" | "tasa_ea">): number {
+  const saldo = Number(d.saldo);
+  const cuota = Number(d.cuota);
+  if (saldo <= 0.5) return 0;
+  if (cuota <= 0) return Infinity;
+  const i = tasaMensual(d.tasa_ea);
+  if (i === 0) return Math.ceil(saldo / cuota);
+  if (cuota <= i * saldo) return Infinity;
+  return Math.ceil(-Math.log(1 - (i * saldo) / cuota) / Math.log(1 + i));
+}
+
+/**
+ * En qué mes el total de cuotas cae por debajo de `umbral` × ingreso, si solo
+ * se pagan las cuotas: cada deuda que termina libera la suya. Devuelve 0 si ya
+ * está por debajo, null si nunca baja (alguna cuota no cubre intereses y
+ * sostiene el total por encima), y la deuda cuyo fin cruza el umbral.
+ */
+export function mesEnQueBajaDe(
+  deudas: Deuda[],
+  ingreso: number,
+  umbral: number,
+): { mes: number; deuda: Deuda | null } | null {
+  if (ingreso <= 0) return null;
+  const vivas = deudas
+    .filter((d) => Number(d.saldo) > 0.5 && Number(d.cuota) > 0)
+    .map((d) => ({ d, meses: mesesConSuCuota(d) }))
+    .sort((a, b) => a.meses - b.meses);
+  let cuotas = vivas.reduce((s, v) => s + Number(v.d.cuota), 0);
+  if (cuotas / ingreso <= umbral) return { mes: 0, deuda: null };
+  for (const v of vivas) {
+    if (!Number.isFinite(v.meses)) return null;
+    cuotas -= Number(v.d.cuota);
+    if (cuotas / ingreso <= umbral) return { mes: v.meses, deuda: v.d };
+  }
+  return null;
+}

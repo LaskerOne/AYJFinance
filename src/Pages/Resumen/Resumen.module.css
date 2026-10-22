@@ -273,3 +273,85 @@
   color: var(--ink-2);
 }
 
+
+/* --- salud financiera ------------------------------------------------------- */
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 14px;
+}
+.indicador {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 17px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--grad-panel), var(--surface-2);
+  box-shadow: var(--luz-borde);
+  transition: transform var(--t-1), box-shadow var(--t-1);
+}
+.indicador:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--luz-borde), var(--glow-a);
+}
+.indCabeza {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.indValor {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.indExplica {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.indMueve {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-3);
+  padding-top: 8px;
+  border-top: 1px dashed var(--line-2);
+  margin-top: auto;
+}
+.indExplica b,
+.indMueve b {
+  color: var(--ink);
+}
+
+.regla {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.reglaCabeza {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14px;
+}
+.reglaCabeza::-webkit-details-marker {
+  display: none;
+}
+.reglaFlecha {
+  display: inline-block;
+  color: var(--a-ink);
+  font-size: 12px;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.regla[open] .reglaFlecha {
+  transform: rotate(90deg);
+}

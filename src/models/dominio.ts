@@ -74,7 +74,9 @@ export type Frecuencia =
   | "semestral"
   | "anual";
 export type TipoGasto = "fijo" | "variable";
-export type ClaseMovimiento = "gasto" | "ingreso";
+/** `transferencia`: plata que uno le pasa al otro para saldar el bote. No es
+ *  gasto ni ingreso del hogar; todo lo que suma la ignora. */
+export type ClaseMovimiento = "gasto" | "ingreso" | "transferencia";
 export type OrigenMovimiento = "manual" | "importado";
 export type Reparto = "proporcional" | "mitad";
 export type EstrategiaDeuda = "avalancha" | "bola";
@@ -178,6 +180,8 @@ export interface Deuda {
   cuota: number;
   dia_pago: number | null;
   orden: number;
+  /** Préstamo entre la pareja: entra al plan de pagos y a la liquidación. */
+  con_pareja?: boolean;
   creado_en: string;
 }
 

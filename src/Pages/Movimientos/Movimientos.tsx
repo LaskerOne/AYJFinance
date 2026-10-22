@@ -21,6 +21,7 @@ import {
   ComparativaPresupuesto,
   type LineaComparativa,
 } from "./components/ComparativaPresupuesto";
+import { LiquidacionBote } from "./components/LiquidacionBote";
 import css from "./Movimientos.module.css";
 
 function mesDe(iso: string): string {
@@ -403,6 +404,8 @@ export function Movimientos() {
         )}
       </section>
 
+      <LiquidacionBote mes={mes} delMes={delMes} />
+
       <section className="panel">
         <header>
           <div>
@@ -482,6 +485,9 @@ export function Movimientos() {
                     />
                   </td>
                   <td>
+                    {m.clase === "transferencia" ? (
+                      <span className={css.entreUstedes}>Entre ustedes</span>
+                    ) : (
                     <select
                       aria-label={m.clase === "ingreso" ? "Fuente del ingreso" : "Categoría"}
                       value={m.categoria}
@@ -501,6 +507,7 @@ export function Movimientos() {
                             </option>
                           ))}
                     </select>
+                    )}
                   </td>
                   <td>
                     <SelectorPersona
@@ -519,6 +526,9 @@ export function Movimientos() {
                   </td>
                   <td style={{ whiteSpace: "nowrap" }}>
                     {m.clase === "ingreso" && <Etiqueta lado="comun" texto="Ingreso" />}
+                    {m.clase === "transferencia" && (
+                      <Etiqueta lado={ladoDe(m.pagado_por)} texto="Liquidación" />
+                    )}
                     {m.compartido && <Etiqueta lado="comun" texto="Bote" />}
                     {m.extraordinario && <Etiqueta lado="b" texto="Extra" />}
                     {m.origen === "importado" && <Etiqueta lado={ladoDe(m.pagado_por)} texto="CSV" />}

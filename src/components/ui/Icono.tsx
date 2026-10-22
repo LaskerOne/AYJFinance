@@ -20,6 +20,15 @@ const TRAZOS: Record<string, JSX.Element> = {
       <path d="M16 13H5m0 0 3-3m-3 3 3 3" />
     </>
   ),
+  // Una hormiga: tres segmentos y patas. Por los gastos hormiga.
+  habitos: (
+    <>
+      <circle cx="5.2" cy="10" r="2.2" />
+      <ellipse cx="10" cy="10" rx="2" ry="1.8" />
+      <ellipse cx="14.8" cy="10" rx="3" ry="2.3" />
+      <path d="M9 8.4 7.5 5.5M11 8.4l1.5-2.9M9 11.6l-1.5 2.9M11 11.6l1.5 2.9M4.2 8 3 5.6" />
+    </>
+  ),
   presupuesto: (
     <>
       <path d="M4 5h12" />

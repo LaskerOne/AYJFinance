@@ -9,7 +9,7 @@ import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
 import { useFinanzas } from "@/hooks/useFinanzas";
 import { simularDeudas, ordenarPorEstrategia, tasaMensual } from "@/lib/deudas";
-import { aNumero, dentroDe, enMeses } from "@/lib/formato";
+import { aNumero, dentroDe, enMeses, porcentaje } from "@/lib/formato";
 import css from "./Deudas.module.css";
 
 export function Deudas() {
@@ -88,6 +88,15 @@ export function Deudas() {
               <Estado tono="crit">Las cuotas no bajan el saldo</Estado>
             )}
             {pendientes.length === 0 && <Estado tono="ok">En cero</Estado>}
+            {pendientes.length > 0 && f.ingreso > 0 && (
+              <Estado
+                tono={
+                  f.cuotas / f.ingreso <= 0.3 ? "ok" : f.cuotas / f.ingreso <= 0.4 ? "warn" : "crit"
+                }
+              >
+                Cuotas: {porcentaje(f.cuotas / f.ingreso)} del ingreso
+              </Estado>
+            )}
           </div>
         </div>
         <div className="heroGrafico">
@@ -340,13 +349,14 @@ export function Deudas() {
                 <th className="r">Saldo</th>
                 <th className="r">Tasa % E.A.</th>
                 <th className="r">Cuota/mes</th>
+                <th title="Préstamo entre ustedes: aparece en la liquidación del bote">Con la pareja</th>
                 <th />
               </tr>
             </thead>
             <tbody>
               {deudas.length === 0 && (
                 <tr>
-                  <td colSpan={6}>
+                  <td colSpan={7}>
                     <p className="vacio">Sin deudas. Ojalá siga así.</p>
                   </td>
                 </tr>
@@ -396,6 +406,15 @@ export function Deudas() {
                       onCambio={(v) => void editar("deudas", d.id, { cuota: v })}
                     />
                   </td>
+                  <td style={{ textAlign: "center" }}>
+                    <input
+                      type="checkbox"
+                      aria-label="Es un préstamo con la pareja"
+                      checked={Boolean(d.con_pareja)}
+                      onChange={(e) => void editar("deudas", d.id, { con_pareja: e.target.checked })}
+                      style={{ width: "auto", accentColor: "var(--a)" }}
+                    />
+                  </td>
                   <td>
                     <button
                       className="borrar"
@@ -412,6 +431,7 @@ export function Deudas() {
               <tr>
                 <td colSpan={4}>Total en cuotas</td>
                 <td className="r tot">{$(f.cuotas)}</td>
+                <td />
                 <td />
               </tr>
             </tfoot>

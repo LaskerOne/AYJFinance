@@ -9,6 +9,7 @@ import { Acceso } from "@/Pages/Acceso/Acceso";
 import { SinConfigurar } from "@/Pages/Acceso/SinConfigurar";
 import { Resumen } from "@/Pages/Resumen/Resumen";
 import { Movimientos } from "@/Pages/Movimientos/Movimientos";
+import { Habitos } from "@/Pages/Habitos/Habitos";
 import { Presupuesto } from "@/Pages/Presupuesto/Presupuesto";
 import { Deudas } from "@/Pages/Deudas/Deudas";
 import { Metas } from "@/Pages/Metas/Metas";
@@ -36,6 +37,7 @@ export function App() {
         >
           <Route index element={<Resumen />} />
           <Route path="movimientos" element={<Movimientos />} />
+          <Route path="habitos" element={<Habitos />} />
           <Route path="presupuesto" element={<Presupuesto />} />
           <Route path="deudas" element={<Deudas />} />
           <Route path="metas" element={<Metas />} />

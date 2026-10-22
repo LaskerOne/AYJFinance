@@ -1,0 +1,20 @@
+.deslizador {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.deslizador input[type="range"] {
+  flex: 1;
+  min-width: 200px;
+}
+.valor {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 13.5px;
+  min-width: 150px;
+  text-align: right;
+  color: var(--a-ink);
+}

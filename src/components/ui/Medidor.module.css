@@ -1,0 +1,44 @@
+.medidor {
+  position: relative;
+  padding: 6px 0;
+}
+.riel {
+  display: flex;
+  height: 10px;
+  border-radius: var(--r-full);
+  overflow: hidden;
+  background: var(--surface-3);
+  box-shadow: var(--hundido);
+}
+.zona {
+  height: 100%;
+}
+.zona[data-tono="ok"] {
+  background: color-mix(in srgb, var(--ok) 38%, var(--surface-3));
+}
+.zona[data-tono="warn"] {
+  background: color-mix(in srgb, var(--warn) 38%, var(--surface-3));
+}
+.zona[data-tono="crit"] {
+  background: color-mix(in srgb, var(--crit) 38%, var(--surface-3));
+}
+
+/* La aguja: un listón metálico que entra deslizándose hasta su valor. */
+.aguja {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: var(--ink);
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--bg) 75%, transparent),
+    0 0 10px color-mix(in srgb, var(--ink) 50%, transparent);
+  animation: entraAguja 1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+}
+@keyframes entraAguja {
+  from {
+    left: 0;
+    opacity: 0;
+  }
+}

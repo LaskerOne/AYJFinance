@@ -11,6 +11,7 @@ import css from "./Layout.module.css";
 const SECCIONES: { ruta: string; texto: string; icono: NombreIcono; exacta?: boolean }[] = [
   { ruta: "/", texto: "Resumen", icono: "resumen", exacta: true },
   { ruta: "/movimientos", texto: "Movimientos", icono: "movimientos" },
+  { ruta: "/habitos", texto: "Hábitos", icono: "habitos" },
   { ruta: "/presupuesto", texto: "Presupuesto", icono: "presupuesto" },
   { ruta: "/deudas", texto: "Deudas", icono: "deudas" },
   { ruta: "/metas", texto: "Metas", icono: "metas" },
