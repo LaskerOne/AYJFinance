@@ -1,0 +1,220 @@
+.aviso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.pie {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink-3);
+  max-width: 90ch;
+}
+
+/* --- calendario --------------------------------------------------------------- */
+.calendario {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  gap: 12px;
+}
+@keyframes entraMes {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+.mes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--grad-panel), var(--surface-2);
+  box-shadow: var(--luz-borde);
+  animation: entraMes 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 40ms);
+  transition: transform var(--t-1), box-shadow var(--t-1);
+}
+.mes:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--luz-borde), var(--glow-a);
+}
+.mes[data-rojo="true"] {
+  border-color: color-mix(in srgb, var(--crit) 40%, var(--line));
+  background: var(--grad-panel), color-mix(in srgb, var(--crit) 7%, var(--surface-2));
+}
+.mesCabeza {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+}
+.mesNombre {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: capitalize;
+}
+.apretado {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--crit-ink);
+}
+.mesNeto {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 21px;
+  letter-spacing: -0.02em;
+  color: var(--a-ink);
+}
+.mesNeto[data-rojo="true"] {
+  color: var(--crit-ink);
+}
+.mesFlujo {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+.eventos {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 6px 0 0;
+  border-top: 1px dashed var(--line-2);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11.5px;
+}
+.eventos li {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 4px;
+  align-items: baseline;
+  color: var(--ink-2);
+}
+.eventos li[data-tipo="entra"] > :first-child,
+.eventos li[data-tipo="libera"] > :first-child {
+  color: var(--ok-ink);
+}
+.eventos li[data-tipo="sale"] > :first-child {
+  color: var(--crit-ink);
+}
+.eventos li[data-tipo="aviso"] {
+  color: var(--ink-3);
+}
+.eventoTexto {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- plan de la prima ------------------------------------------------------------ */
+.reparto {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 24px;
+  margin-bottom: 18px;
+}
+@media (max-width: 640px) {
+  .reparto {
+    grid-template-columns: 1fr;
+  }
+}
+.parte {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.parteNombre {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.parteNombre b {
+  color: var(--a-ink);
+}
+.disfrutar {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+/* --- escenarios ------------------------------------------------------------------ */
+.escenario {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) 1.1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .escenario {
+    grid-template-columns: 1fr;
+  }
+}
+.supuestos {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.supuesto {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.supuesto b {
+  color: var(--a-ink);
+}
+.resultado {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  box-shadow: var(--hundido);
+}
+.veredicto {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.veredicto b {
+  color: var(--ink);
+}
+.comparacion {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.comparacion th {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+  text-align: right;
+  padding: 0 0 8px;
+}
+.comparacion td {
+  padding: 7px 0;
+  border-top: 1px solid var(--line);
+  color: var(--ink-2);
+}
+.comparacion td + td {
+  text-align: right;
+  white-space: nowrap;
+  padding-left: 12px;
+}
+.comparacion td[data-cambia="true"] {
+  color: var(--a-ink);
+  font-weight: 600;
+}
+.comparacion td[data-cambia="true"][data-peor="true"] {
+  color: var(--crit-ink);
+}

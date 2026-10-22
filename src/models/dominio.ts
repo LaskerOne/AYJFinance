@@ -152,6 +152,10 @@ export interface Ingreso {
   concepto: string;
   monto: number;
   frecuencia: Frecuencia;
+  /** Mes (1–12) en que llega si no es mensual. Ver migración 0009. */
+  mes_pago?: number | null;
+  /** Salario con prima y cesantías: la proyección suma esas entradas. */
+  con_prestaciones?: boolean;
   orden: number;
   creado_en: string;
 }
@@ -165,6 +169,8 @@ export interface GastoPresupuesto {
   monto: number;
   /** El monto es el de un ciclo completo, no el mensualizado. */
   frecuencia: Frecuencia;
+  /** Mes (1–12) en que se paga si no es mensual. */
+  mes_pago?: number | null;
   tipo: TipoGasto;
   orden: number;
   creado_en: string;

@@ -416,3 +416,21 @@
 .marco:hover .escena3d {
   transform: perspective(900px) rotateX(7deg) scale(1.012);
 }
+
+/* --- barras divergentes: crecen desde la línea de cero ---------------------- */
+.netoArriba,
+.netoAbajo {
+  transform-box: fill-box;
+  animation: crecerColumna 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  transition: filter var(--t-1);
+}
+.netoArriba {
+  transform-origin: bottom;
+}
+.netoAbajo {
+  transform-origin: top;
+}
+.netoArriba:hover,
+.netoAbajo:hover {
+  filter: brightness(1.18);
+}

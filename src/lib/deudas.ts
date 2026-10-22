@@ -159,3 +159,20 @@ export function mesEnQueBajaDe(
   }
   return null;
 }
+
+/**
+ * Las deudas como quedarían tras un abono único (una prima, por ejemplo)
+ * aplicado en el orden de la estrategia: primero a la prioritaria y, si la
+ * salda, el sobrante a la siguiente.
+ */
+export function conAbonoUnico(deudas: Deuda[], monto: number, estrategia: EstrategiaDeuda): Deuda[] {
+  let resta = Math.max(0, monto);
+  const ajustes = new Map<string, number>();
+  for (const d of ordenarPorEstrategia(deudas, estrategia)) {
+    if (resta <= 0) break;
+    const baja = Math.min(resta, Number(d.saldo));
+    ajustes.set(d.id, Number(d.saldo) - baja);
+    resta -= baja;
+  }
+  return deudas.map((d) => (ajustes.has(d.id) ? { ...d, saldo: ajustes.get(d.id)! } : d));
+}

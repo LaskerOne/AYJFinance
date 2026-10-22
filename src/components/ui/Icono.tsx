@@ -53,6 +53,14 @@ const TRAZOS: Record<string, JSX.Element> = {
       <circle cx="10" cy="10" r="0.6" fill="currentColor" stroke="none" />
     </>
   ),
+  // Una curva que sube hacia adelante: lo que viene.
+  proyeccion: (
+    <>
+      <path d="M3 16.5h14" />
+      <path d="M4 13.5c2.5-.2 3.6-3.8 6-4 1.8-.1 2.4 1.6 4 1.2 1.2-.3 1.9-2.2 2.5-4.2" />
+      <path d="M14.6 5.6 16.5 4.5l.7 2.1" />
+    </>
+  ),
   historico: (
     <>
       <circle cx="10" cy="10" r="7" />

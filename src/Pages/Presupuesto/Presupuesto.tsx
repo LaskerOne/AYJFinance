@@ -9,6 +9,7 @@ import { useMoneda } from "@/hooks/useMoneda";
 import { useFinanzas } from "@/hooks/useFinanzas";
 import { useCategorias } from "@/hooks/useCategorias";
 import { gastoMensual, ingresoMensual } from "@/lib/calculos";
+import { SelectorMesPago } from "./components/SelectorMesPago";
 import {
   FRECUENCIAS,
   NOMBRE_FRECUENCIA,
@@ -133,6 +134,8 @@ export function Presupuesto() {
                   <th>De quién</th>
                   <th>Concepto</th>
                   <th>Frecuencia</th>
+                  <th>Mes de pago</th>
+                  <th title="Salario de empleado con prima y cesantías">Prestaciones</th>
                   <th className="r">Monto</th>
                   <th className="r">Equivale al mes</th>
                   <th />
@@ -141,7 +144,7 @@ export function Presupuesto() {
               <tbody>
                 {ingresos.length === 0 && (
                   <tr>
-                    <td colSpan={6}>
+                    <td colSpan={8}>
                       <p className="vacio">Todavía no hay ingresos registrados.</p>
                     </td>
                   </tr>
@@ -181,6 +184,28 @@ export function Presupuesto() {
                         ))}
                       </select>
                     </td>
+                    <td>
+                      <SelectorMesPago
+                        frecuencia={i.frecuencia}
+                        valor={i.mes_pago}
+                        onCambio={(mes) => void editar("ingresos", i.id, { mes_pago: mes })}
+                      />
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      {i.frecuencia === "mensual" || i.frecuencia === "quincenal" ? (
+                        <input
+                          type="checkbox"
+                          aria-label="Salario con prima y cesantías"
+                          checked={Boolean(i.con_prestaciones)}
+                          onChange={(e) =>
+                            void editar("ingresos", i.id, { con_prestaciones: e.target.checked })
+                          }
+                          style={{ width: "auto", accentColor: "var(--a)" }}
+                        />
+                      ) : (
+                        <span style={{ color: "var(--ink-3)" }}>—</span>
+                      )}
+                    </td>
                     <td className="r">
                       <CampoMoneda
                         valor={Number(i.monto)}
@@ -205,7 +230,7 @@ export function Presupuesto() {
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={4}>Total mensual</td>
+                  <td colSpan={6}>Total mensual</td>
                   <td className="r tot">{$(f.ingreso)}</td>
                   <td />
                 </tr>
@@ -239,6 +264,7 @@ export function Presupuesto() {
                   <th>Tipo</th>
                   <th>Quién lo asume</th>
                   <th>Frecuencia</th>
+                  <th>Mes de pago</th>
                   <th className="r">Monto</th>
                   <th className="r">Equivale al mes</th>
                   <th />
@@ -247,7 +273,7 @@ export function Presupuesto() {
               <tbody>
                 {gastos.length === 0 && (
                   <tr>
-                    <td colSpan={8}>
+                    <td colSpan={9}>
                       <p className="vacio">Todavía no hay gastos presupuestados.</p>
                     </td>
                   </tr>
@@ -317,6 +343,13 @@ export function Presupuesto() {
                         ))}
                       </select>
                     </td>
+                    <td>
+                      <SelectorMesPago
+                        frecuencia={g.frecuencia ?? "mensual"}
+                        valor={g.mes_pago}
+                        onCambio={(mes) => void editar("gastos_presupuesto", g.id, { mes_pago: mes })}
+                      />
+                    </td>
                     <td className="r">
                       <CampoMoneda
                         valor={Number(g.monto)}
@@ -341,7 +374,7 @@ export function Presupuesto() {
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={6}>Total mensual equivalente</td>
+                  <td colSpan={7}>Total mensual equivalente</td>
                   <td className="r tot">{$(f.gastos)}</td>
                   <td />
                 </tr>

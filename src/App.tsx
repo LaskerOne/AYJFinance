@@ -10,6 +10,7 @@ import { SinConfigurar } from "@/Pages/Acceso/SinConfigurar";
 import { Resumen } from "@/Pages/Resumen/Resumen";
 import { Movimientos } from "@/Pages/Movimientos/Movimientos";
 import { Habitos } from "@/Pages/Habitos/Habitos";
+import { Proyeccion } from "@/Pages/Proyeccion/Proyeccion";
 import { Presupuesto } from "@/Pages/Presupuesto/Presupuesto";
 import { Deudas } from "@/Pages/Deudas/Deudas";
 import { Metas } from "@/Pages/Metas/Metas";
@@ -41,6 +42,7 @@ export function App() {
           <Route path="presupuesto" element={<Presupuesto />} />
           <Route path="deudas" element={<Deudas />} />
           <Route path="metas" element={<Metas />} />
+          <Route path="proyeccion" element={<Proyeccion />} />
           <Route path="historico" element={<Historico />} />
           <Route path="sugerencias" element={<Sugerencias />} />
           <Route path="importar" element={<Importar />} />
