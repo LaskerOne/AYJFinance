@@ -194,8 +194,10 @@ img {
 }
 
 /* --- controles ---------------------------------------------------------- */
+/* Botones en relieve: cara metálica con bisel claro arriba y sombra abajo.
+   Al presionarlos se hunden de verdad (la sombra pasa adentro). */
 .pill {
-  background: var(--surface);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
   border: 1px solid var(--line);
   color: var(--ink);
   border-radius: var(--r-full);
@@ -203,16 +205,18 @@ img {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  box-shadow: var(--relieve);
   transition: border-color var(--t-1), background var(--t-1), transform var(--t-1),
     box-shadow var(--t-1);
 }
 .pill:hover:not(:disabled) {
   border-color: var(--line-2);
-  background: var(--surface-2);
+  background: linear-gradient(180deg, var(--surface-3), var(--surface-2));
   transform: translateY(-1px);
 }
 .pill:active:not(:disabled) {
   transform: translateY(0);
+  box-shadow: var(--hundido);
 }
 .pill:disabled {
   opacity: 0.55;
@@ -221,31 +225,91 @@ img {
 .pill.ghost {
   background: transparent;
 }
+/* El botón principal es una brasa: degradado ámbar→naranja con brillo. */
 .pill.primaria {
   background: linear-gradient(180deg, var(--cta-bg-2), var(--cta-bg));
-  border-color: transparent;
+  border-color: color-mix(in srgb, var(--cta-bg) 70%, #000);
   color: var(--cta-ink);
   font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    0 0 16px -6px color-mix(in srgb, var(--cta-bg) 70%, transparent);
 }
 .pill.primaria:hover:not(:disabled) {
-  box-shadow: var(--glow-a);
+  background: linear-gradient(180deg, var(--cta-bg-2), var(--cta-bg));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), var(--glow-a);
 }
 
+/* Los campos son ranuras: hundidos en el metal. */
 .campo {
   width: 100%;
-  background: var(--surface);
+  background: var(--surface-2);
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
   padding: 9px 11px;
   font-size: 14px;
+  box-shadow: var(--hundido);
   transition: border-color var(--t-1), box-shadow var(--t-1);
 }
 .campo:focus {
   border-color: var(--a);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--a) 18%, transparent);
+  box-shadow: var(--hundido), 0 0 0 3px color-mix(in srgb, var(--a) 22%, transparent);
   outline: none;
 }
 
+/* Deslizadores: riel hundido, recorrido encendido en naranja y perilla
+   metálica con un punto de luz, como los kits de interfaz de metal. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+  --lleno: 50%;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: var(--r-full);
+  background: linear-gradient(90deg, var(--cta-bg) 0 var(--lleno), var(--surface-3) var(--lleno) 100%);
+  box-shadow: var(--hundido);
+}
+input[type="range"]::-moz-range-track {
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--surface-3);
+  box-shadow: var(--hundido);
+}
+input[type="range"]::-moz-range-progress {
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--cta-bg);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--cta-bg) 60%, transparent);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -7px;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  background: radial-gradient(circle at 50% 50%, var(--cta-bg) 0 3px, transparent 4px),
+    linear-gradient(180deg, var(--surface-3), var(--surface));
+  box-shadow: var(--relieve), 0 0 12px -2px color-mix(in srgb, var(--cta-bg) 70%, transparent);
+  transition: transform var(--t-1);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  background: radial-gradient(circle at 50% 50%, var(--cta-bg) 0 3px, transparent 4px),
+    linear-gradient(180deg, var(--surface-3), var(--surface));
+  box-shadow: var(--relieve), 0 0 12px -2px color-mix(in srgb, var(--cta-bg) 70%, transparent);
+}
+input[type="range"]:hover::-webkit-slider-thumb {
+  transform: scale(1.1);
+}
+
+/* El selector segmentado es un riel hundido; la opción activa sobresale. */
 .segmentado {
   display: inline-flex;
   background: var(--surface-2);
@@ -253,6 +317,7 @@ img {
   border-radius: var(--r-full);
   padding: 3px;
   gap: 2px;
+  box-shadow: var(--hundido);
 }
 .segmentado button {
   border: none;
@@ -266,9 +331,9 @@ img {
   transition: background var(--t-1), color var(--t-1);
 }
 .segmentado button[aria-pressed="true"] {
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  background: linear-gradient(180deg, var(--surface-3), var(--surface));
+  color: var(--a-ink);
+  box-shadow: var(--relieve);
 }
 
 /* --- etiquetas y estados ------------------------------------------------ */
@@ -328,6 +393,7 @@ img {
   height: 12px;
   background: var(--surface-3);
   border-radius: var(--r-sm);
+  box-shadow: var(--hundido);
 }
 .barra .fill {
   height: 100%;
@@ -605,7 +671,7 @@ table.datos tbody tr:nth-child(n + 10) { animation-delay: 300ms; }
 
 
 /* --- borde viajero (utilidad) ----------------------------------------------
-   Medio anillo de luz lima recorre el perímetro de la tarjeta mientras el
+   Medio anillo de luz naranja recorre el perímetro de la tarjeta mientras el
    mouse esté encima. Si el navegador no sabe animar el ángulo, deja un borde
    encendido fijo como plan B. */
 .bordeViajero {

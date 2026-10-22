@@ -118,9 +118,9 @@ export function Ajustes() {
           </div>
         </header>
         <div className={css.acento}>
-          <span className={`${css.acentoNombre} ${acento === "lima" ? css.acentoActivo : ""}`}>
-            <span className={`${css.muestra} ${css.muestraLima}`} aria-hidden="true" />
-            Lima
+          <span className={`${css.acentoNombre} ${acento === "naranja" ? css.acentoActivo : ""}`}>
+            <span className={`${css.muestra} ${css.muestraNaranja}`} aria-hidden="true" />
+            Naranja
           </span>
           <button
             type="button"
@@ -129,7 +129,7 @@ export function Ajustes() {
             aria-label="Usar violeta como color principal"
             className={css.interruptor}
             data-violeta={acento === "violeta"}
-            onClick={() => setAcento(acento === "violeta" ? "lima" : "violeta")}
+            onClick={() => setAcento(acento === "violeta" ? "naranja" : "violeta")}
           >
             <span className={css.perilla} />
           </button>

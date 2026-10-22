@@ -245,6 +245,7 @@ export function Deudas() {
                   max={tope}
                   step={Math.max(1000, Math.round(tope / 200 / 1000) * 1000)}
                   value={abono}
+                  style={{ ["--lleno" as string]: `${tope > 0 ? (abono / tope) * 100 : 0}%` }}
                   onChange={(e) => setAbono(aNumero(e.target.value))}
                   onMouseUp={() => void cambiarHogar({ abono_extra: abono })}
                   onTouchEnd={() => void cambiarHogar({ abono_extra: abono })}

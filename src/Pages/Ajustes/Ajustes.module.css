@@ -180,15 +180,15 @@
   font-weight: 700;
 }
 /* Las muestras usan los colores fijos de marca, no los de rol: deben
-   seguir diciendo "lima" y "violeta" aunque los papeles se inviertan. */
+   seguir diciendo "naranja" y "violeta" aunque los papeles se inviertan. */
 .muestra {
   width: 14px;
   height: 14px;
   border-radius: 50%;
 }
-.muestraLima {
-  background: var(--marca-lima);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--marca-lima) 60%, transparent);
+.muestraNaranja {
+  background: var(--marca-naranja);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--marca-naranja) 60%, transparent);
 }
 .muestraVioleta {
   background: var(--marca-violeta);
@@ -203,7 +203,7 @@
   border: 1px solid var(--line-2);
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, var(--marca-lima) 35%, var(--surface-3)),
+    color-mix(in srgb, var(--marca-naranja) 35%, var(--surface-3)),
     color-mix(in srgb, var(--marca-violeta) 35%, var(--surface-3))
   );
   cursor: pointer;
@@ -220,8 +220,8 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--marca-lima);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--marca-lima) 70%, transparent);
+  background: var(--marca-naranja);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--marca-naranja) 70%, transparent);
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.35s,
     box-shadow 0.35s;
 }

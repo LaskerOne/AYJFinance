@@ -182,6 +182,7 @@ export function Sugerencias() {
                 max={topeEnsayo}
                 step={Math.max(10_000, Math.round(topeEnsayo / 100 / 10_000) * 10_000)}
                 value={ensayo}
+                style={{ ["--lleno" as string]: `${topeEnsayo > 0 ? (ensayo / topeEnsayo) * 100 : 0}%` }}
                 onChange={(e) => setEnsayo(aNumero(e.target.value))}
               />
             </label>

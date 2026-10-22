@@ -35,7 +35,7 @@
 }
 
 /* Cada cubo oscila entre los dos colores de la casa, en contrafase:
-   cuando uno está en lima el otro va en violeta, y se cruzan a mitad de
+   cuando uno está en naranja el otro va en violeta, y se cruzan a mitad de
    camino. El glow acompaña porque usa currentColor. */
 @keyframes oscilaColor {
   0%,

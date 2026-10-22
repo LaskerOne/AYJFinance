@@ -5,7 +5,7 @@ import css from "./Teseracto.module.css";
  * Un teseracto de verdad: los 16 vértices del hipercubo rotando en los planos
  * XW, YZ y ZW, proyectados de 4D a 3D y de ahí al plano. Nada de imágenes.
  *
- * Es el "oráculo" de la página: gira solo, palpita, oscila entre el lima y el
+ * Es el "oráculo" de la página: gira solo, palpita, oscila entre el naranja y el
  * violeta de la casa, y al hacerle clic acelera y entrega el siguiente
  * consejo. Con `prefers-reduced-motion` queda quieto pero sigue funcionando.
  */
@@ -120,7 +120,7 @@ export function Teseracto({ onClic, etiqueta }: { onClic: () => void; etiqueta: 
       }}
     >
       <svg viewBox="-150 -150 300 300" className={css.svg} aria-hidden="true">
-        {/* El cubo de w=-1 y el de w=+1 oscilan en contrafase lima↔violeta;
+        {/* El cubo de w=-1 y el de w=+1 oscilan en contrafase naranja↔violeta;
             las aristas que los unen quedan en neutro. */}
         <g className={css.conectores}>
           {ARISTAS.filter(([i, j]) => (i < 8) !== (j < 8)).map((a) => linea(a, css.arista))}

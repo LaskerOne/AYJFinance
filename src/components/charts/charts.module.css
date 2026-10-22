@@ -332,6 +332,7 @@
   background: var(--surface-3);
   border-radius: var(--r-full);
   overflow: hidden;
+  box-shadow: var(--hundido);
 }
 .rankBarra {
   position: relative;

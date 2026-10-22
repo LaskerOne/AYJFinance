@@ -1,89 +1,100 @@
 /* ============================================================================
-   Sistema de diseño 2.0 · Cuentas de Dos · «Forest Noir»
-   Oscuro primero: negro con tinte verde, acento lima, violeta secundario.
-   El claro no es una inversión: son los mismos acabados con la luz encendida
-   (crema/salvia), para que cambiar de tema no sea un salto de casa.
+   Sistema de diseño 2.0 · Cuentas de Dos · «Grafito y brasa»
+   Oscuro primero: grafito metálico neutro, acento naranja incandescente,
+   violeta como segundo color. Los paneles y controles llevan relieve
+   (bisel claro arriba, sombra abajo, rieles hundidos), a la manera de los
+   kits de interfaz metálicos. El claro es aluminio cepillado con los mismos
+   acabados, para que cambiar de tema no sea un salto de casa.
 
-   Paleta de series validada con el verificador (dataviz):
-   banda de luminosidad, croma ≥ 0.1, CVD ΔE ≥ 8 entre vecinos (el único par
-   en banda 6–8 va siempre acompañado de etiqueta directa), contraste ≥ 3:1.
+   Paletas de series validadas con el verificador (dataviz): banda de
+   luminosidad, croma ≥ 0.1, CVD ΔE ≥ 8 y visión normal ≥ 15 entre vecinos,
+   contraste ≥ 3:1 (la deuda oscura, 2.7:1, siempre va con leyenda y cifra).
+   Las categorías se eligieron con búsqueda automática sobre el validador,
+   maximizando además la separación entre TODOS los pares (≥ 9 en ambos
+   temas), con los mismos tonos en claro y oscuro.
    «Otros» es un neutro deliberado: significa "lo demás" y siempre lleva texto.
    Todo color del sistema nace aquí; ningún componente escribe un hex suelto.
    ========================================================================= */
 
 :root {
-  /* superficies y tinta · crema/salvia */
-  --bg: #f0efe6;
-  --surface: #fbfbf7;
-  --surface-2: #f3f2e9;
-  --surface-3: #e9e8dc;
-  --ink: #161c16;
-  --ink-2: #57635a;
-  --ink-3: #7f8b81;
-  --line: #e0dfd2;
-  --line-2: #c7c6b7;
+  /* superficies y tinta · aluminio cepillado */
+  --bg: #e4e6e9;
+  --surface: #f6f7f8;
+  --surface-2: #eceef0;
+  --surface-3: #e0e3e6;
+  --ink: #16181b;
+  --ink-2: #555a62;
+  --ink-3: #7c818a;
+  --line: #d6d9dd;
+  --line-2: #bcc0c6;
 
-  /* identidad de cada persona (lima / violeta) · lima es también la marca */
-  --a: #637d00;
-  --a-soft: #eaf1cf;
-  --a-ink: #4c6400;
+  /* identidad de cada persona (naranja / violeta) · naranja es también la marca */
+  --a: #c45a00;
+  --a-soft: #fbe6d2;
+  --a-ink: #a64b00;
   --b: #6a52d8;
   --b-soft: #ebe6fb;
   --b-ink: #5540bb;
-  --comun: #56655c;
-  --comun-soft: #e6ebe2;
+  --comun: #5c626b;
+  --comun-soft: #e0e3e6;
 
-  /* colores de marca fijos: no cambian con el acento (muestras del interruptor) */
-  --marca-lima: #b5e237;
-  --marca-violeta: #8f7cea;
+  /* acción primaria · brasa: degradado ámbar→naranja con tinta casi negra */
+  --cta-bg: #ff8a1f;
+  --cta-bg-2: #ffad42;
+  --cta-ink: #1c0d02;
 
-  /* acción primaria · lima vivo con tinta casi negra, igual en ambos temas */
-  --cta-bg: #b5e237;
-  --cta-bg-2: #c9ef5b;
-  --cta-ink: #141a05;
+  /* estado · nunca se usan como color de serie, siempre con ícono y texto.
+     Crítico es carmesí rosado y advertencia amarillo para no confundirse
+     con el naranja de la marca. */
+  --ok: #1a9a33;
+  --warn: #e0b400;
+  --serious: #d9486a;
+  --crit: #cc2d62;
+  --ok-ink: #12792a;
+  --warn-ink: #7d6400;
+  --crit-ink: #b0204f;
 
-  /* estado · nunca se usan como color de serie */
-  --ok: #0ca30c;
-  --warn: #fab219;
-  --serious: #e07a4e;
-  --crit: #c7502f;
-  --ok-ink: #0a7a1e;
-  --warn-ink: #8a6200;
-  --crit-ink: #ab3c1e;
-
-  /* categorías de gasto · orden fijo, el color sigue a la categoría */
-  --cat-vivienda: #35a271;
-  --cat-mercado: #1d6b38;
-  --cat-servicios: #549e2b;
-  --cat-transporte: #0d6e43;
-  --cat-salud: #7a9a17;
-  --cat-ocio: #265f0b;
-  --cat-personal: #3f9e4f;
-  --cat-educacion: #116b45;
-  --cat-otros: #8b968c;
+  /* categorías de gasto · cobre/ámbar, teal/cian e índigo/violeta: las tres
+     familias de la casa, en orden fijo; el color sigue a la categoría */
+  --cat-vivienda: #b25bdc;
+  --cat-mercado: #b52b0c;
+  --cat-servicios: #4571e4;
+  --cat-transporte: #7e4a09;
+  --cat-salud: #169999;
+  --cat-ocio: #8631ae;
+  --cat-personal: #ca6842;
+  --cat-educacion: #354bad;
+  --cat-otros: #8a8f97;
 
   /* segmentos de las barras apiladas */
-  --s-ingreso: #637d00;
+  --s-ingreso: #c45a00;
   --s-gasto: #7e68ea;
   --s-deuda: #4f3bb0;
   --s-ahorro: #0e8fa6;
-  --s-libre: #b5bfb3;
+  --s-libre: #c2c6cc;
 
-  --grid: #e7e6da;
-  --axis: #c7c6b7;
+  --grid: #e1e4e7;
+  --axis: #bcc0c6;
 
-  /* profundidad · sombra difusa + un hilo de luz arriba del panel */
-  --shadow: 0 1px 2px rgba(22, 28, 22, 0.05), 0 10px 30px -16px rgba(22, 28, 22, 0.25);
-  --luz-borde: inset 0 1px 0 rgba(255, 255, 255, 0.85);
-  --glow-a: 0 0 0 1px color-mix(in srgb, var(--a) 28%, transparent),
-    0 0 22px -6px color-mix(in srgb, var(--a) 45%, transparent);
+  /* profundidad y relieve · bisel claro arriba, sombra abajo, rieles hundidos */
+  --shadow: 0 1px 2px rgba(16, 18, 21, 0.06), 0 10px 28px -16px rgba(16, 18, 21, 0.3);
+  --luz-borde: inset 0 1px 0 #ffffff, inset 0 -1px 0 rgba(16, 18, 21, 0.07);
+  --relieve: inset 0 1px 0 #ffffff, inset 0 -1px 0 rgba(16, 18, 21, 0.12), 0 1px 2px rgba(16, 18, 21, 0.12);
+  --hundido: inset 0 2px 3px rgba(16, 18, 21, 0.16), inset 0 -1px 0 #ffffff;
+  --glow-a: 0 0 0 1px color-mix(in srgb, var(--a) 30%, transparent),
+    0 0 22px -6px color-mix(in srgb, var(--cta-bg) 55%, transparent);
   --glow-b: 0 0 22px -6px color-mix(in srgb, var(--b) 40%, transparent);
 
-  /* gradientes · el fondo respira, los paneles apenas */
-  --grad-bg: radial-gradient(900px 420px at 12% -8%, color-mix(in srgb, #b5e237 9%, transparent), transparent 70%),
-    radial-gradient(800px 420px at 95% -10%, color-mix(in srgb, #6a52d8 7%, transparent), transparent 70%);
-  --grad-panel: linear-gradient(170deg, color-mix(in srgb, #ffffff 55%, transparent), transparent 42%);
-  --grad-hero: linear-gradient(135deg, color-mix(in srgb, var(--a) 14%, var(--surface)), var(--surface) 52%, color-mix(in srgb, var(--b) 9%, var(--surface)));
+  /* gradientes · fondo con brasa en la esquina, paneles de metal cepillado */
+  --grad-bg: radial-gradient(900px 420px at 12% -8%, color-mix(in srgb, #ff8a1f 9%, transparent), transparent 70%),
+    radial-gradient(800px 420px at 95% -10%, color-mix(in srgb, #6a52d8 6%, transparent), transparent 70%);
+  --grad-panel: linear-gradient(180deg, rgba(255, 255, 255, 0.75), transparent 38%),
+    repeating-linear-gradient(90deg, rgba(16, 18, 21, 0.012) 0 1px, transparent 1px 3px);
+  --grad-hero: linear-gradient(135deg, color-mix(in srgb, var(--a) 13%, var(--surface)), var(--surface) 55%, color-mix(in srgb, var(--b) 8%, var(--surface)));
+
+  /* colores de marca fijos: no cambian con el acento (muestras del interruptor) */
+  --marca-naranja: #ff8a1f;
+  --marca-violeta: #8f7cea;
 
   --display: "Space Grotesk", "Trebuchet MS", system-ui, sans-serif;
   --body: "Inter", "Segoe UI", system-ui, sans-serif;
@@ -101,138 +112,145 @@
 }
 
 /* El tema oscuro es una selección, no una inversión automática:
-   cada color se volvió a escoger contra el negro verdoso y se revalidó. */
+   cada color se volvió a escoger contra el grafito y se revalidó. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0a0f0b;
-    --surface: #121a15;
-    --surface-2: #182319;
-    --surface-3: #1f2d22;
-    --ink: #ecf2ea;
-    --ink-2: #a3b1a5;
-    --ink-3: #7d8b7f;
-    --line: #222b24;
-    --line-2: #37453a;
+    --bg: #0e0f11;
+    --surface: #1a1c1f;
+    --surface-2: #212327;
+    --surface-3: #2a2d31;
+    --ink: #eceef1;
+    --ink-2: #a6abb3;
+    --ink-3: #7e848c;
+    --line: #2c2f34;
+    --line-2: #41454c;
 
-    --a: #74a31c;
-    --a-soft: #1b2607;
-    --a-ink: #b9e24e;
+    --a: #e46f12;
+    --a-soft: #2e1a0a;
+    --a-ink: #ff9d4a;
     --b: #8471e3;
     --b-soft: #231d3e;
     --b-ink: #b3a6f4;
-    --comun: #8b998e;
-    --comun-soft: #1f2d22;
+    --comun: #8d939b;
+    --comun-soft: #2a2d31;
 
-    --cta-bg: #b8ef4a;
-    --cta-bg-2: #cdf876;
-    --cta-ink: #0d1403;
+    --cta-bg: #ff8a1f;
+    --cta-bg-2: #ffb347;
+    --cta-ink: #1c0d02;
 
-    --ok-ink: #5fcb5f;
-    --warn-ink: #f4b63a;
-    --crit: #e0593a;
-    --serious: #e8936a;
-    --crit-ink: #f59a7e;
+    --ok-ink: #4fd06a;
+    --warn: #e8c21a;
+    --warn-ink: #f2cf4a;
+    --crit: #e94478;
+    --serious: #ee6a8c;
+    --crit-ink: #ff8aa8;
 
-    --cat-vivienda: #42a677;
-    --cat-mercado: #27754a;
-    --cat-servicios: #5fa63e;
-    --cat-transporte: #0f7a5c;
-    --cat-salud: #7aa228;
-    --cat-ocio: #27741f;
-    --cat-personal: #67a73a;
-    --cat-educacion: #1f7a46;
-    --cat-otros: #7d897e;
+    --cat-vivienda: #ab7ac9;
+    --cat-mercado: #c53905;
+    --cat-servicios: #738ddc;
+    --cat-transporte: #9a5801;
+    --cat-salud: #019b9f;
+    --cat-ocio: #915bb5;
+    --cat-personal: #da6439;
+    --cat-educacion: #526ecc;
+    --cat-otros: #7e848c;
 
-    --s-ingreso: #74a31c;
+    --s-ingreso: #e46f12;
     --s-gasto: #8f7cea;
     --s-deuda: #5f4bc4;
     --s-ahorro: #1da5bd;
-    --s-libre: #46544a;
+    --s-libre: #484c53;
 
-    --grid: #1c2920;
-    --axis: #37453a;
+    --grid: #24272b;
+    --axis: #41454c;
 
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 14px 34px -18px rgba(0, 0, 0, 0.85);
-    --luz-borde: inset 0 1px 0 rgba(236, 242, 234, 0.07);
-    --glow-a: 0 0 0 1px color-mix(in srgb, var(--a-ink) 30%, transparent),
-      0 0 26px -6px color-mix(in srgb, var(--a-ink) 50%, transparent);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 34px -18px rgba(0, 0, 0, 0.9);
+    --luz-borde: inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+    --relieve: inset 0 1px 0 rgba(255, 255, 255, 0.09), inset 0 -1px 0 rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.5);
+    --hundido: inset 0 2px 4px rgba(0, 0, 0, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+    --glow-a: 0 0 0 1px color-mix(in srgb, var(--a-ink) 32%, transparent),
+      0 0 26px -6px color-mix(in srgb, var(--cta-bg) 60%, transparent);
     --glow-b: 0 0 26px -6px color-mix(in srgb, var(--b-ink) 45%, transparent);
 
-    --grad-bg: radial-gradient(900px 460px at 12% -8%, color-mix(in srgb, #b8ef4a 7%, transparent), transparent 70%),
-      radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #8471e3 8%, transparent), transparent 70%);
-    --grad-panel: linear-gradient(170deg, color-mix(in srgb, #ecf2ea 4.5%, transparent), transparent 46%);
-    --grad-hero: linear-gradient(135deg, color-mix(in srgb, var(--a) 22%, var(--surface)), var(--surface) 52%, color-mix(in srgb, var(--b) 16%, var(--surface)));
+    --grad-bg: radial-gradient(900px 460px at 12% -8%, color-mix(in srgb, #ff8a1f 8%, transparent), transparent 70%),
+      radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #8471e3 6%, transparent), transparent 70%);
+    --grad-panel: linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 40%),
+      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 3px);
+    --grad-hero: linear-gradient(135deg, color-mix(in srgb, var(--a) 18%, var(--surface)), var(--surface) 55%, color-mix(in srgb, var(--b) 12%, var(--surface)));
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #0a0f0b;
-  --surface: #121a15;
-  --surface-2: #182319;
-  --surface-3: #1f2d22;
-  --ink: #ecf2ea;
-  --ink-2: #a3b1a5;
-  --ink-3: #7d8b7f;
-  --line: #222b24;
-  --line-2: #37453a;
+  --bg: #0e0f11;
+  --surface: #1a1c1f;
+  --surface-2: #212327;
+  --surface-3: #2a2d31;
+  --ink: #eceef1;
+  --ink-2: #a6abb3;
+  --ink-3: #7e848c;
+  --line: #2c2f34;
+  --line-2: #41454c;
 
-  --a: #74a31c;
-  --a-soft: #1b2607;
-  --a-ink: #b9e24e;
+  --a: #e46f12;
+  --a-soft: #2e1a0a;
+  --a-ink: #ff9d4a;
   --b: #8471e3;
   --b-soft: #231d3e;
   --b-ink: #b3a6f4;
-  --comun: #8b998e;
-  --comun-soft: #1f2d22;
+  --comun: #8d939b;
+  --comun-soft: #2a2d31;
 
-  --cta-bg: #b8ef4a;
-  --cta-bg-2: #cdf876;
-  --cta-ink: #0d1403;
+  --cta-bg: #ff8a1f;
+  --cta-bg-2: #ffb347;
+  --cta-ink: #1c0d02;
 
-  --ok-ink: #5fcb5f;
-  --warn-ink: #f4b63a;
-  --crit: #e0593a;
-  --serious: #e8936a;
-  --crit-ink: #f59a7e;
+  --ok-ink: #4fd06a;
+  --warn: #e8c21a;
+  --warn-ink: #f2cf4a;
+  --crit: #e94478;
+  --serious: #ee6a8c;
+  --crit-ink: #ff8aa8;
 
-  --cat-vivienda: #42a677;
-  --cat-mercado: #27754a;
-  --cat-servicios: #5fa63e;
-  --cat-transporte: #0f7a5c;
-  --cat-salud: #7aa228;
-  --cat-ocio: #27741f;
-  --cat-personal: #67a73a;
-  --cat-educacion: #1f7a46;
-  --cat-otros: #7d897e;
+  --cat-vivienda: #ab7ac9;
+  --cat-mercado: #c53905;
+  --cat-servicios: #738ddc;
+  --cat-transporte: #9a5801;
+  --cat-salud: #019b9f;
+  --cat-ocio: #915bb5;
+  --cat-personal: #da6439;
+  --cat-educacion: #526ecc;
+  --cat-otros: #7e848c;
 
-  --s-ingreso: #74a31c;
+  --s-ingreso: #e46f12;
   --s-gasto: #8f7cea;
   --s-deuda: #5f4bc4;
   --s-ahorro: #1da5bd;
-  --s-libre: #46544a;
+  --s-libre: #484c53;
 
-  --grid: #1c2920;
-  --axis: #37453a;
+  --grid: #24272b;
+  --axis: #41454c;
 
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 14px 34px -18px rgba(0, 0, 0, 0.85);
-  --luz-borde: inset 0 1px 0 rgba(236, 242, 234, 0.07);
-  --glow-a: 0 0 0 1px color-mix(in srgb, var(--a-ink) 30%, transparent),
-    0 0 26px -6px color-mix(in srgb, var(--a-ink) 50%, transparent);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 34px -18px rgba(0, 0, 0, 0.9);
+  --luz-borde: inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+  --relieve: inset 0 1px 0 rgba(255, 255, 255, 0.09), inset 0 -1px 0 rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.5);
+  --hundido: inset 0 2px 4px rgba(0, 0, 0, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  --glow-a: 0 0 0 1px color-mix(in srgb, var(--a-ink) 32%, transparent),
+    0 0 26px -6px color-mix(in srgb, var(--cta-bg) 60%, transparent);
   --glow-b: 0 0 26px -6px color-mix(in srgb, var(--b-ink) 45%, transparent);
 
-  --grad-bg: radial-gradient(900px 460px at 12% -8%, color-mix(in srgb, #b8ef4a 7%, transparent), transparent 70%),
-    radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #8471e3 8%, transparent), transparent 70%);
-  --grad-panel: linear-gradient(170deg, color-mix(in srgb, #ecf2ea 4.5%, transparent), transparent 46%);
-  --grad-hero: linear-gradient(135deg, color-mix(in srgb, var(--a) 22%, var(--surface)), var(--surface) 52%, color-mix(in srgb, var(--b) 16%, var(--surface)));
+  --grad-bg: radial-gradient(900px 460px at 12% -8%, color-mix(in srgb, #ff8a1f 8%, transparent), transparent 70%),
+    radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #8471e3 6%, transparent), transparent 70%);
+  --grad-panel: linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 40%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 3px);
+  --grad-hero: linear-gradient(135deg, color-mix(in srgb, var(--a) 18%, var(--surface)), var(--surface) 55%, color-mix(in srgb, var(--b) 12%, var(--surface)));
 }
-
 
 /* ============================================================================
    Acento violeta (interruptor en Ajustes)
    Los dos colores de la casa invierten sus papeles: el violeta manda y el
-   lima acompaña. Las superficies toman un tinte violeta y las categorías
+   naranja acompaña. Las superficies toman un tinte violeta y las categorías
    pasan a una rampa violeta/índigo/orquídea, validadas igual que las de
-   fábrica (vecinos con CVD, banda de luminosidad, croma y contraste).
+   fábrica. Los estados y el relieve se heredan del sistema base.
    La especificidad está escalonada para que el claro nunca pise al oscuro:
    claro (0,2,0) < oscuro (0,3,0).
    ========================================================================= */
@@ -250,9 +268,9 @@
   --a: #6a52d8;
   --a-soft: #ebe6fb;
   --a-ink: #5540bb;
-  --b: #637d00;
-  --b-soft: #eaf1cf;
-  --b-ink: #4c6400;
+  --b: #c45a00;
+  --b-soft: #fbe6d2;
+  --b-ink: #a64b00;
   --comun: #5e5870;
   --comun-soft: #e9e6f0;
 
@@ -271,16 +289,18 @@
   --cat-otros: #8b8796;
 
   --s-ingreso: #7e68ea;
-  --s-gasto: #7a9a10;
-  --s-deuda: #1f6b3c;
+  --s-gasto: #d0670a;
+  --s-deuda: #8a3a08;
   --s-ahorro: #0e8fa6;
   --s-libre: #c0bacb;
 
   --grid: #e7e4ee;
   --axis: #c8c2d4;
 
+  --glow-a: 0 0 0 1px color-mix(in srgb, var(--a) 30%, transparent),
+    0 0 22px -6px color-mix(in srgb, var(--cta-bg) 55%, transparent);
   --grad-bg: radial-gradient(900px 420px at 12% -8%, color-mix(in srgb, #8f7cea 10%, transparent), transparent 70%),
-    radial-gradient(800px 420px at 95% -10%, color-mix(in srgb, #b5e237 8%, transparent), transparent 70%);
+    radial-gradient(800px 420px at 95% -10%, color-mix(in srgb, #ff8a1f 7%, transparent), transparent 70%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -298,9 +318,9 @@
     --a: #8471e3;
     --a-soft: #231d3e;
     --a-ink: #b3a6f4;
-    --b: #74a31c;
-    --b-soft: #1b2607;
-    --b-ink: #b9e24e;
+    --b: #e46f12;
+    --b-soft: #2e1a0a;
+    --b-ink: #ff9d4a;
     --comun: #958ea3;
     --comun-soft: #231e31;
 
@@ -319,17 +339,18 @@
     --cat-otros: #847e96;
 
     --s-ingreso: #8f7cea;
-    --s-gasto: #7ea51c;
-    --s-deuda: #3a7d45;
+    --s-gasto: #e46f12;
+    --s-deuda: #a64a12;
     --s-ahorro: #1da5bd;
     --s-libre: #4a4458;
 
     --grid: #201b2c;
     --axis: #3b3350;
 
+    --glow-a: 0 0 0 1px color-mix(in srgb, var(--a-ink) 32%, transparent),
+      0 0 26px -6px color-mix(in srgb, var(--cta-bg) 60%, transparent);
     --grad-bg: radial-gradient(900px 460px at 12% -8%, color-mix(in srgb, #a090f4 9%, transparent), transparent 70%),
-      radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #b8ef4a 6%, transparent), transparent 70%);
-    --grad-panel: linear-gradient(170deg, color-mix(in srgb, #eeebf5 4.5%, transparent), transparent 46%);
+      radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #ff8a1f 6%, transparent), transparent 70%);
   }
 }
 
@@ -347,9 +368,9 @@
   --a: #8471e3;
   --a-soft: #231d3e;
   --a-ink: #b3a6f4;
-  --b: #74a31c;
-  --b-soft: #1b2607;
-  --b-ink: #b9e24e;
+  --b: #e46f12;
+  --b-soft: #2e1a0a;
+  --b-ink: #ff9d4a;
   --comun: #958ea3;
   --comun-soft: #231e31;
 
@@ -368,15 +389,16 @@
   --cat-otros: #847e96;
 
   --s-ingreso: #8f7cea;
-  --s-gasto: #7ea51c;
-  --s-deuda: #3a7d45;
+  --s-gasto: #e46f12;
+  --s-deuda: #a64a12;
   --s-ahorro: #1da5bd;
   --s-libre: #4a4458;
 
   --grid: #201b2c;
   --axis: #3b3350;
 
+  --glow-a: 0 0 0 1px color-mix(in srgb, var(--a-ink) 32%, transparent),
+    0 0 26px -6px color-mix(in srgb, var(--cta-bg) 60%, transparent);
   --grad-bg: radial-gradient(900px 460px at 12% -8%, color-mix(in srgb, #a090f4 9%, transparent), transparent 70%),
-    radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #b8ef4a 6%, transparent), transparent 70%);
-  --grad-panel: linear-gradient(170deg, color-mix(in srgb, #eeebf5 4.5%, transparent), transparent 46%);
+    radial-gradient(820px 460px at 95% -10%, color-mix(in srgb, #ff8a1f 6%, transparent), transparent 70%);
 }

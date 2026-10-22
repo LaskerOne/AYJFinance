@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 
-export type Acento = "lima" | "violeta";
+export type Acento = "naranja" | "violeta";
 
 const CLAVE = "cuentas-de-dos:acento";
 
 function leer(): Acento {
   try {
-    return localStorage.getItem(CLAVE) === "violeta" ? "violeta" : "lima";
+    return localStorage.getItem(CLAVE) === "violeta" ? "violeta" : "naranja";
   } catch {
-    return "lima";
+    return "naranja";
   }
 }
 
 /**
- * Estampa `data-acento` en la raíz. Sin atributo manda el lima de fábrica;
+ * Estampa `data-acento` en la raíz. Sin atributo manda el naranja de fábrica;
  * con "violeta", tokens.css invierte los papeles de los dos colores de la
  * casa en toda la aplicación (y las superficies y categorías los siguen).
  */

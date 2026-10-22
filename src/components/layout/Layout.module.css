@@ -99,7 +99,7 @@
   text-decoration: none;
   transition: color var(--t-1), background var(--t-1);
 }
-/* El indicador de sección activa: una barrita lima que se despliega. */
+/* El indicador de sección activa: una barrita naranja que se despliega. */
 .enlace::before {
   content: "";
   position: absolute;
