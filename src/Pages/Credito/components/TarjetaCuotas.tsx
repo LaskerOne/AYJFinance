@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AreaGlow } from "@/components/charts/AreaGlow";
 import { CampoMoneda } from "@/components/ui/CampoMoneda";
 import { FilaKpi } from "@/components/ui/Kpi";
@@ -18,7 +19,14 @@ export function TarjetaCuotas() {
   const { $ } = useMoneda();
   const tasaInicial = Math.max(25, ...deudas.map((d) => Number(d.tasa_ea)));
 
-  const [monto, setMonto] = useState(1_000_000);
+  // ?compra=N llega desde una respuesta del oráculo.
+  const [params] = useSearchParams();
+  const compraPedida = Number(params.get("compra"));
+  const [monto, setMonto] = useState(compraPedida > 0 ? compraPedida : 1_000_000);
+  const seccion = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (compraPedida > 0) seccion.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [compraPedida]);
   const [ea, setEa] = useState(Math.round(tasaInicial * 10) / 10);
   const [cuotas, setCuotas] = useState(12);
 
@@ -29,7 +37,7 @@ export function TarjetaCuotas() {
   );
 
   return (
-    <section className="panel">
+    <section className="panel" ref={seccion}>
       <header>
         <div>
           <h2>Con tarjeta: ¿a cuántas cuotas?</h2>

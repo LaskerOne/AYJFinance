@@ -5,6 +5,7 @@ import { useHogar } from "@/contexts/HogarContext";
 import { guardarDescartados, leerDescartados, mesLocal, useOraculo } from "@/hooks/useOraculo";
 import { intercalar, type Mensaje } from "@/lib/oraculo";
 import { AccionConsejo } from "./AccionConsejo";
+import { Preguntar } from "./Preguntar";
 import { Decisiones } from "@/Pages/Reunion/components/Decisiones";
 import { Teseracto } from "./Teseracto";
 import css from "../Sugerencias.module.css";
@@ -208,6 +209,8 @@ export function Oraculo() {
           </div>
         </div>
       </section>
+
+      <Preguntar />
 
       <section className="panel">
         <header>

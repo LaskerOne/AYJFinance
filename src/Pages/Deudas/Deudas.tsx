@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { LineaTiempo, type Serie } from "@/components/charts/LineaTiempo";
 import { FilaKpi } from "@/components/ui/Kpi";
 import { Cifra } from "@/components/ui/Cifra";
@@ -18,7 +19,13 @@ export function Deudas() {
   const f = useFinanzas();
 
   const estrategia = hogar?.estrategia_deuda ?? "avalancha";
-  const [abono, setAbono] = useState<number>(Number(hogar?.abono_extra ?? 0));
+  // ?abono=N llega desde una respuesta del oráculo: muestra ese escenario sin
+  // guardarlo; se guarda solo si mueven el deslizador.
+  const [params] = useSearchParams();
+  const abonoPedido = Number(params.get("abono"));
+  const [abono, setAbono] = useState<number>(
+    abonoPedido > 0 ? abonoPedido : Number(hogar?.abono_extra ?? 0),
+  );
 
   const tope = Math.max(
     500_000,

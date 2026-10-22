@@ -401,3 +401,63 @@
   font-weight: 600;
   color: var(--ok-ink);
 }
+
+/* --- preguntas al oráculo ------------------------------------------------------- */
+.conversacion {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding: 4px 4px 12px;
+  margin-bottom: 12px;
+}
+.turno {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: llegaConsejo 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pregunta {
+  align-self: flex-end;
+  max-width: 80%;
+  padding: 9px 14px;
+  border-radius: 16px 16px 4px 16px;
+  background: linear-gradient(180deg, var(--cta-bg-2), var(--cta-bg));
+  color: var(--cta-ink);
+  font-size: 13.5px;
+  font-weight: 500;
+  box-shadow: var(--relieve);
+}
+.respuesta {
+  max-width: 92%;
+}
+.preguntaForm {
+  display: flex;
+  gap: 8px;
+}
+.preguntaForm .campo {
+  flex: 1;
+}
+.ejemplos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.ejemplo {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  border-radius: var(--r-full);
+  padding: 5px 12px;
+  font-size: 12.5px;
+  cursor: pointer;
+  box-shadow: var(--relieve);
+  transition: color var(--t-1), border-color var(--t-1), transform var(--t-1);
+}
+.ejemplo:hover {
+  color: var(--a-ink);
+  border-color: color-mix(in srgb, var(--a) 45%, var(--line));
+  transform: translateY(-1px);
+}
