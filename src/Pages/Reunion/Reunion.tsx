@@ -9,6 +9,7 @@ import { generarSugerencias } from "@/lib/sugerencias";
 import { enMeses, nombrePeriodo, porcentaje } from "@/lib/formato";
 import { mensajeDeError } from "@/services/supabase";
 import { Decisiones } from "./components/Decisiones";
+import { CartaMes } from "./components/CartaMes";
 import css from "./Reunion.module.css";
 
 function mesLocal(delta = 0): string {
@@ -136,6 +137,8 @@ export function Reunion() {
           <div className="fill" style={{ width: `${(cuantos / listos.length) * 100}%`, background: "var(--a)" }} />
         </div>
       </section>
+
+      <CartaMes mes={mesPasado} />
 
       <ol className={css.pasos}>
         <Paso n={1} titulo={`Cómo les fue en ${nombrePasado}`} listo={listos[0]} estado={listos[0] ? "Revisado" : "Sin movimientos"}>

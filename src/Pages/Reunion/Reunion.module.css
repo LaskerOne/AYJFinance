@@ -189,3 +189,45 @@
   color: var(--warn-ink);
   background: color-mix(in srgb, var(--warn) 18%, transparent);
 }
+
+/* --- la carta del mes ----------------------------------------------------------- */
+.carta {
+  border-left: 4px solid var(--marca-naranja);
+}
+.cartaTitulo {
+  font-size: 22px;
+  margin-top: 4px;
+  text-transform: none;
+}
+.cartaTitulo::first-letter {
+  text-transform: uppercase;
+}
+@keyframes entraParrafo {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.cartaCuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 72ch;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+.cartaCuerpo p {
+  animation: entraParrafo 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 120ms + 150ms);
+}
+.cartaSaludo {
+  font-weight: 600;
+  color: var(--a-ink);
+}
+.cartaFirma {
+  font-family: var(--display);
+  font-style: italic;
+  color: var(--ink-3);
+  text-align: right;
+}
