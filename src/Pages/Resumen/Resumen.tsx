@@ -12,6 +12,7 @@ import { useHogar } from "@/contexts/HogarContext";
 import { porcentaje } from "@/lib/formato";
 import { TarjetasPersonas } from "./components/TarjetasPersonas";
 import { SaludFinanciera } from "./components/SaludFinanciera";
+import { AvisoOraculo } from "./components/AvisoOraculo";
 import { RepartoBote } from "./components/RepartoBote";
 import css from "./Resumen.module.css";
 
@@ -68,6 +69,8 @@ export function Resumen() {
           />
         </div>
       </section>
+
+      <AvisoOraculo />
 
       <FilaKpi
         columnas={4}

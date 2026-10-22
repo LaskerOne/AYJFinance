@@ -5,10 +5,11 @@ import { Cargando } from "@/components/ui/Cargando";
 import { SelectorTema } from "@/components/ui/SelectorTema";
 import { Icono, type NombreIcono } from "@/components/ui/Icono";
 import { useMoneda } from "@/hooks/useMoneda";
+import { ContadorOraculo } from "./ContadorOraculo";
 import { MONEDAS, moneda as fmtMoneda } from "@/lib/formato";
 import css from "./Layout.module.css";
 
-type Seccion = { ruta: string; texto: string; icono: NombreIcono; exacta?: boolean };
+type Seccion = { ruta: string; texto: string; icono: NombreIcono; exacta?: boolean; contador?: boolean };
 
 /** Las secciones agrupadas por para qué sirven, en el orden en que se usan. */
 const GRUPOS: { titulo: string; secciones: Seccion[] }[] = [
@@ -36,7 +37,7 @@ const GRUPOS: { titulo: string; secciones: Seccion[] }[] = [
       { ruta: "/ruta", texto: "Ruta financiera", icono: "ruta" },
       { ruta: "/patrimonio", texto: "Patrimonio", icono: "patrimonio" },
       { ruta: "/credito", texto: "Laboratorio de crédito", icono: "credito" },
-      { ruta: "/sugerencias", texto: "Sugerencias", icono: "sugerencias" },
+      { ruta: "/sugerencias", texto: "Oráculo", icono: "sugerencias", contador: true },
     ],
   },
   {
@@ -122,6 +123,7 @@ export function Layout() {
                     <Icono nombre={s.icono} tamano={18} />
                   </span>
                   {s.texto}
+                  {s.contador && <ContadorOraculo />}
                 </NavLink>
               ))}
             </div>

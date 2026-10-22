@@ -223,18 +223,46 @@ export function calcularAlertas(d: DatosHogar, hoy: Hoy, $: (n: number) => strin
   return alertas;
 }
 
+// --- el tip del día -----------------------------------------------------------------------
+// Una idea de educación financiera que rota cada día. Va al final del correo
+// solo cuando ya hay avisos que mandar: nunca genera un correo por sí sola.
+
+const TIPS_DEL_DIA: Array<[string, string]> = [
+  ["Páguense primero", "Programen la transferencia al ahorro para el día en que llega el sueldo, no para fin de mes."],
+  ["El pago mínimo es una trampa amable", "Cubre sobre todo intereses: el saldo casi no baja. Paguen el total de la tarjeta siempre que puedan."],
+  ["La regla del 72", "Dividan 72 por la tasa anual y sabrán en cuántos años se duplica algo, a favor o en contra."],
+  ["Siempre comparen en E.A.", "«1,9 % mensual» y «25 % anual» son casi la misma tasa. La efectiva anual es la única forma honesta de comparar."],
+  ["La regla de las 24 horas", "Ante una compra no planeada, esperen un día. La mayoría de las compras impulsivas no pasan esa prueba."],
+  ["De 3 a 6 meses de colchón", "Es lo que tarda, en promedio, salir de una emergencia o conseguir un nuevo ingreso sin endeudarse."],
+  ["El 4×1000 se puede evitar en una cuenta", "Marquen una cuenta de ahorros como exenta (hasta un tope mensual) y úsenla para el día a día."],
+  ["La escalera de CDT", "Varios CDT que vencen en meses distintos dan plata disponible más seguido y reparten el riesgo de tasa."],
+  ["Cuando sube el ingreso, que suba el ahorro", "Una regla simple: la mitad de cada aumento va al ahorro antes de acostumbrarse a gastarla."],
+  ["Las cesantías no son plata de bolsillo", "Son un seguro para quedarse sin empleo; mientras tanto, solo se retiran para vivienda o educación."],
+  ["El tiempo pesa más que la tasa", "Empezar a invertir diez años antes vale más que duplicar el aporte después."],
+  ["A una cuota, siempre que se pueda", "Diferir una compra a 36 cuotas puede costar casi la mitad de su valor en intereses."],
+  ["La inflación es un impuesto silencioso", "La plata quieta no pierde pesos, pierde lo que puede comprar. Lo guardado tiene que rendir al menos eso."],
+  ["Cada peso con un destino", "Lo que no tiene destino se gasta solo. Asignen cada peso del ingreso a un gasto, una deuda o una meta."],
+];
+
+export function tipDelDia(hoy: Hoy): [string, string] {
+  const inicio = Date.UTC(hoy.anio, 0, 0);
+  const dia = Math.floor((Date.UTC(hoy.anio, hoy.mes - 1, hoy.dia) - inicio) / 86_400_000);
+  return TIPS_DEL_DIA[dia % TIPS_DEL_DIA.length];
+}
+
 // --- el correo ------------------------------------------------------------------------------
 
 const escapar = (t: string) =>
   t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-export function componerCorreo(hogar: string, alertas: Alerta[], appUrl: string) {
+export function componerCorreo(hogar: string, alertas: Alerta[], appUrl: string, tip?: [string, string]) {
   const asunto =
     alertas.length === 1 ? `Cuentas de Dos · ${alertas[0].titulo}` : `Cuentas de Dos · ${alertas.length} avisos para hoy`;
   const texto = [
     `${hogar}:`,
     "",
     ...alertas.flatMap((a) => [`• ${a.titulo}`, `  ${a.detalle}`, ""]),
+    ...(tip ? [`Para aprender: ${tip[0]}`, `  ${tip[1]}`, ""] : []),
     `Abrir la app: ${appUrl}`,
     "",
     "Reciben este correo porque activaron las alertas en Ajustes. Se apagan desde ahí mismo.",
@@ -255,6 +283,7 @@ export function componerCorreo(hogar: string, alertas: Alerta[], appUrl: string)
 <div style="font:700 19px/1.3 Arial,sans-serif;color:#eceef1;margin-top:8px">${escapar(hogar)}</div>
 </td></tr>
 ${filas}
+${tip ? `<tr><td style="padding:14px 18px;border-top:1px solid #2c2f34"><div style="border-left:4px solid #8f7cea;padding:2px 0 2px 12px"><div style="font:700 10px/1 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#b3a6f4">Para aprender</div><div style="font:600 14px/1.4 Arial,sans-serif;color:#eceef1;margin-top:6px">${escapar(tip[0])}</div><div style="font:13px/1.55 Arial,sans-serif;color:#a6abb3;margin-top:3px">${escapar(tip[1])}</div></div></td></tr>` : ""}
 <tr><td style="padding:16px 18px 20px;border-top:1px solid #2c2f34">
 <a href="${escapar(appUrl)}" style="display:inline-block;background:#ff8a1f;color:#1c0d02;font:700 14px Arial,sans-serif;text-decoration:none;padding:10px 18px;border-radius:999px">Abrir la app</a>
 <div style="font:12px/1.5 Arial,sans-serif;color:#7e848c;margin-top:14px">Reciben este correo porque activaron las alertas en Ajustes. Se apagan desde ahí mismo.</div>
@@ -337,7 +366,7 @@ async function atender(req: Request): Promise<Response> {
       if (alertas.length === 0) continue;
 
       if (smtp) {
-        const correo = componerCorreo(h.nombre || "Su hogar", alertas, appUrl);
+        const correo = componerCorreo(h.nombre || "Su hogar", alertas, appUrl, tipDelDia(hoy));
         try {
           await smtp.send({
             from: `Cuentas de Dos <${Deno.env.get("SMTP_USER")}>`,

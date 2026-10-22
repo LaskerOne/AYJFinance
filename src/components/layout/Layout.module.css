@@ -352,3 +352,29 @@
     display: none;
   }
 }
+
+/* El oráculo tiene algo urgente: un contador que late. */
+.contador {
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cta-ink);
+  background: linear-gradient(180deg, var(--cta-bg-2), var(--cta-bg));
+  animation: latirContador 2.4s ease-in-out infinite;
+}
+@keyframes latirContador {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--cta-bg) 60%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--cta-bg) 0%, transparent);
+  }
+}
