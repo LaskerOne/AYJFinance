@@ -230,3 +230,32 @@
   background: var(--marca-violeta);
   box-shadow: 0 0 12px color-mix(in srgb, var(--marca-violeta) 70%, transparent);
 }
+
+/* --- interruptor de encendido/apagado ----------------------------------------- */
+.interruptorSimple {
+  position: relative;
+  width: 58px;
+  height: 30px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line-2);
+  background: var(--surface-3);
+  box-shadow: var(--hundido);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.3s, box-shadow var(--t-1);
+}
+.interruptorSimple[data-activo="true"] {
+  background: color-mix(in srgb, var(--cta-bg) 45%, var(--surface-3));
+}
+.interruptorSimple:hover:not(:disabled) {
+  box-shadow: var(--hundido), var(--glow-a);
+}
+.interruptorSimple .perilla {
+  background: linear-gradient(180deg, var(--surface), var(--surface-3));
+  box-shadow: var(--relieve);
+}
+.interruptorSimple[data-activo="true"] .perilla {
+  transform: translateX(28px);
+  background: linear-gradient(180deg, var(--cta-bg-2), var(--cta-bg));
+  box-shadow: var(--relieve), 0 0 12px color-mix(in srgb, var(--cta-bg) 70%, transparent);
+}

@@ -152,3 +152,23 @@ export async function renombrarPerfil(usuarioId: string, nombre: string): Promis
   const { error } = await supabase.from("perfiles").update({ nombre }).eq("id", usuarioId);
   if (error) throw error;
 }
+
+/**
+ * Si la persona recibe las alertas por correo. Se lee aparte de los perfiles
+ * para que la app no dependa de la columna: devuelve null si todavía no
+ * existe (migración 0013 sin correr).
+ */
+export async function leerAlertasCorreo(usuarioId: string): Promise<boolean | null> {
+  const { data, error } = await supabase
+    .from("perfiles")
+    .select("alertas_correo")
+    .eq("id", usuarioId)
+    .maybeSingle();
+  if (error) return null;
+  return Boolean((data as { alertas_correo?: boolean } | null)?.alertas_correo);
+}
+
+export async function cambiarAlertasCorreo(usuarioId: string, activas: boolean): Promise<void> {
+  const { error } = await supabase.from("perfiles").update({ alertas_correo: activas }).eq("id", usuarioId);
+  if (error) throw error;
+}

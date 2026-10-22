@@ -349,6 +349,7 @@ export function Deudas() {
                 <th className="r">Saldo</th>
                 <th className="r">Tasa % E.A.</th>
                 <th className="r">Cuota/mes</th>
+                <th className="r" title="Día del mes en que se paga: activa el aviso por correo">Día de pago</th>
                 <th title="Préstamo entre ustedes: aparece en la liquidación del bote">Con la pareja</th>
                 <th />
               </tr>
@@ -356,7 +357,7 @@ export function Deudas() {
             <tbody>
               {deudas.length === 0 && (
                 <tr>
-                  <td colSpan={7}>
+                  <td colSpan={8}>
                     <p className="vacio">Sin deudas. Ojalá siga así.</p>
                   </td>
                 </tr>
@@ -406,6 +407,21 @@ export function Deudas() {
                       onCambio={(v) => void editar("deudas", d.id, { cuota: v })}
                     />
                   </td>
+                  <td className="r">
+                    <input
+                      className="n"
+                      inputMode="numeric"
+                      aria-label="Día de pago"
+                      placeholder="—"
+                      defaultValue={d.dia_pago ?? ""}
+                      onBlur={(e) => {
+                        const v = Math.round(Number(e.target.value));
+                        const dia = v >= 1 && v <= 31 ? v : null;
+                        if (dia !== d.dia_pago) void editar("deudas", d.id, { dia_pago: dia });
+                      }}
+                      style={{ maxWidth: 64 }}
+                    />
+                  </td>
                   <td style={{ textAlign: "center" }}>
                     <input
                       type="checkbox"
@@ -431,6 +447,7 @@ export function Deudas() {
               <tr>
                 <td colSpan={4}>Total en cuotas</td>
                 <td className="r tot">{$(f.cuotas)}</td>
+                <td />
                 <td />
                 <td />
               </tr>

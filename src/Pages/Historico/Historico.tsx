@@ -113,8 +113,9 @@ export function Historico() {
           <div>
             <h2>Histórico mensual</h2>
             <p className="nota">
-              Cada cierre congela el mes: ingresos, gastos, cuotas, ahorro y deuda. Si vuelves a
-              cerrar el mismo mes, se recalcula con los datos de hoy.
+              Cada cierre congela el mes: ingresos, gastos, cuotas, ahorro, deuda y puntaje. Si no
+              lo cierran, se cierra solo el día 1 a las 6:00 a. m.; volver a cerrarlo lo recalcula
+              con los datos de hoy.
             </p>
           </div>
           <div className={css.cierre}>

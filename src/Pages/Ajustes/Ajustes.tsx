@@ -7,6 +7,8 @@ import {
   invitacionesDe,
   invitar,
   renombrarPerfil,
+  leerAlertasCorreo,
+  cambiarAlertasCorreo,
 } from "@/services/hogar.service";
 import { mensajeDeError } from "@/services/supabase";
 import { MONEDAS } from "@/lib/formato";
@@ -21,6 +23,27 @@ export function Ajustes() {
   const { usuario, correo, salir } = useSesion();
   const { opciones, renombrar, restaurar, hayRenombradas } = useCategorias();
   const { acento, setAcento } = useAcento();
+
+  // null = la columna aún no existe (migración 0013 pendiente).
+  const [alertas, setAlertas] = useState<boolean | null>(null);
+  const [guardandoAlertas, setGuardandoAlertas] = useState(false);
+  useEffect(() => {
+    if (usuario) void leerAlertasCorreo(usuario.id).then(setAlertas);
+  }, [usuario]);
+  const alternarAlertas = async () => {
+    if (!usuario || alertas === null) return;
+    const nuevo = !alertas;
+    setAlertas(nuevo);
+    setGuardandoAlertas(true);
+    try {
+      await cambiarAlertasCorreo(usuario.id, nuevo);
+    } catch (e) {
+      setAlertas(!nuevo);
+      setError(mensajeDeError(e));
+    } finally {
+      setGuardandoAlertas(false);
+    }
+  };
 
   const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
   const [correoInvitado, setCorreoInvitado] = useState("");
@@ -138,6 +161,48 @@ export function Ajustes() {
             Violeta
           </span>
         </div>
+      </section>
+
+      <section className="panel">
+        <header>
+          <div>
+            <h2>Alertas por correo</h2>
+            <p className="nota">
+              Un correo a las 7 de la mañana, solo los días en que hay algo que avisar: cuotas que
+              vencen en los próximos 3 días, pagos que no son mensuales, categorías que van en el
+              80 % o se pasaron del presupuesto, y la reunión del mes. Cada uno decide si las
+              recibe; se mandan a {correo}.
+            </p>
+          </div>
+        </header>
+        {alertas === null ? (
+          <p className="nota">
+            Las alertas todavía no están instaladas en el servidor (falta la migración 0013).
+          </p>
+        ) : (
+          <div className={css.acento}>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={alertas}
+              aria-label="Recibir alertas por correo"
+              className={css.interruptorSimple}
+              data-activo={alertas}
+              disabled={guardandoAlertas}
+              onClick={() => void alternarAlertas()}
+            >
+              <span className={css.perilla} />
+            </button>
+            <span className={`${css.acentoNombre} ${alertas ? css.acentoActivo : ""}`}>
+              {alertas ? "Las recibo" : "No las recibo"}
+            </span>
+          </div>
+        )}
+        <p className="nota" style={{ marginTop: 10 }}>
+          Para que de verdad lleguen, la función de alertas tiene que estar desplegada en Supabase
+          (es un paso de instalación que se hace una vez). Para las cuotas, pongan el día de pago
+          de cada deuda en Deudas.
+        </p>
       </section>
 
       <section className="panel">
