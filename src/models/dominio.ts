@@ -126,6 +126,9 @@ export interface Hogar {
   abono_extra: number;
   /** Nombre propio de cada categoría. Las claves ausentes usan el de fábrica. */
   etiquetas_categorias: Partial<Record<Categoria, string>>;
+  /** Tasa de usura vigente en % E.A. y el mes (YYYY-MM) al que corresponde. */
+  tasa_usura?: number | null;
+  tasa_usura_mes?: string | null;
   creado_por: string;
   creado_en: string;
 }
@@ -188,6 +191,9 @@ export interface Deuda {
   orden: number;
   /** Préstamo entre la pareja: entra al plan de pagos y a la liquidación. */
   con_pareja?: boolean;
+  /** Cargos mensuales además de la cuota: entran al costo efectivo. */
+  seguro_mensual?: number;
+  cuota_manejo?: number;
   creado_en: string;
 }
 

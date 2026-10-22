@@ -46,6 +46,13 @@ const TRAZOS: Record<string, JSX.Element> = {
       <path d="M5.5 12.5h4" />
     </>
   ),
+  // Un matraz: el laboratorio de crédito.
+  credito: (
+    <>
+      <path d="M8 3h4M8.6 3v5.2L4.2 15.4A1.2 1.2 0 0 0 5.2 17h9.6a1.2 1.2 0 0 0 1-1.6L11.4 8.2V3" />
+      <path d="M6.3 12.4h7.4" />
+    </>
+  ),
   metas: (
     <>
       <circle cx="10" cy="10" r="7" />
