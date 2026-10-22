@@ -50,7 +50,8 @@ export type Accion =
   | { tipo: "meses-pago"; gastos: { id: string; concepto: string; frecuencia: Frecuencia }[] }
   | { tipo: "saldar-bote"; mes: string; deudor: string; monto: number; texto: string }
   | { tipo: "sumar-colchon"; metaId: string; monto: number }
-  | { tipo: "mover-aporte"; desdeId: string; aporte: number; opciones: { id: string; nombre: string }[] };
+  | { tipo: "mover-aporte"; desdeId: string; aporte: number; opciones: { id: string; nombre: string }[] }
+  | { tipo: "marcar-cumplida"; decisionId: string };
 
 export interface Mensaje {
   id: string;
@@ -627,6 +628,27 @@ export function analizar(e: EntradaOraculo): Analisis {
   // El aviso genérico de cuotas liberadas sobra cuando ya hay uno con nombre propio.
   const finales = porTerminar.length > 0 ? consejos.filter((c) => c.id !== "cuotas-liberadas") : consejos;
 
+  // 12 · Seguimiento: lo que adoptaron el mes pasado, ¿se cumplió según los datos?
+  const idsActuales = new Set(finales.map((c) => c.id));
+  for (const d of e.decisiones.filter((x) => x.periodo.startsWith(mesPasado) && x.origen && !x.cumplida)) {
+    const ev = evaluarDecision(d, { ids: idsActuales, movimientos: e.movimientos, presupuestoMes, etiqueta: e.etiqueta, $: e.$, hoy });
+    if (!ev || ev.estado === "en-curso") continue;
+    finales.push({
+      id: `seguimiento-${d.id}`,
+      tipo: "consejo",
+      titulo: ev.estado === "lograda" ? `Lo lograron: «${d.texto}»` : `Sigue pendiente: «${d.texto}»`,
+      cuerpo:
+        ev.estado === "lograda"
+          ? `${ev.texto} Márquenla como cumplida: lo que se celebra se repite.`
+          : `${ev.texto} Decidan si la mantienen este mes o la sueltan.`,
+      prioridad: 8,
+      tono: ev.estado === "lograda" ? "ok" : "warn",
+      fuente: "pareja",
+      accion: ev.estado === "lograda" ? { tipo: "marcar-cumplida", decisionId: d.id } : undefined,
+      ir: ev.estado === "sigue" ? { texto: "Revisarla en la reunión", ruta: "/reunion" } : undefined,
+    });
+  }
+
   // --- tips ---
   const tasaMax = Math.max(0, ...vivas.map((d) => Number(d.tasa_ea)));
   const contexto: Contexto = {
@@ -664,6 +686,78 @@ export function analizar(e: EntradaOraculo): Analisis {
       activos: e.activos.length,
     },
   };
+}
+
+// --- seguimiento de decisiones ---------------------------------------------------------
+
+export interface Evaluacion {
+  estado: "lograda" | "sigue" | "en-curso";
+  texto: string;
+}
+
+interface ContextoEvaluacion {
+  /** Ids de los consejos que el oráculo detecta hoy. */
+  ids: Set<string>;
+  movimientos: Movimiento[];
+  presupuestoMes: number;
+  etiqueta: (c: string) => string;
+  $: (n: number) => string;
+  hoy?: Date;
+}
+
+const sumarMeses = (mes: string, n: number) => {
+  const [a, m] = mes.split("-").map(Number);
+  return mesIso(new Date(a, m - 1 + n, 1));
+};
+
+/**
+ * ¿Se cumplió lo que adoptaron? Para los consejos que se pueden medir
+ * (una categoría que se disparó, los gastos hormiga, el ritmo del mes) se
+ * compara el mes en que lo adoptaron con el siguiente; para los demás, si el
+ * oráculo ya no detecta el problema, se dio por resuelto. Las decisiones
+ * escritas a mano (sin consejo de origen) no se evalúan.
+ */
+export function evaluarDecision(d: Decision, c: ContextoEvaluacion): Evaluacion | null {
+  if (!d.origen) return null;
+  const hoy = c.hoy ?? new Date();
+  const mesHoy = mesIso(hoy);
+  const mes = d.periodo.slice(0, 7);
+  const despues = sumarMeses(mes, 1);
+  // Si el mes siguiente aún va en curso, se compara hasta el mismo día.
+  const hasta = despues === mesHoy ? hoy.getDate() : 31;
+  const delMes = (m: string, filtro: (x: Movimiento) => boolean) =>
+    suma(c.movimientos.filter((x) => x.fecha.startsWith(m) && Number(x.fecha.slice(8, 10)) <= hasta && corriente(x) && filtro(x)));
+
+  if (despues > mesHoy) {
+    return c.ids.has(d.origen) ? { estado: "en-curso", texto: "En curso este mes." } : { estado: "lograda", texto: "El oráculo ya no lo detecta." };
+  }
+
+  if (d.origen.startsWith("categoria-sube-")) {
+    const cat = d.origen.slice("categoria-sube-".length);
+    const antes = delMes(mes, (x) => x.categoria === cat);
+    const ahora = delMes(despues, (x) => x.categoria === cat);
+    return ahora < antes
+      ? { estado: "lograda", texto: `${c.etiqueta(cat)} bajó de ${c.$(antes)} a ${c.$(ahora)}.` }
+      : { estado: "sigue", texto: `${c.etiqueta(cat)} pasó de ${c.$(antes)} a ${c.$(ahora)}.` };
+  }
+  if (d.origen === "hormiga") {
+    const pequeno = (x: Movimiento) => Number(x.monto) <= 50_000;
+    const antes = delMes(mes, pequeno);
+    const ahora = delMes(despues, pequeno);
+    return ahora < antes
+      ? { estado: "lograda", texto: `Las compras pequeñas bajaron de ${c.$(antes)} a ${c.$(ahora)}.` }
+      : { estado: "sigue", texto: `Las compras pequeñas pasaron de ${c.$(antes)} a ${c.$(ahora)}.` };
+  }
+  if (d.origen === "ritmo-alto" && c.presupuestoMes > 0) {
+    const gastado = delMes(despues, () => true);
+    const tope = (c.presupuestoMes * hasta) / 31;
+    return gastado <= tope
+      ? { estado: "lograda", texto: `El gasto corriente quedó en ${c.$(gastado)}, dentro del presupuesto.` }
+      : { estado: "sigue", texto: `El gasto corriente va en ${c.$(gastado)}, por encima de lo planeado.` };
+  }
+  return c.ids.has(d.origen)
+    ? { estado: "sigue", texto: "El oráculo todavía lo detecta en sus datos." }
+    : { estado: "lograda", texto: "Según los datos, ya quedó resuelto." };
 }
 
 /** Consejos y tips intercalados: dos consejos y luego un tip, mientras alcancen. */

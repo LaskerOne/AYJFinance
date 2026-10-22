@@ -1,5 +1,6 @@
 import { SelectorPersona } from "@/components/ui/SelectorPersona";
 import { useHogar } from "@/contexts/HogarContext";
+import { useEvaluarDecision } from "@/hooks/useOraculo";
 import type { Decision } from "@/models/dominio";
 import css from "../Reunion.module.css";
 
@@ -7,8 +8,21 @@ import css from "../Reunion.module.css";
  * Lista editable de decisiones de un mes: qué acordaron, quién se encarga y
  * si ya se cumplió. Una fila por decisión, así los dos pueden editar a la vez.
  */
+/** Lo que dicen los datos sobre una decisión adoptada del oráculo. */
+function Evaluado({ d, evaluar }: { d: Decision; evaluar: ReturnType<typeof useEvaluarDecision> }) {
+  if (d.cumplida) return null;
+  const ev = evaluar(d);
+  if (!ev) return null;
+  return (
+    <span className={css.evaluacion} data-estado={ev.estado} title={ev.texto}>
+      {ev.estado === "lograda" ? "✓ Los datos dicen que se logró" : ev.estado === "sigue" ? "Los datos dicen que sigue pendiente" : "En curso"}
+    </span>
+  );
+}
+
 export function Decisiones({ lista, soloMarcar = false }: { lista: Decision[]; soloMarcar?: boolean }) {
   const { editar, borrar } = useHogar();
+  const evaluar = useEvaluarDecision();
 
   return (
     <ul className={css.decisiones}>
@@ -21,7 +35,10 @@ export function Decisiones({ lista, soloMarcar = false }: { lista: Decision[]; s
             onChange={(e) => void editar("decisiones", d.id, { cumplida: e.target.checked })}
           />
           {soloMarcar ? (
-            <span className={css.decisionTexto}>{d.texto || "Sin texto"}</span>
+            <span className={css.decisionTexto}>
+              {d.texto || "Sin texto"}
+              <Evaluado d={d} evaluar={evaluar} />
+            </span>
           ) : (
             <input
               className={css.decisionCampo}

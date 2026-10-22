@@ -1,10 +1,12 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useHogar } from "@/contexts/HogarContext";
 import { useFinanzas } from "@/hooks/useFinanzas";
 import { useMoneda } from "@/hooks/useMoneda";
 import { useCategorias } from "@/hooks/useCategorias";
 import { enMeses, porcentaje } from "@/lib/formato";
-import { analizar, type Analisis } from "@/lib/oraculo";
+import { gastoMensual } from "@/lib/calculos";
+import { analizar, evaluarDecision, type Analisis, type Evaluacion } from "@/lib/oraculo";
+import type { Decision } from "@/models/dominio";
 
 const claveDescartados = (mes: string) => `cuentas-de-dos:oraculo-descartados:${mes}`;
 
@@ -60,5 +62,22 @@ export function useOraculo(): Analisis {
         pct: (n) => porcentaje(n),
       }),
     [f, movimientos, gastos, ingresos, deudas, metas, activos, decisiones, hogar, idA, idB, nombreDe, etiqueta, $],
+  );
+}
+
+/**
+ * Evalúa con los datos si una decisión adoptada del oráculo se cumplió.
+ * Devuelve null para las decisiones escritas a mano.
+ */
+export function useEvaluarDecision(): (d: Decision) => Evaluacion | null {
+  const { movimientos, gastos } = useHogar();
+  const { $ } = useMoneda();
+  const { etiqueta } = useCategorias();
+  const analisis = useOraculo();
+  const ids = useMemo(() => new Set(analisis.consejos.map((c) => c.id)), [analisis]);
+  const presupuestoMes = useMemo(() => gastos.reduce((s, g) => s + gastoMensual(g), 0), [gastos]);
+  return useCallback(
+    (d: Decision) => evaluarDecision(d, { ids, movimientos, presupuestoMes, etiqueta, $ }),
+    [ids, movimientos, presupuestoMes, etiqueta, $],
   );
 }

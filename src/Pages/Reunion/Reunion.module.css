@@ -167,3 +167,25 @@
   color: var(--ink-3);
   font-size: 12.5px;
 }
+
+/* Lo que dicen los datos sobre una decisión adoptada del oráculo. */
+.evaluacion {
+  display: inline-block;
+  margin-left: 10px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  color: var(--ink-3);
+  background: var(--surface-3);
+  text-decoration: none;
+}
+.evaluacion[data-estado="lograda"] {
+  color: var(--ok-ink);
+  background: color-mix(in srgb, var(--ok) 16%, transparent);
+}
+.evaluacion[data-estado="sigue"] {
+  color: var(--warn-ink);
+  background: color-mix(in srgb, var(--warn) 18%, transparent);
+}

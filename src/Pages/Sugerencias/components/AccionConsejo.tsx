@@ -142,6 +142,15 @@ export function AccionConsejo({ accion }: { accion: Accion }) {
         </div>
       );
 
+    case "marcar-cumplida":
+      return (
+        <div className={css.accion}>
+          <button className="pill primaria" onClick={() => void listo(editar("decisiones", accion.decisionId, { cumplida: true }))}>
+            Marcar como cumplida
+          </button>
+        </div>
+      );
+
     case "meses-pago":
       return (
         <div className={css.accionLista}>
