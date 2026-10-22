@@ -108,10 +108,10 @@ export function AreaGlow({
               y1={y(referencia)}
               x2={W - PAD.derecha}
               y2={y(referencia)}
-              stroke="var(--warn-ink)"
+              stroke="var(--ink)"
               strokeWidth={1.6}
               strokeDasharray="7 5"
-              opacity={0.9}
+              opacity={0.6}
             />
             {etiquetaReferencia && (
               <text
@@ -121,7 +121,7 @@ export function AreaGlow({
                 fontSize="10.5"
                 fontWeight={600}
                 fontFamily="JetBrains Mono, monospace"
-                fill="var(--warn-ink)"
+                fill="var(--ink-2)"
                 style={{ textTransform: "uppercase", letterSpacing: "0.08em" }}
               >
                 {etiquetaReferencia}

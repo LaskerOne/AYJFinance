@@ -400,15 +400,18 @@ input[type="range"]:hover::-webkit-slider-thumb {
   border-radius: var(--r-sm);
   transition: width var(--t-2);
 }
-/* La marca del presupuesto: ámbar y con halo, que se vea dónde está la raya. */
+/* La marca del presupuesto: blanco metálico con halo. Neutra a propósito:
+   se ve igual sobre una barra naranja, violeta o roja, también con
+   daltonismo (un ámbar se perdería sobre el naranja). */
 .barra .marca {
   position: absolute;
   top: -5px;
   bottom: -5px;
   width: 3px;
-  background: var(--warn-ink);
+  background: var(--ink);
   border-radius: 2px;
-  box-shadow: 0 0 7px color-mix(in srgb, var(--warn) 75%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--bg) 70%, transparent),
+    0 0 8px color-mix(in srgb, var(--ink) 55%, transparent);
 }
 
 /* --- tablas ------------------------------------------------------------- */

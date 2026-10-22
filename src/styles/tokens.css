@@ -44,15 +44,17 @@
   --cta-ink: #1c0d02;
 
   /* estado · nunca se usan como color de serie, siempre con ícono y texto.
-     Crítico es carmesí rosado y advertencia amarillo para no confundirse
-     con el naranja de la marca. */
-  --ok: #1a9a33;
-  --warn: #e0b400;
-  --serious: #d9486a;
-  --crit: #cc2d62;
-  --ok-ink: #12792a;
-  --warn-ink: #7d6400;
-  --crit-ink: #b0204f;
+     Viven dentro de la familia de la casa: bien = teal (pariente del cian
+     del ahorro), advertencia = ámbar (pariente del naranja), crítico = rojo
+     brasa. El rojo es más profundo que el naranja para que se distingan
+     también con daltonismo (CVD ΔE 9.1 claro / 11.1 oscuro). */
+  --ok: #0e8f7c;
+  --warn: #e09a00;
+  --serious: #c2401f;
+  --crit: #b7191c;
+  --ok-ink: #0a6f60;
+  --warn-ink: #8a5a00;
+  --crit-ink: #a3161a;
 
   /* categorías de gasto · cobre/ámbar, teal/cian e índigo/violeta: las tres
      familias de la casa, en orden fijo; el color sigue a la categoría */
@@ -138,12 +140,13 @@
     --cta-bg-2: #ffb347;
     --cta-ink: #1c0d02;
 
-    --ok-ink: #4fd06a;
-    --warn: #e8c21a;
-    --warn-ink: #f2cf4a;
-    --crit: #e94478;
-    --serious: #ee6a8c;
-    --crit-ink: #ff8aa8;
+    --ok: #19b39b;
+    --ok-ink: #4fd6c0;
+    --warn: #f0a830;
+    --warn-ink: #ffc35c;
+    --crit: #cc3622;
+    --serious: #e0603c;
+    --crit-ink: #ff7a62;
 
     --cat-vivienda: #ab7ac9;
     --cat-mercado: #c53905;
@@ -204,12 +207,13 @@
   --cta-bg-2: #ffb347;
   --cta-ink: #1c0d02;
 
-  --ok-ink: #4fd06a;
-  --warn: #e8c21a;
-  --warn-ink: #f2cf4a;
-  --crit: #e94478;
-  --serious: #ee6a8c;
-  --crit-ink: #ff8aa8;
+  --ok: #19b39b;
+  --ok-ink: #4fd6c0;
+  --warn: #f0a830;
+  --warn-ink: #ffc35c;
+  --crit: #cc3622;
+  --serious: #e0603c;
+  --crit-ink: #ff7a62;
 
   --cat-vivienda: #ab7ac9;
   --cat-mercado: #c53905;
