@@ -12,6 +12,7 @@ import {
   type Activo,
   type Decision,
   type Deuda,
+  type Frecuencia,
   type GastoPresupuesto,
   type Hogar,
   type Ingreso,
@@ -42,6 +43,15 @@ export type Fuente =
   | "proyección"
   | "educación";
 
+/** Lo que el consejo propone hacer, para resolverlo ahí mismo con un clic. */
+export type Accion =
+  | { tipo: "aporte-meta"; metaId: string; sugerido: number }
+  | { tipo: "dias-pago"; deudas: { id: string; nombre: string }[] }
+  | { tipo: "meses-pago"; gastos: { id: string; concepto: string; frecuencia: Frecuencia }[] }
+  | { tipo: "saldar-bote"; mes: string; deudor: string; monto: number; texto: string }
+  | { tipo: "sumar-colchon"; metaId: string; monto: number }
+  | { tipo: "mover-aporte"; desdeId: string; aporte: number; opciones: { id: string; nombre: string }[] };
+
 export interface Mensaje {
   id: string;
   tipo: TipoMensaje;
@@ -54,6 +64,7 @@ export interface Mensaje {
   fuente: Fuente;
   ir?: { texto: string; ruta: string };
   comoSeCalcula?: string;
+  accion?: Accion;
 }
 
 export interface Lectura {
@@ -340,6 +351,7 @@ export function analizar(e: EntradaOraculo): Analisis {
   const delMes = e.movimientos.filter((m) => m.fecha.startsWith(mesHoy));
   const gastadoMes = suma(delMes.filter(corriente));
   const presupuestoMes = e.gastos.reduce((s, g) => s + gastoMensual(g), 0);
+  const colchon = e.metas.find((m) => m.es_emergencia);
   if (dia >= 7 && presupuestoMes > 0 && gastadoMes > 0) {
     const proyeccion = (gastadoMes / dia) * diasMes;
     if (proyeccion > presupuestoMes * 1.05) {
@@ -362,6 +374,7 @@ export function analizar(e: EntradaOraculo): Analisis {
         prioridad: 30,
         tono: "ok",
         fuente: "movimientos",
+        accion: colchon ? { tipo: "sumar-colchon", metaId: colchon.id, monto: Math.round((presupuestoMes - proyeccion) / 1000) * 1000 } : undefined,
       });
     }
   }
@@ -429,7 +442,13 @@ export function analizar(e: EntradaOraculo): Analisis {
         prioridad: 16,
         tono: "warn",
         fuente: "pareja",
-        ir: { texto: "Saldarlo", ruta: "/movimientos" },
+        accion: {
+          tipo: "saldar-bote",
+          mes: mesPasado,
+          deudor: (liq.neto > 0 ? e.idB : e.idA) as string,
+          monto: Math.abs(liq.neto),
+          texto: `${e.nombreDe(liq.neto > 0 ? e.idB : e.idA)} ya le pasó ${e.$(Math.abs(liq.neto))}`,
+        },
       });
     }
   }
@@ -465,7 +484,8 @@ export function analizar(e: EntradaOraculo): Analisis {
       });
     }
   }
-  const sinDia = vivas.filter((d) => !d.dia_pago && Number(d.cuota) > 0).length;
+  const deudasSinDia = vivas.filter((d) => !d.dia_pago && Number(d.cuota) > 0);
+  const sinDia = deudasSinDia.length;
   if (sinDia > 0) {
     agregar({
       id: "sin-dia-pago",
@@ -474,7 +494,7 @@ export function analizar(e: EntradaOraculo): Analisis {
       prioridad: 40,
       tono: "neutro",
       fuente: "deudas",
-      ir: { texto: "Ponerlo en Deudas", ruta: "/deudas" },
+      accion: { tipo: "dias-pago", deudas: deudasSinDia.map((d) => ({ id: d.id, nombre: d.nombre || "Sin nombre" })) },
     });
   }
 
@@ -490,7 +510,14 @@ export function analizar(e: EntradaOraculo): Analisis {
         prioridad: 22,
         tono: "ok",
         fuente: "metas",
-        ir: { texto: "Ver sus metas", ruta: "/metas" },
+        accion: {
+          tipo: "mover-aporte",
+          desdeId: m.id,
+          aporte,
+          opciones: e.metas
+            .filter((o) => o.id !== m.id && Number(o.objetivo) > Number(o.acumulado))
+            .map((o) => ({ id: o.id, nombre: o.nombre || "Sin nombre" })),
+        },
       });
     } else if (falta > 0 && aporte <= 0 && !m.es_emergencia) {
       agregar({
@@ -500,13 +527,18 @@ export function analizar(e: EntradaOraculo): Analisis {
         prioridad: 35,
         tono: "neutro",
         fuente: "metas",
-        ir: { texto: "Asignarle aporte", ruta: "/metas" },
+        accion: {
+          tipo: "aporte-meta",
+          metaId: m.id,
+          sugerido: Math.max(10_000, Math.round(Math.min(falta / 12, e.f.libre > 0 ? e.f.libre : falta / 12) / 1000) * 1000),
+        },
       });
     }
   }
 
   // 8 · Presupuesto: pagos no mensuales sin mes.
-  const sinMes = e.gastos.filter((g) => g.frecuencia !== "mensual" && g.frecuencia !== "quincenal" && !g.mes_pago).length;
+  const gastosSinMes = e.gastos.filter((g) => g.frecuencia !== "mensual" && g.frecuencia !== "quincenal" && !g.mes_pago);
+  const sinMes = gastosSinMes.length;
   if (sinMes > 0) {
     agregar({
       id: "sin-mes-pago",
@@ -515,7 +547,10 @@ export function analizar(e: EntradaOraculo): Analisis {
       prioridad: 42,
       tono: "neutro",
       fuente: "presupuesto",
-      ir: { texto: "Asignarlo", ruta: "/presupuesto" },
+      accion: {
+        tipo: "meses-pago",
+        gastos: gastosSinMes.map((g) => ({ id: g.id, concepto: g.concepto || g.categoria, frecuencia: g.frecuencia })),
+      },
     });
   }
 

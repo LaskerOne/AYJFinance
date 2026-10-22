@@ -1,12 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Estado } from "@/components/ui/Etiqueta";
 import { useHogar } from "@/contexts/HogarContext";
-import { useFinanzas } from "@/hooks/useFinanzas";
-import { useMoneda } from "@/hooks/useMoneda";
-import { useCategorias } from "@/hooks/useCategorias";
-import { enMeses, porcentaje } from "@/lib/formato";
-import { analizar, intercalar, type Mensaje } from "@/lib/oraculo";
+import { guardarDescartados, leerDescartados, mesLocal, useOraculo } from "@/hooks/useOraculo";
+import { intercalar, type Mensaje } from "@/lib/oraculo";
+import { AccionConsejo } from "./AccionConsejo";
 import { Decisiones } from "@/Pages/Reunion/components/Decisiones";
 import { Teseracto } from "./Teseracto";
 import css from "../Sugerencias.module.css";
@@ -14,7 +12,6 @@ import css from "../Sugerencias.module.css";
 type Filtro = "todo" | "consejo" | "tip";
 
 const CLAVE_VISTOS = "cuentas-de-dos:oraculo-vistos";
-const claveDescartados = (mes: string) => `cuentas-de-dos:oraculo-descartados:${mes}`;
 
 function leerSet(clave: string): Set<string> {
   try {
@@ -31,10 +28,6 @@ function guardarSet(clave: string, valor: Set<string>) {
   }
 }
 
-function mesLocal(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-}
 
 /**
  * El oráculo: lee todo lo registrado, piensa y entrega de a un mensaje por
@@ -44,38 +37,12 @@ function mesLocal(): string {
  * descartaron este mes, para no repetirse.
  */
 export function Oraculo() {
-  const hogarCtx = useHogar();
-  const { movimientos, gastos, ingresos, deudas, metas, activos, decisiones, hogar, idA, idB, nombreDe, crear } = hogarCtx;
-  const f = useFinanzas();
-  const { $ } = useMoneda();
-  const { etiqueta } = useCategorias();
+  const { decisiones, crear } = useHogar();
+  const analisis = useOraculo();
   const mes = mesLocal();
 
-  const analisis = useMemo(
-    () =>
-      analizar({
-        f,
-        movimientos,
-        gastos,
-        ingresos,
-        deudas,
-        metas,
-        activos,
-        decisiones,
-        hogar,
-        idA,
-        idB,
-        nombreDe,
-        etiqueta,
-        $,
-        meses: enMeses,
-        pct: (n) => porcentaje(n),
-      }),
-    [f, movimientos, gastos, ingresos, deudas, metas, activos, decisiones, hogar, idA, idB, nombreDe, etiqueta, $],
-  );
-
   const [vistos, setVistos] = useState(() => leerSet(CLAVE_VISTOS));
-  const [descartados, setDescartados] = useState(() => leerSet(claveDescartados(mes)));
+  const [descartados, setDescartados] = useState(() => leerDescartados(mes));
   const [filtro, setFiltro] = useState<Filtro>("todo");
   const [indice, setIndice] = useState(0);
   const [pensando, setPensando] = useState(false);
@@ -107,11 +74,11 @@ export function Oraculo() {
   const descartar = (id: string) => {
     const nuevo = new Set(descartados).add(id);
     setDescartados(nuevo);
-    guardarSet(claveDescartados(mes), nuevo);
+    guardarDescartados(nuevo, mes);
   };
   const recuperarDescartados = () => {
     setDescartados(new Set());
-    guardarSet(claveDescartados(mes), new Set());
+    guardarDescartados(new Set(), mes);
   };
   const adoptar = (m: Mensaje) =>
     crear("decisiones", {
@@ -138,6 +105,7 @@ export function Oraculo() {
       <h3 className={css.titulo}>{m.titulo}</h3>
       <p className={css.cuerpo}>{m.cuerpo}</p>
       {!compacta && m.comoSeCalcula && <p className={css.calculo}>{m.comoSeCalcula}</p>}
+      {m.tipo === "consejo" && m.accion && <AccionConsejo accion={m.accion} />}
       <div className={css.acciones}>
         {m.tipo === "consejo" &&
           (adoptados.has(m.id) ? (
