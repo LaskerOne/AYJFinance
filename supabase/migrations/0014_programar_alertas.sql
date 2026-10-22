@@ -16,7 +16,7 @@
 --   select vault.create_secret('https://SU-PROYECTO.supabase.co', 'project_url');
 --
 --   -- 2. Un secreto aleatorio, generado aquí mismo:
---   select vault.create_secret(encode(gen_random_bytes(24), 'hex'), 'cron_secret');
+--   select vault.create_secret(replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''), 'cron_secret');
 --
 --   -- 3. Léanlo para copiarlo en los secretos de la función (CRON_SECRET):
 --   select decrypted_secret from vault.decrypted_secrets where name = 'cron_secret';
