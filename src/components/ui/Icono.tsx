@@ -68,6 +68,15 @@ const TRAZOS: Record<string, JSX.Element> = {
       <path d="M14.6 5.6 16.5 4.5l.7 2.1" />
     </>
   ),
+  // Monedas apiladas: lo que tienen.
+  patrimonio: (
+    <>
+      <ellipse cx="10" cy="5.5" rx="5.5" ry="2.2" />
+      <path d="M4.5 5.5v3c0 1.2 2.5 2.2 5.5 2.2s5.5-1 5.5-2.2v-3" />
+      <path d="M4.5 8.5v3c0 1.2 2.5 2.2 5.5 2.2s5.5-1 5.5-2.2v-3" />
+      <path d="M4.5 11.5v3c0 1.2 2.5 2.2 5.5 2.2s5.5-1 5.5-2.2v-3" />
+    </>
+  ),
   historico: (
     <>
       <circle cx="10" cy="10" r="7" />

@@ -14,6 +14,7 @@ import { obtenerOCrearHogar, integrantes as leerIntegrantes } from "@/services/h
 import * as coleccion from "@/services/coleccion.service";
 import { useSesion } from "./SesionContext";
 import type {
+  Activo,
   CierreMensual,
   Deuda,
   GastoPresupuesto,
@@ -37,6 +38,7 @@ const TABLAS: NombreTabla[] = [
   "movimientos",
   "reglas_categoria",
   "cierres_mensuales",
+  "activos",
 ];
 
 const ORDEN: Record<NombreTabla, { columna: string; ascendente?: boolean }> = {
@@ -47,6 +49,7 @@ const ORDEN: Record<NombreTabla, { columna: string; ascendente?: boolean }> = {
   movimientos: { columna: "fecha", ascendente: false },
   reglas_categoria: { columna: "creada_en" },
   cierres_mensuales: { columna: "periodo" },
+  activos: { columna: "orden" },
 };
 
 const VACIO: Filas = {
@@ -57,6 +60,7 @@ const VACIO: Filas = {
   movimientos: [],
   reglas_categoria: [],
   cierres_mensuales: [],
+  activos: [],
 };
 
 interface ValorHogar {
@@ -77,6 +81,7 @@ interface ValorHogar {
   movimientos: Movimiento[];
   reglas: ReglaCategoria[];
   cierres: CierreMensual[];
+  activos: Activo[];
 
   cargando: boolean;
   error: string;
@@ -390,6 +395,7 @@ export function HogarProvider({ children }: { children: ReactNode }) {
       movimientos: filas.movimientos,
       reglas: filas.reglas_categoria,
       cierres: filas.cierres_mensuales,
+      activos: filas.activos,
       cargando,
       error,
       errorEscritura,

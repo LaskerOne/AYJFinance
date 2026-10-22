@@ -129,6 +129,8 @@ export interface Hogar {
   /** Tasa de usura vigente en % E.A. y el mes (YYYY-MM) al que corresponde. */
   tasa_usura?: number | null;
   tasa_usura_mes?: string | null;
+  /** Inflación anual de referencia (%), para la rentabilidad real. */
+  inflacion_ref?: number | null;
   creado_por: string;
   creado_en: string;
 }
@@ -252,7 +254,79 @@ export interface CierreMensual {
   ahorro: number;
   deuda_total: number;
   por_categoria: Partial<Record<Categoria, number>>;
+  /** Total de activos al cierre (migración 0011); con deuda_total da el patrimonio. */
+  activos_total?: number;
   cerrado_en: string;
+}
+
+// --- patrimonio ---------------------------------------------------------------
+
+export type TipoActivo =
+  | "efectivo"
+  | "ahorro"
+  | "cdt"
+  | "fic"
+  | "acciones"
+  | "dolares"
+  | "cripto"
+  | "cesantias"
+  | "pension_voluntaria"
+  | "afc"
+  | "pension_obligatoria"
+  | "inmueble"
+  | "vehiculo"
+  | "otro";
+
+/** Para qué sirve la plata según qué tan rápido se puede usar. */
+export type GrupoActivo = "liquido" | "invertido" | "retiro" | "bienes";
+
+export interface InfoTipoActivo {
+  nombre: string;
+  grupo: GrupoActivo;
+  /** Retención en la fuente sobre rendimientos financieros (aprox. 7 %). */
+  retencion: boolean;
+  /** 4×1000 al retirar (las cuentas de ahorro suelen estar exentas). */
+  gmf: boolean;
+}
+
+export const TIPOS_ACTIVO: Record<TipoActivo, InfoTipoActivo> = {
+  efectivo: { nombre: "Efectivo / cuenta corriente", grupo: "liquido", retencion: false, gmf: false },
+  ahorro: { nombre: "Cuenta de ahorros", grupo: "liquido", retencion: true, gmf: false },
+  fic: { nombre: "Fondo de inversión colectiva", grupo: "liquido", retencion: true, gmf: true },
+  dolares: { nombre: "Dólares", grupo: "liquido", retencion: false, gmf: true },
+  cdt: { nombre: "CDT", grupo: "invertido", retencion: true, gmf: true },
+  acciones: { nombre: "Acciones / ETF", grupo: "invertido", retencion: false, gmf: true },
+  cripto: { nombre: "Cripto", grupo: "invertido", retencion: false, gmf: true },
+  cesantias: { nombre: "Cesantías", grupo: "retiro", retencion: false, gmf: false },
+  pension_voluntaria: { nombre: "Pensión voluntaria (FPV)", grupo: "retiro", retencion: false, gmf: false },
+  afc: { nombre: "Cuenta AFC", grupo: "retiro", retencion: false, gmf: false },
+  pension_obligatoria: { nombre: "Pensión obligatoria", grupo: "retiro", retencion: false, gmf: false },
+  inmueble: { nombre: "Inmueble", grupo: "bienes", retencion: false, gmf: false },
+  vehiculo: { nombre: "Vehículo", grupo: "bienes", retencion: false, gmf: false },
+  otro: { nombre: "Otro", grupo: "bienes", retencion: false, gmf: false },
+};
+
+export const NOMBRE_GRUPO: Record<GrupoActivo, string> = {
+  liquido: "Disponible",
+  invertido: "Invertido",
+  retiro: "Para el retiro",
+  bienes: "Bienes",
+};
+
+export interface Activo {
+  id: string;
+  hogar_id: string;
+  usuario_id: string | null;
+  nombre: string;
+  tipo: TipoActivo;
+  valor: number;
+  /** Rentabilidad pactada o esperada en % E.A. Null si no aplica (bienes). */
+  tasa_ea: number | null;
+  aporte_mensual: number;
+  /** YYYY-MM-DD, para CDT y similares. */
+  vencimiento: string | null;
+  orden: number;
+  creado_en: string;
 }
 
 /** Nombre de tabla → forma de la fila. Le da tipos al hook genérico. */
@@ -264,6 +338,7 @@ export interface MapaTablas {
   movimientos: Movimiento;
   reglas_categoria: ReglaCategoria;
   cierres_mensuales: CierreMensual;
+  activos: Activo;
 }
 
 export type NombreTabla = keyof MapaTablas;

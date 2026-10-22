@@ -51,12 +51,23 @@ export function Historico() {
     ],
   }));
 
+  // El patrimonio aparece cuando algún cierre ya registró activos (0011).
+  const conPatrimonio = ordenados.some((c) => Number(c.activos_total ?? 0) > 0);
   const serieDeuda: Serie[] = [
     {
       nombre: "Deuda total",
       puntos: ordenados.map((c) => Number(c.deuda_total)),
       color: "--s-deuda",
     },
+    ...(conPatrimonio
+      ? [
+          {
+            nombre: "Patrimonio neto",
+            puntos: ordenados.map((c) => Number(c.activos_total ?? 0) - Number(c.deuda_total)),
+            color: "--a",
+          },
+        ]
+      : []),
   ];
 
   const ultimo = ordenados[ordenados.length - 1];
@@ -230,8 +241,12 @@ export function Historico() {
             <section className="panel">
               <header>
                 <div>
-                  <h2>Cómo va bajando la deuda</h2>
-                  <p className="nota">El saldo total al cierre de cada mes.</p>
+                  <h2>{conPatrimonio ? "Deuda y patrimonio, mes a mes" : "Cómo va bajando la deuda"}</h2>
+                  <p className="nota">
+                    {conPatrimonio
+                      ? "Al cierre de cada mes: la deuda debería bajar y el patrimonio subir."
+                      : "El saldo total al cierre de cada mes."}
+                  </p>
                 </div>
               </header>
               <LineaTiempo

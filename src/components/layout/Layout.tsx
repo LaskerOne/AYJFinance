@@ -16,6 +16,7 @@ const SECCIONES: { ruta: string; texto: string; icono: NombreIcono; exacta?: boo
   { ruta: "/deudas", texto: "Deudas", icono: "deudas" },
   { ruta: "/credito", texto: "Laboratorio de crédito", icono: "credito" },
   { ruta: "/metas", texto: "Metas", icono: "metas" },
+  { ruta: "/patrimonio", texto: "Patrimonio", icono: "patrimonio" },
   { ruta: "/proyeccion", texto: "Proyección", icono: "proyeccion" },
   { ruta: "/historico", texto: "Histórico", icono: "historico" },
   { ruta: "/sugerencias", texto: "Sugerencias", icono: "sugerencias" },

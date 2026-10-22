@@ -80,9 +80,13 @@ export function LineaTiempo({ series: objetivo, etiqueta, alto = 200, etiquetaX 
 
   const n = Math.max(2, ...series.map((s) => s.puntos.length));
   const maxY = Math.max(1, ...series.flatMap((s) => s.puntos));
+  // Admite valores negativos (un patrimonio puede estarlo): la escala baja
+  // hasta el mínimo y el cero se dibuja como línea de referencia.
+  const minY = Math.min(0, ...series.flatMap((s) => s.puntos));
 
   const x = (i: number) => PAD.izquierda + (i / (n - 1)) * (W - PAD.izquierda - PAD.derecha);
-  const y = (v: number) => PAD.arriba + (1 - v / maxY) * (alto - PAD.arriba - PAD.abajo);
+  const y = (v: number) =>
+    PAD.arriba + ((maxY - v) / (maxY - minY)) * (alto - PAD.arriba - PAD.abajo);
   const valorEn = (s: Serie, i: number) => (i < s.puntos.length ? s.puntos[i] : 0);
 
   const trazo = (s: Serie) =>
@@ -110,8 +114,8 @@ export function LineaTiempo({ series: objetivo, etiqueta, alto = 200, etiquetaX 
         onMouseMove={alMover}
         onMouseLeave={() => setFoco(null)}
       >
-        {[0, 0.5, 1].map((f) => {
-          const vy = y(maxY * f);
+        {(minY < 0 ? [minY, 0, maxY] : [0, maxY / 2, maxY]).map((f) => {
+          const vy = y(f);
           return (
             <g key={f}>
               <line
@@ -119,7 +123,7 @@ export function LineaTiempo({ series: objetivo, etiqueta, alto = 200, etiquetaX 
                 y1={vy}
                 x2={W - PAD.derecha}
                 y2={vy}
-                stroke="var(--grid)"
+                stroke={f === 0 && minY < 0 ? "var(--axis)" : "var(--grid)"}
                 strokeWidth={1}
               />
               <text
@@ -130,7 +134,8 @@ export function LineaTiempo({ series: objetivo, etiqueta, alto = 200, etiquetaX 
                 fontFamily="JetBrains Mono, monospace"
                 fill="var(--ink-3)"
               >
-                {$corto(maxY * f)}
+                {f < 0 ? "−" : ""}
+                {$corto(Math.abs(f))}
               </text>
             </g>
           );

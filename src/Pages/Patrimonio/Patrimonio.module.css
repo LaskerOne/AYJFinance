@@ -1,0 +1,163 @@
+.pie {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink-3);
+  max-width: 92ch;
+}
+.nota {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.tipo {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.campoLab {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.campoLab b {
+  color: var(--a-ink);
+}
+
+/* --- inflación y vencimientos ------------------------------------------------- */
+.inflacion {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px 20px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.inflacion .campoLab {
+  width: 200px;
+}
+.inflacion .nota {
+  flex: 1 1 300px;
+}
+.vencimientos {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  box-shadow: var(--hundido);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.vencimientos b {
+  color: var(--ink);
+}
+
+/* --- proyección --------------------------------------------------------------- */
+.leyenda {
+  display: flex;
+  gap: 6px 18px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.leyenda > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.trazoSolido {
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--a);
+}
+.trazoPunteado {
+  width: 18px;
+  border-top: 2px dashed var(--ink-3);
+}
+
+/* --- libertad financiera -------------------------------------------------------- */
+.libertad {
+  display: grid;
+  grid-template-columns: 1fr minmax(260px, 0.9fr);
+  gap: 24px;
+  align-items: center;
+}
+@media (max-width: 820px) {
+  .libertad {
+    grid-template-columns: 1fr;
+  }
+}
+.libertadCifra {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.libertadNumero {
+  font-size: clamp(30px, 3.6vw, 44px);
+}
+.libertadControles {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* --- horizontes ----------------------------------------------------------------- */
+.horizontes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+.horizonte {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 17px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--grad-panel), var(--surface-2);
+  box-shadow: var(--luz-borde);
+  transition: transform var(--t-1), box-shadow var(--t-1);
+}
+.horizonte:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--luz-borde), var(--glow-a);
+}
+.horizonteTitulo {
+  font-size: 17px;
+}
+.donde {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--a-ink);
+  line-height: 1.5;
+}
+.por {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.metasHorizonte {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line-2);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.metaChip {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 7px 10px;
+  border-radius: var(--r-sm);
+  background: var(--surface-3);
+  box-shadow: var(--hundido);
+  font-size: 12.5px;
+}
+.metaChip .num {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
