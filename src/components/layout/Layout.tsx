@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useSesion } from "@/contexts/SesionContext";
 import { useHogar } from "@/contexts/HogarContext";
@@ -51,6 +52,10 @@ const GRUPOS: { titulo: string; secciones: Seccion[] }[] = [
   },
 ];
 
+/** Posición de cada sección en el panal, contando de arriba abajo: marca el
+ *  turno de cada celda en la oleada de luz que lo recorre. */
+const TURNO = new Map(GRUPOS.flatMap((g) => g.secciones).map((s, i) => [s.ruta, i]));
+
 /** Cuando el hogar mira en USD, dice con qué tasa se está convirtiendo. */
 function IndicadorTasa() {
   const { elegido, convierte, tasa } = useMoneda();
@@ -97,8 +102,10 @@ export function Layout() {
   return (
     <div className={css.app}>
       <aside className={css.lateral}>
-        <div className={css.marca}>
-          <span className={css.logo} aria-hidden="true">CD</span>
+        <div className={css.marca} title={hogar?.nombre ?? "Cuentas de Dos"}>
+          <span className={css.logo} aria-hidden="true">
+            <span>CD</span>
+          </span>
           <div className={css.marcaTexto}>
             <h1 className={css.titulo}>{hogar?.nombre ?? "Cuentas de Dos"}</h1>
             {perfiles.length < 2 && <p className={css.sub}>Invita a tu pareja desde Ajustes</p>}
@@ -107,19 +114,26 @@ export function Layout() {
 
         <nav className={css.nav} aria-label="Secciones">
           {GRUPOS.map((g) => (
-            <div key={g.titulo} className={css.grupo}>
-              <span className={css.grupoTitulo}>{g.titulo}</span>
+            <div key={g.titulo} className={css.grupo} role="group" aria-label={g.titulo}>
               {g.secciones.map((s) => (
                 <NavLink
                   key={s.ruta}
                   to={s.ruta}
                   end={s.exacta}
-                  className={({ isActive }) => `${css.enlace} ${isActive ? css.activo : ""}`}
+                  className={({ isActive }) => `${css.celda} ${isActive ? css.activo : ""}`}
+                  style={{ "--i": TURNO.get(s.ruta) } as CSSProperties}
                 >
-                  <span className={css.icono}>
-                    <Icono nombre={s.icono} tamano={18} />
+                  <span className={css.hex} aria-hidden="true">
+                    <span className={css.icono}>
+                      <Icono nombre={s.icono} tamano={18} />
+                    </span>
                   </span>
-                  {s.texto}
+                  <span className={css.etiqueta}>
+                    <small className={css.etiquetaGrupo} aria-hidden="true">
+                      {g.titulo}
+                    </small>
+                    {s.texto}
+                  </span>
                   {s.contador && <ContadorOraculo />}
                 </NavLink>
               ))}
@@ -133,7 +147,7 @@ export function Layout() {
             title={enVivo ? "Cambios en vivo" : "Sin conexión en vivo"}
           >
             <span className={css.punto} />
-            {enVivo ? "Sincronizado en vivo" : "Sin conexión en vivo"}
+            <span className={css.vivoTexto}>{enVivo ? "Sincronizado en vivo" : "Sin conexión en vivo"}</span>
           </span>
         </div>
       </aside>
