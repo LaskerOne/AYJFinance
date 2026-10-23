@@ -25,24 +25,6 @@ export interface DatoKpi {
   destacado?: boolean;
 }
 
-/** Una cifra grande en su propia tarjeta. Suelta, para acomodarla en una
- *  grilla de tamaños distintos; en fila, a través de FilaKpi. */
-export function TarjetaKpi({ dato: d, className = "" }: { dato: DatoKpi; className?: string }) {
-  return (
-    <div
-      className={`bordeViajero ${css.kpi} ${d.destacado ? css.destacado : ""} ${className}`}
-      onMouseMove={inclinar}
-      onMouseLeave={enderezar}
-    >
-      <span className="eyebrow">{d.etiqueta}</span>
-      <span className={`${css.valor} ${d.tono === "positivo" ? css.pos : ""} ${d.tono === "negativo" ? css.neg : ""}`}>
-        {d.valor}
-      </span>
-      {d.detalle !== undefined && <span className={css.detalle}>{d.detalle}</span>}
-    </div>
-  );
-}
-
 /** Fila de cifras grandes. Se usa solo cuando esos números son el titular
  *  de la sección, no como decoración de cualquier bloque. */
 export function FilaKpi({ datos, columnas }: { datos: DatoKpi[]; columnas?: number }) {
@@ -50,7 +32,18 @@ export function FilaKpi({ datos, columnas }: { datos: DatoKpi[]; columnas?: numb
   return (
     <div className={css.fila} style={{ ["--columnas" as string]: String(n) }}>
       {datos.map((d) => (
-        <TarjetaKpi key={d.etiqueta} dato={d} />
+        <div
+          key={d.etiqueta}
+          className={`bordeViajero ${css.kpi} ${d.destacado ? css.destacado : ""}`}
+          onMouseMove={inclinar}
+          onMouseLeave={enderezar}
+        >
+          <span className="eyebrow">{d.etiqueta}</span>
+          <span className={`${css.valor} ${d.tono === "positivo" ? css.pos : ""} ${d.tono === "negativo" ? css.neg : ""}`}>
+            {d.valor}
+          </span>
+          {d.detalle !== undefined && <span className={css.detalle}>{d.detalle}</span>}
+        </div>
       ))}
     </div>
   );

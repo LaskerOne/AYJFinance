@@ -11,7 +11,7 @@ function inicial(nombre: string): string {
 
 /** Las dos personas del hogar, con su ingreso y su peso en el total.
  *  Cuando todavía hay una sola, el hueco invita en vez de quedar vacío. */
-export function TarjetasPersonas({ finanzas, className = "" }: { finanzas: Finanzas; className?: string }) {
+export function TarjetasPersonas({ finanzas }: { finanzas: Finanzas }) {
   const { perfiles, idA, nombreDe } = useHogar();
   const { $ } = useMoneda();
 
@@ -40,7 +40,7 @@ export function TarjetasPersonas({ finanzas, className = "" }: { finanzas: Finan
   );
 
   return (
-    <section className={`${css.pareja} ${className}`}>
+    <section className={css.pareja}>
       {tarjeta("a", yo ? nombreDe(yo.id) : "Tú", finanzas.ingresoA, finanzas.participacionA)}
 
       {pareja ? (
