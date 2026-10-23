@@ -187,7 +187,11 @@
   flex-direction: column;
   gap: 16px;
   padding: 18px 26px 60px;
-  max-width: 1180px;
+  /* En pantallas grandes el contenido crece hasta un ancho cómodo de leer y
+     se centra en el espacio que deja la barra: el sobrante se reparte a los
+     dos lados en vez de acumularse a la derecha. */
+  max-width: 1480px;
+  margin-inline: auto;
 }
 
 .topbar {
