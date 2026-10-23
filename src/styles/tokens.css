@@ -17,26 +17,28 @@
    ========================================================================= */
 
 :root {
-  /* superficies y tinta · aluminio cepillado */
-  --bg: #e4e6e9;
-  --surface: #f6f7f8;
-  --surface-2: #eceef0;
-  --surface-3: #e0e3e6;
-  --ink: #16181b;
-  --ink-2: #555a62;
-  --ink-3: #7c818a;
-  --line: #d6d9dd;
-  --line-2: #bcc0c6;
+  /* superficies y tinta · acero claro cepillado: gris metálico, nunca blanco,
+     para que el tema claro no canse la vista. Textos y series revalidados
+     contra esta superficie (texto ≥ 4,5:1, series ≥ 3:1 y CVD). */
+  --bg: #c9cdd2;
+  --surface: #dde0e4;
+  --surface-2: #d5d8dd;
+  --surface-3: #caced4;
+  --ink: #14161a;
+  --ink-2: #41464d;
+  --ink-3: #585e67;
+  --line: #c3c7cd;
+  --line-2: #a9aeb5;
 
   /* identidad de cada persona (naranja / violeta) · naranja es también la marca */
   --a: #c45a00;
-  --a-soft: #fbe6d2;
-  --a-ink: #a64b00;
+  --a-soft: #e9d2bf;
+  --a-ink: #964300;
   --b: #6a52d8;
-  --b-soft: #ebe6fb;
+  --b-soft: #d9d3ef;
   --b-ink: #5540bb;
   --comun: #5c626b;
-  --comun-soft: #e0e3e6;
+  --comun-soft: #cfd3d8;
 
   /* acción primaria · brasa: degradado ámbar→naranja con tinta casi negra */
   --cta-bg: #ff8a1f;
@@ -53,36 +55,36 @@
   --serious: #c2401f;
   --crit: #b7191c;
   --ok-ink: #0a6f60;
-  --warn-ink: #8a5a00;
+  --warn-ink: #7a4f00;
   --crit-ink: #a3161a;
 
   /* categorías de gasto · cobre/ámbar, teal/cian e índigo/violeta: las tres
      familias de la casa, en orden fijo; el color sigue a la categoría */
-  --cat-vivienda: #b25bdc;
-  --cat-mercado: #b52b0c;
-  --cat-servicios: #4571e4;
-  --cat-transporte: #7e4a09;
-  --cat-salud: #169999;
-  --cat-ocio: #8631ae;
-  --cat-personal: #ca6842;
-  --cat-educacion: #354bad;
-  --cat-otros: #8a8f97;
+  --cat-vivienda: #9a59cc;
+  --cat-mercado: #a02f05;
+  --cat-servicios: #4272f0;
+  --cat-transporte: #7d4501;
+  --cat-salud: #008e8d;
+  --cat-ocio: #8135a5;
+  --cat-personal: #a35138;
+  --cat-educacion: #394e9c;
+  --cat-otros: #7a7f87;
 
   /* segmentos de las barras apiladas */
   --s-ingreso: #c45a00;
   --s-gasto: #7e68ea;
   --s-deuda: #4f3bb0;
-  --s-ahorro: #0e8fa6;
-  --s-libre: #c2c6cc;
+  --s-ahorro: #00819f;
+  --s-libre: #a9aeb5;
 
-  --grid: #e1e4e7;
-  --axis: #bcc0c6;
+  --grid: #ced2d7;
+  --axis: #a9aeb5;
 
   /* profundidad y relieve · bisel claro arriba, sombra abajo, rieles hundidos */
-  --shadow: 0 1px 2px rgba(16, 18, 21, 0.06), 0 10px 28px -16px rgba(16, 18, 21, 0.3);
-  --luz-borde: inset 0 1px 0 #ffffff, inset 0 -1px 0 rgba(16, 18, 21, 0.07);
-  --relieve: inset 0 1px 0 #ffffff, inset 0 -1px 0 rgba(16, 18, 21, 0.12), 0 1px 2px rgba(16, 18, 21, 0.12);
-  --hundido: inset 0 2px 3px rgba(16, 18, 21, 0.16), inset 0 -1px 0 #ffffff;
+  --shadow: 0 1px 2px rgba(16, 18, 21, 0.08), 0 10px 28px -16px rgba(16, 18, 21, 0.35);
+  --luz-borde: inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 0 rgba(16, 18, 21, 0.08);
+  --relieve: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(16, 18, 21, 0.14), 0 1px 2px rgba(16, 18, 21, 0.14);
+  --hundido: inset 0 2px 3px rgba(16, 18, 21, 0.18), inset 0 -1px 0 rgba(255, 255, 255, 0.45);
   --glow-a: 0 0 0 1px color-mix(in srgb, var(--a) 30%, transparent),
     0 0 22px -6px color-mix(in srgb, var(--cta-bg) 55%, transparent);
   --glow-b: 0 0 22px -6px color-mix(in srgb, var(--b) 40%, transparent);
@@ -90,8 +92,8 @@
   /* gradientes · fondo con brasa en la esquina, paneles de metal cepillado */
   --grad-bg: radial-gradient(900px 420px at 12% -8%, color-mix(in srgb, #ff8a1f 9%, transparent), transparent 70%),
     radial-gradient(800px 420px at 95% -10%, color-mix(in srgb, #6a52d8 6%, transparent), transparent 70%);
-  --grad-panel: linear-gradient(180deg, rgba(255, 255, 255, 0.75), transparent 38%),
-    repeating-linear-gradient(90deg, rgba(16, 18, 21, 0.012) 0 1px, transparent 1px 3px);
+  --grad-panel: linear-gradient(165deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0) 42%, rgba(16, 18, 21, 0.025) 100%),
+    repeating-linear-gradient(90deg, rgba(16, 18, 21, 0.018) 0 1px, transparent 1px 3px);
   --grad-hero: linear-gradient(135deg, color-mix(in srgb, var(--a) 13%, var(--surface)), var(--surface) 55%, color-mix(in srgb, var(--b) 8%, var(--surface)));
 
   /* colores de marca fijos: no cambian con el acento (muestras del interruptor) */
@@ -259,47 +261,47 @@
    claro (0,2,0) < oscuro (0,3,0).
    ========================================================================= */
 :root[data-acento="violeta"] {
-  --bg: #efedf3;
-  --surface: #fbfafd;
-  --surface-2: #f3f1f7;
-  --surface-3: #e9e6f0;
+  --bg: #cdcad6;
+  --surface: #e0dee7;
+  --surface-2: #d7d4e0;
+  --surface-3: #cbc7d6;
   --ink: #17141f;
-  --ink-2: #5c566a;
-  --ink-3: #847e92;
-  --line: #e0dce8;
-  --line-2: #c8c2d4;
+  --ink-2: #474155;
+  --ink-3: #5d5770;
+  --line: #c6c2d1;
+  --line-2: #aca6ba;
 
   --a: #6a52d8;
-  --a-soft: #ebe6fb;
-  --a-ink: #5540bb;
+  --a-soft: #d9d3ef;
+  --a-ink: #4a35b0;
   --b: #c45a00;
-  --b-soft: #fbe6d2;
-  --b-ink: #a64b00;
+  --b-soft: #e9d2bf;
+  --b-ink: #964300;
   --comun: #5e5870;
-  --comun-soft: #e9e6f0;
+  --comun-soft: #d0ccda;
 
   --cta-bg: #8f7cea;
   --cta-bg-2: #a596f2;
   --cta-ink: #120c26;
 
-  --cat-vivienda: #7976ca;
-  --cat-mercado: #7b27a4;
-  --cat-servicios: #1781bc;
-  --cat-transporte: #97316a;
-  --cat-salud: #3879f0;
-  --cat-ocio: #56489a;
-  --cat-personal: #b75ebf;
-  --cat-educacion: #1b56c2;
-  --cat-otros: #8b8796;
+  --cat-vivienda: #726cc5;
+  --cat-mercado: #693683;
+  --cat-servicios: #0172b8;
+  --cat-transporte: #8a355e;
+  --cat-salud: #3a6eec;
+  --cat-ocio: #6033b9;
+  --cat-personal: #a25aab;
+  --cat-educacion: #1350a7;
+  --cat-otros: #7e7a8c;
 
   --s-ingreso: #7e68ea;
-  --s-gasto: #d0670a;
+  --s-gasto: #c96208;
   --s-deuda: #8a3a08;
-  --s-ahorro: #0e8fa6;
-  --s-libre: #c0bacb;
+  --s-ahorro: #00819f;
+  --s-libre: #aca6ba;
 
-  --grid: #e7e4ee;
-  --axis: #c8c2d4;
+  --grid: #d2cedc;
+  --axis: #aca6ba;
 
   --glow-a: 0 0 0 1px color-mix(in srgb, var(--a) 30%, transparent),
     0 0 22px -6px color-mix(in srgb, var(--cta-bg) 55%, transparent);
