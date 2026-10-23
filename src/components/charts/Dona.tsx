@@ -94,11 +94,10 @@ export function Dona({ datos, total, titulo = "Distribución" }: Props) {
             y="86"
             textAnchor="middle"
             fontSize="10.5"
-            fontFamily="JetBrains Mono, monospace"
-            letterSpacing="1.2"
+            fontFamily="var(--cifras)"
             fill="var(--ink-3)"
           >
-            TOTAL
+            Total
           </text>
           <text
             x="92"

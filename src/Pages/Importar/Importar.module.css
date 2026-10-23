@@ -84,7 +84,8 @@
 }
 .deteccion b {
   color: var(--ink);
-  font-family: var(--mono);
+  font-family: var(--cifras);
+  font-variant-numeric: tabular-nums;
 }
 
 .aviso {

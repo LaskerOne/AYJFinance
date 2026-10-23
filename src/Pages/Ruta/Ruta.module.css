@@ -181,10 +181,8 @@
   font-size: 15px;
 }
 .nivelEtiqueta {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--display);
+  font-size: 12px;
   color: var(--ink-3);
 }
 .nivel[data-estado="actual"] .nivelEtiqueta {
@@ -254,10 +252,8 @@
 }
 .leccionSuya,
 .leccionVista {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--display);
+  font-size: 12px;
   padding: 2px 7px;
   border-radius: var(--r-full);
 }

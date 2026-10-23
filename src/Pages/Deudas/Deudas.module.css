@@ -20,7 +20,7 @@
   min-width: 120px;
 }
 .valorAbono {
-  font-family: var(--mono);
+  font-family: var(--cifras);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   font-size: 13.5px;
@@ -82,7 +82,8 @@
   border-radius: var(--r-sm);
   display: grid;
   place-items: center;
-  font-family: var(--mono);
+  font-family: var(--cifras);
+  font-variant-numeric: tabular-nums;
   font-size: 11px;
   font-weight: 600;
   background: var(--surface-3);
@@ -108,7 +109,7 @@
 }
 .saldo {
   text-align: right;
-  font-family: var(--mono);
+  font-family: var(--cifras);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   font-size: 13.5px;
@@ -135,7 +136,7 @@
 }
 .comparacion b {
   color: var(--ink);
-  font-family: var(--mono);
+  font-family: var(--cifras);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
 }

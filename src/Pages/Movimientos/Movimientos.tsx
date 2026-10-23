@@ -215,7 +215,7 @@ export function Movimientos() {
             etiqueta={`Gasto corriente acumulado de ${nombrePeriodo(`${mes}-01`)} contra el presupuesto`}
             etiquetaX={(i) => `día ${i + 1}`}
             referencia={presupuestoTotal}
-            etiquetaReferencia="presupuesto"
+            etiquetaReferencia="Presupuesto"
             color="--a-ink"
             alto={185}
           />

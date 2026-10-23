@@ -102,7 +102,9 @@
 
   --display: "Space Grotesk", "Trebuchet MS", system-ui, sans-serif;
   --body: "Inter", "Segoe UI", system-ui, sans-serif;
-  --mono: "JetBrains Mono", Consolas, ui-monospace, monospace;
+  /* Las cifras van en la letra de los títulos con números tabulares: alinean en
+     columnas sin el aire de terminal que da una monoespaciada. */
+  --cifras: "Space Grotesk", "Trebuchet MS", system-ui, sans-serif;
 
   --r-sm: 9px;
   --r-md: 13px;

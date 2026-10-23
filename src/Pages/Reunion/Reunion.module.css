@@ -172,7 +172,8 @@
 .evaluacion {
   display: inline-block;
   margin-left: 10px;
-  font-family: var(--mono);
+  font-family: var(--cifras);
+  font-variant-numeric: tabular-nums;
   font-size: 10.5px;
   letter-spacing: 0.04em;
   padding: 2px 8px;

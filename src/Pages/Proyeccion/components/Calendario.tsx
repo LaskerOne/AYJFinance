@@ -30,7 +30,7 @@ export function Calendario({ meses }: { meses: MesProyectado[] }) {
                 {m.nombre}
                 {anio}
               </span>
-              {m === peor && m.neto < 0 && <span className={css.apretado}>el más apretado</span>}
+              {m === peor && m.neto < 0 && <span className={css.apretado}>El más apretado</span>}
             </header>
             <span className={`num ${css.mesNeto}`} data-rojo={m.neto < 0}>
               {m.neto < 0 ? "−" : "+"}

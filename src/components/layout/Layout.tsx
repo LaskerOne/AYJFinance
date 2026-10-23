@@ -6,6 +6,7 @@ import { SelectorTema } from "@/components/ui/SelectorTema";
 import { Icono, type NombreIcono } from "@/components/ui/Icono";
 import { useMoneda } from "@/hooks/useMoneda";
 import { ContadorOraculo } from "./ContadorOraculo";
+import { Saludo } from "./Saludo";
 import { MONEDAS, moneda as fmtMoneda } from "@/lib/formato";
 import css from "./Layout.module.css";
 
@@ -100,11 +101,7 @@ export function Layout() {
           <span className={css.logo} aria-hidden="true">CD</span>
           <div className={css.marcaTexto}>
             <h1 className={css.titulo}>{hogar?.nombre ?? "Cuentas de Dos"}</h1>
-            <p className={css.sub}>
-              {perfiles.length > 1
-                ? perfiles.map((p) => p.nombre || p.correo.split("@")[0]).join(" y ")
-                : "Invita a tu pareja desde Ajustes"}
-            </p>
+            {perfiles.length < 2 && <p className={css.sub}>Invita a tu pareja desde Ajustes</p>}
           </div>
         </div>
 
@@ -138,33 +135,33 @@ export function Layout() {
             <span className={css.punto} />
             {enVivo ? "Sincronizado en vivo" : "Sin conexión en vivo"}
           </span>
-          <span className={css.correo} title={correo}>
-            {correo}
-          </span>
         </div>
       </aside>
 
       <div className={css.principal}>
         <header className={css.topbar}>
-          <IndicadorTasa />
-          <select
-            className="pill"
-            aria-label="Moneda"
-            value={hogar?.moneda ?? "COP"}
-            onChange={(e) => void cambiarHogar({ moneda: e.target.value })}
-          >
-            {MONEDAS.map((m) => (
-              <option key={m.codigo} value={m.codigo}>
-                {m.etiqueta}
-              </option>
-            ))}
-          </select>
+          <Saludo />
+          <div className={css.controles}>
+            <IndicadorTasa />
+            <select
+              className="pill"
+              aria-label="Moneda"
+              value={hogar?.moneda ?? "COP"}
+              onChange={(e) => void cambiarHogar({ moneda: e.target.value })}
+            >
+              {MONEDAS.map((m) => (
+                <option key={m.codigo} value={m.codigo}>
+                  {m.etiqueta}
+                </option>
+              ))}
+            </select>
 
-          <SelectorTema />
+            <SelectorTema />
 
-          <button className="pill ghost" onClick={() => void salir()} title={correo}>
-            Salir
-          </button>
+            <button className="pill ghost" onClick={() => void salir()} title={correo}>
+              Salir
+            </button>
+          </div>
         </header>
 
         {errorEscritura && (

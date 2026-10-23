@@ -117,7 +117,7 @@
   min-width: 120px;
 }
 .valorEnsayo {
-  font-family: var(--mono);
+  font-family: var(--cifras);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   font-size: 13.5px;
@@ -260,11 +260,9 @@
   flex-wrap: wrap;
 }
 .insignia {
-  font-family: var(--mono);
-  font-size: 10px;
+  font-family: var(--display);
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   padding: 3px 8px;
   border-radius: var(--r-full);
   color: var(--marca-naranja);
@@ -275,7 +273,8 @@
   background: color-mix(in srgb, var(--marca-violeta) 16%, transparent);
 }
 .fuente {
-  font-family: var(--mono);
+  font-family: var(--cifras);
+  font-variant-numeric: tabular-nums;
   font-size: 10.5px;
   color: var(--ink-3);
   text-transform: lowercase;

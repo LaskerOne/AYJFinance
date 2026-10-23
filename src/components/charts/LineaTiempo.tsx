@@ -131,7 +131,7 @@ export function LineaTiempo({ series: objetivo, etiqueta, alto = 200, etiquetaX 
                 y={vy + 3.5}
                 textAnchor="end"
                 fontSize="10"
-                fontFamily="JetBrains Mono, monospace"
+                fontFamily="var(--cifras)"
                 fill="var(--ink-3)"
               >
                 {f < 0 ? "−" : ""}
@@ -148,7 +148,7 @@ export function LineaTiempo({ series: objetivo, etiqueta, alto = 200, etiquetaX 
             y={alto - 9}
             textAnchor={k === 0 ? "start" : k === 2 ? "end" : "middle"}
             fontSize="10"
-            fontFamily="JetBrains Mono, monospace"
+            fontFamily="var(--cifras)"
             fill="var(--ink-3)"
           >
             {nombreX(i)}

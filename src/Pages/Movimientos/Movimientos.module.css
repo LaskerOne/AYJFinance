@@ -100,7 +100,7 @@
 }
 
 .cifrasComparativa {
-  font-family: var(--mono);
+  font-family: var(--cifras);
   font-variant-numeric: tabular-nums;
   font-size: 12px;
   color: var(--ink-3);
@@ -112,7 +112,7 @@
 }
 
 .desviacion {
-  font-family: var(--mono);
+  font-family: var(--cifras);
   font-variant-numeric: tabular-nums;
   font-size: 12.5px;
   font-weight: 600;
@@ -161,7 +161,7 @@
   gap: 12px;
 }
 .extraTotal {
-  font-family: var(--mono);
+  font-family: var(--cifras);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   font-size: 14px;
@@ -201,15 +201,13 @@
   white-space: nowrap;
 }
 .extraCategoria {
-  font-family: var(--mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-family: var(--display);
+  font-size: 12.5px;
   color: var(--ink-3);
   white-space: nowrap;
 }
 .extraMonto {
-  font-family: var(--mono);
+  font-family: var(--cifras);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   white-space: nowrap;

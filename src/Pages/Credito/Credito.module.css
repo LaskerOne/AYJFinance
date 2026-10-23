@@ -66,7 +66,8 @@
   min-width: 260px;
 }
 .signoPct {
-  font-family: var(--mono);
+  font-family: var(--cifras);
+  font-variant-numeric: tabular-nums;
   color: var(--ink-2);
 }
 .formas {
@@ -232,10 +233,8 @@
   font-size: 13px;
 }
 .comparacion th {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--display);
+  font-size: 12px;
   color: var(--ink-3);
   font-weight: 500;
   text-align: right;

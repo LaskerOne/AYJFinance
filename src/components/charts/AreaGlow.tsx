@@ -80,7 +80,7 @@ export function AreaGlow({
           return (
             <g key={f}>
               <line x1={PAD.izquierda} y1={vy} x2={W - PAD.derecha} y2={vy} stroke="var(--grid)" strokeWidth={1} />
-              <text x={PAD.izquierda - 8} y={vy + 3.5} textAnchor="end" fontSize="10" fontFamily="JetBrains Mono, monospace" fill="var(--ink-3)">
+              <text x={PAD.izquierda - 8} y={vy + 3.5} textAnchor="end" fontSize="10" fontFamily="var(--cifras)" fill="var(--ink-3)">
                 {$corto(maxY * f)}
               </text>
             </g>
@@ -94,7 +94,7 @@ export function AreaGlow({
             y={alto - 9}
             textAnchor={k === 0 ? "start" : k === 2 ? "end" : "middle"}
             fontSize="10"
-            fontFamily="JetBrains Mono, monospace"
+            fontFamily="var(--cifras)"
             fill="var(--ink-3)"
           >
             {etiquetaX(i)}
@@ -118,11 +118,10 @@ export function AreaGlow({
                 x={W - PAD.derecha}
                 y={y(referencia) - 6}
                 textAnchor="end"
-                fontSize="10.5"
+                fontSize="12"
                 fontWeight={600}
-                fontFamily="JetBrains Mono, monospace"
+                fontFamily="var(--display)"
                 fill="var(--ink-2)"
-                style={{ textTransform: "uppercase", letterSpacing: "0.08em" }}
               >
                 {etiquetaReferencia}
               </text>

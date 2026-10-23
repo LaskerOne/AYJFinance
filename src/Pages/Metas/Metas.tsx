@@ -64,7 +64,7 @@ export function Metas() {
               etiqueta="Proyección del ahorro total contra el objetivo"
               etiquetaX={(i) => (i === 0 ? "hoy" : `+${i} m`)}
               referencia={objetivoTotal}
-              etiquetaReferencia="objetivo"
+              etiquetaReferencia="Objetivo"
               color="--a-ink"
               alto={185}
             />

@@ -63,7 +63,7 @@ export function Resumen() {
             etiqueta="Gasto acumulado del mes contra el presupuesto"
             etiquetaX={(i) => `día ${i + 1}`}
             referencia={f.gastos}
-            etiquetaReferencia="presupuesto"
+            etiquetaReferencia="Presupuesto"
             color="--a-ink"
             alto={190}
           />

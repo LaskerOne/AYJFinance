@@ -10,7 +10,7 @@
   min-width: 200px;
 }
 .valor {
-  font-family: var(--mono);
+  font-family: var(--cifras);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   font-size: 13.5px;

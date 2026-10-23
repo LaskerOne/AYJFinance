@@ -70,7 +70,7 @@ export function BarrasNeto({
                 y={arriba ? top - 6 : top + h + 13}
                 textAnchor="middle"
                 fontSize="10"
-                fontFamily="JetBrains Mono, monospace"
+                fontFamily="var(--cifras)"
                 fill="var(--ink-2)"
               >
                 {c.valor < 0 ? "−" : ""}
@@ -81,7 +81,7 @@ export function BarrasNeto({
                 y={alto - 9}
                 textAnchor="middle"
                 fontSize="10.5"
-                fontFamily="JetBrains Mono, monospace"
+                fontFamily="var(--cifras)"
                 fill="var(--ink-3)"
               >
                 {c.etiqueta}
