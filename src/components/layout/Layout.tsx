@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useSesion } from "@/contexts/SesionContext";
 import { useHogar } from "@/contexts/HogarContext";
@@ -56,6 +56,16 @@ const GRUPOS: { titulo: string; secciones: Seccion[] }[] = [
  *  turno de cada celda en la oleada de luz que lo recorre. */
 const TURNO = new Map(GRUPOS.flatMap((g) => g.secciones).map((s, i) => [s.ruta, i]));
 
+/** Si el menú quedó minimizado se recuerda en este navegador. */
+const CLAVE_MINI = "menuMinimizado";
+function leerMini(): boolean {
+  try {
+    return localStorage.getItem(CLAVE_MINI) === "1";
+  } catch {
+    return false;
+  }
+}
+
 /** Cuando el hogar mira en USD, dice con qué tasa se está convirtiendo. */
 function IndicadorTasa() {
   const { elegido, convierte, tasa } = useMoneda();
@@ -72,6 +82,7 @@ function IndicadorTasa() {
 export function Layout() {
   const { salir, correo } = useSesion();
   const { pathname } = useLocation();
+  const [mini, setMini] = useState(leerMini);
   const {
     hogar,
     cargando,
@@ -82,6 +93,17 @@ export function Layout() {
     cambiarHogar,
     perfiles,
   } = useHogar();
+
+  const alternarMenu = () =>
+    setMini((antes) => {
+      const ahora = !antes;
+      try {
+        localStorage.setItem(CLAVE_MINI, ahora ? "1" : "0");
+      } catch {
+        // Sin almacenamiento el menú igual cambia; solo no se recuerda.
+      }
+      return ahora;
+    });
 
   if (cargando) return <Cargando mensaje="Abriendo su hogar" />;
 
@@ -101,7 +123,19 @@ export function Layout() {
 
   return (
     <div className={css.app}>
-      <aside className={css.lateral}>
+      <aside className={`${css.lateral} ${mini ? css.mini : ""}`}>
+        <button
+          type="button"
+          className={css.alternar}
+          onClick={alternarMenu}
+          aria-expanded={!mini}
+          aria-label={mini ? "Mostrar el menú" : "Ocultar el menú"}
+          title={mini ? "Mostrar el menú" : "Ocultar el menú"}
+        >
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12.5 4.5 7 10l5.5 5.5" />
+          </svg>
+        </button>
         <div className={css.marca} title={hogar?.nombre ?? "Cuentas de Dos"}>
           <span className={css.logo} aria-hidden="true">
             <span>CD</span>
@@ -115,6 +149,9 @@ export function Layout() {
         <nav className={css.nav} aria-label="Secciones">
           {GRUPOS.map((g) => (
             <div key={g.titulo} className={css.grupo} role="group" aria-label={g.titulo}>
+              <span className={css.grupoTitulo} aria-hidden="true">
+                {g.titulo}
+              </span>
               {g.secciones.map((s) => (
                 <NavLink
                   key={s.ruta}
