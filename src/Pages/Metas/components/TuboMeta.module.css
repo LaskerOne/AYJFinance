@@ -52,7 +52,7 @@
 
 /* La lámina de la superficie, apenas más clara, se mece. */
 .superficie {
-  fill: color-mix(in srgb, var(--cta-bg-2) 70%, transparent);
+  fill: color-mix(in srgb, var(--l1) 70%, transparent);
   animation: mecer 3.6s ease-in-out infinite;
 }
 @keyframes mecer {
@@ -67,5 +67,20 @@
 
 /* Meta cumplida: el tanque entero resplandece. */
 .lleno {
-  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--a-ink) 55%, transparent));
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--l2) 55%, transparent));
+}
+
+/* El líquido es del color de quien ahorra: naranja, violeta, o los dos
+   mezclándose de arriba abajo si la meta es compartida. */
+.tanque[data-lado="a"] {
+  --l1: var(--cta-bg-2);
+  --l2: var(--a);
+}
+.tanque[data-lado="b"] {
+  --l1: color-mix(in srgb, var(--b) 65%, white);
+  --l2: var(--b);
+}
+.tanque[data-lado="comun"] {
+  --l1: var(--b);
+  --l2: var(--a);
 }

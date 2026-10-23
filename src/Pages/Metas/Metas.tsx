@@ -101,7 +101,8 @@ export function Metas() {
               return (
                 <article
                   key={m.id}
-                  className={css.tubo}
+                  className={`firma arriba ${css.tubo}`}
+                  data-lado={ladoDe(m.usuario_id)}
                   style={{ ["--i" as string]: String(i) }}
                   aria-label={`${m.nombre}: ${porcentaje(avance)} completo`}
                 >
@@ -110,7 +111,7 @@ export function Metas() {
                     {m.es_emergencia && <Estado tono="ok">Colchón</Estado>}
                   </span>
 
-                  <TuboMeta fraccion={avance} cumplida={lista} />
+                  <TuboMeta fraccion={avance} cumplida={lista} lado={ladoDe(m.usuario_id)} />
                   <span className={css.tuboPct}>{porcentaje(avance)}</span>
 
                   <span className={css.tuboCifras}>

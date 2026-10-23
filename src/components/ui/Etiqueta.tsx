@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 
 /** Etiqueta de a quién pertenece una fila. El color viene del lado
- *  (yo / la pareja / compartido), nunca de un hex escrito a mano. */
-export function Etiqueta({ lado, texto }: { lado: "a" | "b" | "comun"; texto: string }) {
+ *  (yo / la pareja / los dos), nunca de un hex escrito a mano; «neutro» es
+ *  para lo que no es de nadie en particular. */
+export function Etiqueta({ lado, texto }: { lado: "a" | "b" | "comun" | "neutro"; texto: string }) {
   return <span className={`tag ${lado}`}>{texto}</span>;
 }
 

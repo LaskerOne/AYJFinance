@@ -19,13 +19,14 @@ export function SelectorPersona({
   textoComun = "Compartido",
   className,
 }: Props) {
-  const { perfiles, idA, nombreDe } = useHogar();
+  const { perfiles, idA, nombreDe, ladoDe } = useHogar();
   const pareja = perfiles.find((p) => p.id !== idA);
 
   return (
     <select
       className={className}
       aria-label={etiqueta}
+      data-lado={ladoDe(valor)}
       value={valor ?? COMUN}
       onChange={(e) => onCambio(e.target.value === COMUN ? null : e.target.value)}
     >

@@ -311,7 +311,12 @@ export function Deudas() {
                 const interesMes = Number(d.saldo) * im;
                 const cubre = Number(d.cuota) > interesMes;
                 return (
-                  <div key={d.id} className={`${css.item} ${i === 0 ? css.foco : ""}`} style={{ ["--i" as string]: String(i) }}>
+                  <div
+                    key={d.id}
+                    className={`firma ${css.item} ${i === 0 ? css.foco : ""}`}
+                    data-lado={ladoDe(d.usuario_id)}
+                    style={{ ["--i" as string]: String(i) }}
+                  >
                     <span className={css.orden}>{i + 1}</span>
                     <span>
                       <span className={css.nombre}>

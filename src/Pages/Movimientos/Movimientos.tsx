@@ -470,7 +470,7 @@ export function Movimientos() {
             </thead>
             <tbody>
               {lista.map((m) => (
-                <tr key={m.id}>
+                <tr key={m.id} data-lado={ladoDe(m.pagado_por)}>
                   <td style={{ whiteSpace: "nowrap", fontSize: 12.5, color: "var(--ink-2)" }}>
                     {fechaCorta(m.fecha)}
                   </td>
@@ -525,12 +525,12 @@ export function Movimientos() {
                     />
                   </td>
                   <td style={{ whiteSpace: "nowrap" }}>
-                    {m.clase === "ingreso" && <Etiqueta lado="comun" texto="Ingreso" />}
+                    {m.clase === "ingreso" && <Etiqueta lado="neutro" texto="Ingreso" />}
                     {m.clase === "transferencia" && (
                       <Etiqueta lado={ladoDe(m.pagado_por)} texto="Liquidación" />
                     )}
                     {m.compartido && <Etiqueta lado="comun" texto="Bote" />}
-                    {m.extraordinario && <Etiqueta lado="b" texto="Extra" />}
+                    {m.extraordinario && <Etiqueta lado="neutro" texto="Extra" />}
                     {m.origen === "importado" && <Etiqueta lado={ladoDe(m.pagado_por)} texto="CSV" />}
                     <button
                       className="borrar"

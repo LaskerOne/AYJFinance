@@ -25,7 +25,16 @@ function ola(nivel: number): string {
   return `M ${CX - RX - 76} ${nivel} ${q} V ${FONDO + RY + 2} H ${CX - RX - 76} Z`;
 }
 
-export function TuboMeta({ fraccion, cumplida }: { fraccion: number; cumplida: boolean }) {
+export function TuboMeta({
+  fraccion,
+  cumplida,
+  lado,
+}: {
+  fraccion: number;
+  cumplida: boolean;
+  /** De quién es la meta: el líquido toma su color, o los dos si es compartida. */
+  lado: "a" | "b" | "comun";
+}) {
   const id = useId();
   const f = Math.max(0, Math.min(1, fraccion));
   const nivel = TAPA + (1 - f) * (FONDO - TAPA);
@@ -35,12 +44,13 @@ export function TuboMeta({ fraccion, cumplida }: { fraccion: number; cumplida: b
     <svg
       viewBox={`0 0 ${ANCHO} ${ALTO}`}
       className={`${css.tanque} ${cumplida ? css.lleno : ""}`}
+      data-lado={lado}
       aria-hidden="true"
     >
       <defs>
         <linearGradient id={`${id}-liquido`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--cta-bg-2)" />
-          <stop offset="100%" stopColor="var(--a)" />
+          <stop offset="0%" stopColor="var(--l1)" />
+          <stop offset="100%" stopColor="var(--l2)" />
         </linearGradient>
         <clipPath id={`${id}-interior`}>
           <path

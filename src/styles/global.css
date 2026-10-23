@@ -378,7 +378,13 @@ input[type="range"]:hover::-webkit-slider-thumb {
   background: var(--b-soft);
   color: var(--b-ink);
 }
+/* Lo de los dos lleva los dos colores. */
 .tag.comun {
+  background: linear-gradient(90deg, var(--a-soft), var(--b-soft));
+  color: var(--ink);
+}
+/* Lo que no es de nadie en particular (un ingreso, un gasto extra). */
+.tag.neutro {
   background: var(--comun-soft);
   color: var(--ink-2);
 }
@@ -706,4 +712,65 @@ table.datos tbody tr:nth-child(n + 10) { animation-delay: 300ms; }
   .bordeViajero:hover::after {
     background: color-mix(in srgb, var(--a-ink) 55%, transparent);
   }
+}
+
+/* --- la firma de cada uno ------------------------------------------------- */
+/* Todo lo que tiene dueño lleva su color: naranja una persona, violeta la
+   otra, y los dos colores juntos cuando es de ambos. El lado lo da ladoDe(). */
+[data-lado="a"] {
+  --f1: var(--a);
+  --f2: var(--a);
+  --f-ink: var(--a-ink);
+}
+[data-lado="b"] {
+  --f1: var(--b);
+  --f2: var(--b);
+  --f-ink: var(--b-ink);
+}
+[data-lado="comun"] {
+  --f1: var(--a);
+  --f2: var(--b);
+  --f-ink: var(--ink-2);
+}
+/* Una franja al borde izquierdo de la tarjeta o fila. */
+.firma {
+  position: relative;
+}
+.firma::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14%;
+  bottom: 14%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(var(--f1), var(--f2));
+  pointer-events: none;
+}
+/* En tarjetas verticales la franja va arriba, de lado a lado. */
+.firma.arriba::after {
+  top: 0;
+  bottom: auto;
+  left: 22%;
+  right: 22%;
+  width: auto;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(90deg, var(--f1), var(--f2));
+}
+/* En tablas, la franja la pinta la primera celda de la fila. */
+table.datos tr[data-lado] > td:first-child {
+  background-image: linear-gradient(var(--f1), var(--f2));
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 3px 62%;
+}
+/* El selector de persona se tiñe con el color de quien está elegido. */
+select[data-lado] {
+  color: var(--f-ink);
+  font-weight: 600;
+}
+select[data-lado] option {
+  color: var(--ink);
+  font-weight: 400;
 }
