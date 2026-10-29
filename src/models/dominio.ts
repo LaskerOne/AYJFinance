@@ -176,6 +176,8 @@ export interface GastoPresupuesto {
   frecuencia: Frecuencia;
   /** Mes (1–12) en que se paga si no es mensual. */
   mes_pago?: number | null;
+  /** Día del mes (1–31) en que se paga: fecha de su movimiento. Ver 0015. */
+  dia_pago?: number | null;
   tipo: TipoGasto;
   orden: number;
   creado_en: string;
@@ -230,6 +232,9 @@ export interface Movimiento {
   extraordinario: boolean;
   metodo: string;
   origen: OrigenMovimiento;
+  /** Gasto fijo del presupuesto del que salió, si se registró desde la
+   *  lista de fijos del mes. Ver migración 0015. */
+  gasto_id?: string | null;
   huella: string | null;
   nota: string;
   creado_en: string;

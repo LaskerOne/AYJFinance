@@ -22,6 +22,7 @@ import {
   type LineaComparativa,
 } from "./components/ComparativaPresupuesto";
 import { LiquidacionBote } from "./components/LiquidacionBote";
+import { FijosDelMes } from "./components/FijosDelMes";
 import css from "./Movimientos.module.css";
 
 function mesDe(iso: string): string {
@@ -221,6 +222,8 @@ export function Movimientos() {
           />
         </div>
       </section>
+
+      <FijosDelMes mes={mes} />
 
       {/* Entró, salió y la desviación ya viven en el héroe: una fila de
           tarjetas repitiéndolos era ruido. */}

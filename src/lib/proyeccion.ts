@@ -48,14 +48,14 @@ export interface MesProyectado {
 type ConMesPago = { frecuencia: Frecuencia; mes_pago?: number | null };
 
 /** True si un concepto periódico con mes de pago cae en `mes` (1–12). */
-function caeEn(item: ConMesPago, mes: number): boolean {
+export function caeEn(item: ConMesPago, mes: number): boolean {
   const ciclo = CICLO[item.frecuencia];
   if (!ciclo || !item.mes_pago) return false;
   return (((mes - item.mes_pago) % ciclo) + ciclo) % ciclo === 0;
 }
 
 /** Periódico con mes de pago: el monto entero en su mes, cero en los demás. */
-function esPuntual(item: ConMesPago): boolean {
+export function esPuntual(item: ConMesPago): boolean {
   return CICLO[item.frecuencia] > 0 && Boolean(item.mes_pago);
 }
 

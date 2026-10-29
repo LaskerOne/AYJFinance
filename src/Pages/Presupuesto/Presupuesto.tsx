@@ -265,6 +265,7 @@ export function Presupuesto() {
                   <th>Quién lo asume</th>
                   <th>Frecuencia</th>
                   <th>Mes de pago</th>
+                  <th title="Con él, el pago sale con su fecha en los fijos del mes">Día de pago</th>
                   <th className="r">Monto</th>
                   <th className="r">Equivale al mes</th>
                   <th />
@@ -273,7 +274,7 @@ export function Presupuesto() {
               <tbody>
                 {gastos.length === 0 && (
                   <tr>
-                    <td colSpan={9}>
+                    <td colSpan={10}>
                       <p className="vacio">Todavía no hay gastos presupuestados.</p>
                     </td>
                   </tr>
@@ -350,6 +351,30 @@ export function Presupuesto() {
                         onCambio={(mes) => void editar("gastos_presupuesto", g.id, { mes_pago: mes })}
                       />
                     </td>
+                    <td>
+                      {/* Solo los fijos se registran desde la lista del mes;
+                          a un variable no le sirve. */}
+                      {g.tipo === "fijo" ? (
+                        <input
+                          aria-label="Día de pago"
+                          className="n"
+                          inputMode="numeric"
+                          placeholder="—"
+                          style={{ width: 56 }}
+                          defaultValue={g.dia_pago ?? ""}
+                          onBlur={(e) => {
+                            const dia = Math.trunc(Number(e.target.value));
+                            const valor = dia >= 1 && dia <= 31 ? dia : null;
+                            e.target.value = valor === null ? "" : String(valor);
+                            if (valor !== (g.dia_pago ?? null)) {
+                              void editar("gastos_presupuesto", g.id, { dia_pago: valor });
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span style={{ color: "var(--ink-3)", paddingLeft: 8 }}>—</span>
+                      )}
+                    </td>
                     <td className="r">
                       <CampoMoneda
                         valor={Number(g.monto)}
@@ -374,7 +399,7 @@ export function Presupuesto() {
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={7}>Total mensual equivalente</td>
+                  <td colSpan={8}>Total mensual equivalente</td>
                   <td className="r tot">{$(f.gastos)}</td>
                   <td />
                 </tr>
