@@ -2,6 +2,7 @@ import type { Finanzas } from "@/lib/calculos";
 import { gastoMensual } from "@/lib/calculos";
 import { mesesConSuCuota } from "@/lib/deudas";
 import { gastosHormiga } from "@/lib/habitos";
+import { fijosDelMes } from "@/lib/fijos";
 import { liquidarMes } from "@/lib/liquidacion";
 import { rentabilidad } from "@/lib/patrimonio";
 import { proyectarFlujo } from "@/lib/proyeccion";
@@ -346,6 +347,37 @@ export function analizar(e: EntradaOraculo): Analisis {
         ir: { texto: "Ir a Movimientos", ruta: "/movimientos" },
       });
     }
+  }
+
+  // 1b · Los pagos fijos del mes que ya debieron hacerse y no están
+  // registrados. Solo cuentan los que tienen día de pago (sin él no se sabe
+  // si ya tocaba) y los que no lo tienen cuando el mes ya va por el 25.
+  // Lo que parece digitado a mano ya cuenta como hecho.
+  const hoyIso = `${mesHoy}-${String(dia).padStart(2, "0")}`;
+  const pendientesFijos = fijosDelMes(e.gastos, e.movimientos, mesHoy, hoyIso).fijos.filter(
+    (x) => !x.registrado && !x.parecido,
+  );
+  const vencidos = pendientesFijos.filter((x) =>
+    x.gasto.dia_pago ? x.fecha <= hoyIso : dia >= 25,
+  );
+  if (vencidos.length > 0) {
+    const total = vencidos.reduce((s, x) => s + x.monto, 0);
+    const nombres = vencidos.slice(0, 3).map((x) => x.gasto.concepto || e.etiqueta(x.gasto.categoria));
+    const resto = vencidos.length - nombres.length;
+    agregar({
+      id: "fijos-pendientes",
+      titulo:
+        vencidos.length === 1
+          ? `Falta registrar el pago de ${nombres[0]}`
+          : `Faltan ${vencidos.length} pagos fijos por registrar`,
+      cuerpo: `${nombres.join(", ")}${resto > 0 ? ` y ${resto} más` : ""}: ${e.$(total)} ${vencidos.length === 1 ? "que ya tocaba pagar este mes y no aparece" : "que ya tocaba pagar este mes y no aparecen"} en los movimientos. Desde la lista de fijos se registran con un clic.`,
+      prioridad: 9,
+      tono: "warn",
+      fuente: "movimientos",
+      ir: { texto: "Registrarlos", ruta: "/movimientos" },
+      comoSeCalcula:
+        "Gastos fijos del presupuesto que tocan este mes, cuyo día de pago ya pasó (o, si no tienen día, cuando el mes va por el 25) y que no tienen un movimiento vinculado ni uno parecido digitado a mano.",
+    });
   }
 
   // 2 · Movimientos: el ritmo del mes contra el presupuesto.

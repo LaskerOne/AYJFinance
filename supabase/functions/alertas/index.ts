@@ -5,6 +5,7 @@
  *   · cuotas de deuda que vencen en los próximos 3 días (según "día de pago"),
  *   · pagos no mensuales que caen este mes o el próximo (según "mes de pago"),
  *   · categorías que van en el 80 % o se pasaron del presupuesto del mes,
+ *   · pagos fijos cuyo día de pago ya pasó y no están en los movimientos,
  *   · la reunión del mes, los primeros días de cada mes,
  * y manda un solo correo con los avisos nuevos a quienes los activaron en
  * Ajustes. Cada aviso se manda una vez: alertas_enviadas guarda su clave.
@@ -68,12 +69,16 @@ interface GastoFila {
   monto: number;
   frecuencia: Frecuencia;
   mes_pago: number | null;
+  tipo: string;
+  dia_pago: number | null;
 }
 interface MovimientoFila {
   categoria: string;
+  concepto: string;
   monto: number;
   clase: string;
   extraordinario: boolean;
+  gasto_id: string | null;
 }
 interface CierreFila {
   ingresos: number;
@@ -207,7 +212,36 @@ export function calcularAlertas(d: DatosHogar, hoy: Hoy, $: (n: number) => strin
     }
   }
 
-  // 4 · La reunión del mes, los primeros tres días.
+  // 4 · Pagos fijos con día de pago que ya pasó y no están en los
+  //     movimientos (ni vinculados ni digitados a mano con algo parecido).
+  //     Misma regla que la lista de fijos de la app (src/lib/fijos.ts).
+  const normalizar = (s: string) =>
+    s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+  for (const g of d.gastos) {
+    if (g.tipo !== "fijo" || !g.dia_pago || Number(g.monto) <= 0) continue;
+    const periodico = Boolean(CICLO[g.frecuencia]);
+    if (periodico && !caeEn(g, hoy.mes)) continue;
+    const diaPago = Math.min(g.dia_pago, diasDelMes(hoy.anio, hoy.mes));
+    if (diaPago >= hoy.dia) continue;
+    const monto = periodico ? Number(g.monto) : Number(g.monto) * (FACTOR[g.frecuencia] ?? 1);
+    const concepto = g.concepto || nombreCat(g.categoria);
+    const yaEsta = d.movimientos.some((m) => {
+      if (m.gasto_id === g.id) return true;
+      if (m.gasto_id || m.clase !== "gasto" || m.categoria !== g.categoria) return false;
+      const a = normalizar(g.concepto);
+      const b = normalizar(m.concepto ?? "");
+      const mismoConcepto = a.length >= 3 && b.length >= 3 && (a.includes(b) || b.includes(a));
+      return mismoConcepto || Math.abs(Number(m.monto) - monto) <= monto * 0.01;
+    });
+    if (yaEsta) continue;
+    alertas.push({
+      clave: `fijo:${g.id}:${clavesMes(hoy.anio, hoy.mes)}`,
+      titulo: `Falta registrar el pago de ${concepto}`,
+      detalle: `${$(monto)}, se pagaba el ${diaPago} de ${MESES[hoy.mes - 1]}. En Movimientos, la lista de fijos lo registra con un clic.`,
+    });
+  }
+
+  // 5 · La reunión del mes, los primeros tres días.
   if (hoy.dia <= 3) {
     const ant = anterior(hoy.anio, hoy.mes);
     const c = d.cierrePasado;
@@ -320,8 +354,8 @@ async function atender(req: Request): Promise<Response> {
     sb.from("miembros").select("hogar_id, usuario_id"),
     sb.from("perfiles").select("id, correo, alertas_correo").eq("alertas_correo", true),
     sb.from("deudas").select("id, hogar_id, nombre, saldo, cuota, dia_pago"),
-    sb.from("gastos_presupuesto").select("id, hogar_id, categoria, concepto, monto, frecuencia, mes_pago"),
-    sb.from("movimientos").select("hogar_id, categoria, monto, clase, extraordinario").gte("fecha", desde).lt("fecha", hasta),
+    sb.from("gastos_presupuesto").select("id, hogar_id, categoria, concepto, monto, frecuencia, mes_pago, tipo, dia_pago"),
+    sb.from("movimientos").select("hogar_id, categoria, concepto, monto, clase, extraordinario, gasto_id").gte("fecha", desde).lt("fecha", hasta),
     sb.from("cierres_mensuales").select("hogar_id, ingresos, gastos, cuotas, puntaje").eq("periodo", `${clavesMes(ant.anio, ant.mes)}-01`),
     sb.from("alertas_enviadas").select("hogar_id, clave"),
   ]);
