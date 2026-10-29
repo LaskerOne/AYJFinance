@@ -21,7 +21,7 @@ export function BarrasMensuales({ meses, etiqueta }: { meses: ColumnaMes[]; etiq
   return (
     <div className={css.marco} ref={contenedor}>
       <div className={css.mesesCaja} role="img" aria-label={etiqueta}>
-        {meses.map((m) => (
+        {meses.map((m, im) => (
           <div key={m.periodo} className={css.mes}>
             <div className={css.columnas}>
               {m.valores.map((v) => (
@@ -31,7 +31,10 @@ export function BarrasMensuales({ meses, etiqueta }: { meses: ColumnaMes[]; etiq
                   style={{
                     height: `${Math.max(2, (Math.abs(v.valor) / maximo) * 100)}%`,
                     background: `var(${v.color})`,
-                    opacity: v.valor < 0 ? 0.45 : 1,
+                    // El brillo neón toma el color de la propia columna.
+                    color: `var(${v.color})`,
+                    opacity: v.valor < 0 ? 0.45 : undefined,
+                    ["--i" as string]: String(im),
                   }}
                   onMouseMove={(e) =>
                     mostrar(e, `${v.nombre} · ${nombrePeriodo(m.periodo)}`, $(v.valor))

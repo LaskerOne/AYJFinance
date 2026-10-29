@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { useMoneda } from "@/hooks/useMoneda";
 import { useTooltip } from "./useTooltip";
 import css from "./charts.module.css";
@@ -27,6 +28,7 @@ export function BarrasNeto({
 }) {
   const { $, $corto } = useMoneda();
   const { contenedor, mostrar, ocultar, nodo } = useTooltip();
+  const id = useId();
 
   const max = Math.max(0, ...columnas.map((c) => c.valor));
   const min = Math.min(0, ...columnas.map((c) => c.valor));
@@ -41,6 +43,14 @@ export function BarrasNeto({
   return (
     <div className={css.marco} ref={contenedor}>
       <svg viewBox={`0 0 ${W} ${alto}`} className={css.svgPleno} role="img" aria-label={etiqueta}>
+        <defs>
+          {/* Volumen de prisma: cara izquierda iluminada, derecha en sombra. */}
+          <linearGradient id={`${id}-volumen`} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.32" />
+            <stop offset="45%" stopColor="#fff" stopOpacity="0" />
+            <stop offset="100%" stopColor="#000" stopOpacity="0.24" />
+          </linearGradient>
+        </defs>
         <line x1={PAD.lados} x2={W - PAD.lados} y1={cero} y2={cero} stroke="var(--axis)" strokeWidth={1} />
         {columnas.map((c, i) => {
           const cx = PAD.lados + paso * i + paso / 2;
@@ -50,6 +60,8 @@ export function BarrasNeto({
           return (
             <g
               key={c.etiqueta + i}
+              className={css.netoGrupo}
+              style={{ color: arriba ? "var(--a)" : "var(--crit)" }}
               onMouseMove={(e) => mostrar(e, c.etiqueta, `${$(c.valor)}${c.detalle ? ` · ${c.detalle}` : ""}`)}
               onMouseLeave={ocultar}
             >
@@ -63,6 +75,16 @@ export function BarrasNeto({
                 rx={4}
                 fill={arriba ? "var(--a)" : "var(--crit)"}
                 className={arriba ? css.netoArriba : css.netoAbajo}
+                style={{ animationDelay: `${i * 45}ms` }}
+              />
+              <rect
+                x={cx - ancho / 2}
+                y={top}
+                width={ancho}
+                height={h}
+                rx={4}
+                fill={`url(#${id}-volumen)`}
+                className={`${css.volumen} ${arriba ? css.netoArriba : css.netoAbajo}`}
                 style={{ animationDelay: `${i * 45}ms` }}
               />
               <text

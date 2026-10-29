@@ -397,9 +397,23 @@ input[type="range"]:hover::-webkit-slider-thumb {
   border-radius: var(--r-sm);
   box-shadow: var(--hundido);
 }
+.barra {
+  --neon: 0;
+  transition: --neon 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.barra:hover {
+  --neon: 1;
+}
+/* Tubo de vidrio: luz arriba, sombra abajo. Encendido como neón con el
+   mouse encima; el color del brillo es currentColor (naranja por defecto,
+   o el que pase quien la usa). */
 .barra .fill {
   height: 100%;
   border-radius: var(--r-sm);
+  color: var(--a-ink);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 48%, rgba(0, 0, 0, 0.16)) !important;
+  filter: drop-shadow(0 0 calc(var(--neon) * 8px) color-mix(in srgb, currentColor calc(var(--neon) * 80%), transparent))
+    saturate(calc(1 + var(--neon) * 0.3));
   transition: width var(--t-2);
 }
 /* La marca del presupuesto: blanco metálico con halo. Neutra a propósito:
@@ -603,6 +617,22 @@ table.datos tbody tr:nth-child(n + 10) { animation-delay: 300ms; }
 /* --- borde viajero ---------------------------------------------------------
    Un tramo de luz recorre el perímetro de la tarjeta, como una onda.
    Necesita registrar el ángulo para poder animarse. */
+/* Intensidades animables del neón. --neon sube de 0 a 1 mientras el mouse
+   está sobre una escena (el teseracto, una gráfica) y todo su brillo cuelga
+   de ella; --foco es lo mismo para el elemento puntual bajo el mouse. Están
+   registradas como número para que la transición las anime y los colores se
+   intensifiquen poco a poco en vez de encenderse de golpe. */
+@property --neon {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --foco {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
 @property --ang {
   syntax: "<angle>";
   initial-value: 0deg;

@@ -28,7 +28,10 @@ export function BarraProgreso({
       aria-valuemin={0}
       aria-valuemax={100}
     >
-      <div className="fill" style={{ width: `${ancho.toFixed(2)}%`, background: `var(${color})` }} />
+      <div
+        className="fill"
+        style={{ width: `${ancho.toFixed(2)}%`, background: `var(${color})`, color: `var(${color})` }}
+      />
       {marca !== undefined && (
         <span className="marca" style={{ left: `${(marca * 100).toFixed(1)}%` }} title={tituloMarca} />
       )}

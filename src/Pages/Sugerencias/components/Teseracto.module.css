@@ -1,12 +1,5 @@
-/* --neon va de 0 a 1 mientras el mouse está encima: registrada como número
-   para que se pueda animar, y todo el brillo de la escena cuelga de ella. Así
-   los colores se intensifican poco a poco en vez de encenderse de golpe. */
-@property --neon {
-  syntax: "<number>";
-  inherits: true;
-  initial-value: 0;
-}
-
+/* --neon (registrada en global.css) va de 0 a 1 mientras el mouse está
+   encima, y todo el brillo de la escena cuelga de ella. */
 .caja {
   --neon: 0;
   display: grid;
