@@ -96,6 +96,73 @@ function malla(giro: number) {
   return { paralelos, meridianos };
 }
 
+// --- polvo estelar ------------------------------------------------------------
+// Al hacer clic, el teseracto suelta una nube de partículas que salen de su
+// centro, frenan, flotan apenas hacia arriba y titilan mientras se apagan.
+
+interface Particula {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  /** Segundos que lleva viva y los que vive en total. */
+  edad: number;
+  vida: number;
+  r: number;
+  color: string;
+  /** Los destellos son estrellitas de cuatro puntas; el resto, polvo. */
+  destello: boolean;
+  fase: number;
+}
+
+const COLORES_POLVO = ["var(--marca-naranja)", "var(--marca-violeta)", "#fff", "#ffd29a", "#cfc4ff"];
+const CANTIDAD_POLVO = 90;
+
+function soltarPolvo(): Particula[] {
+  return Array.from({ length: CANTIDAD_POLVO }, () => {
+    const angulo = Math.random() * Math.PI * 2;
+    // Con este freno una partícula recorre hasta rapidez/1,4: casi todas
+    // cruzan el borde de la esfera (radio 165) y unas pocas se quedan adentro.
+    const rapidez = 150 + Math.random() * 400;
+    const desde = Math.random() * 38;
+    const destello = Math.random() < 0.22;
+    return {
+      x: Math.cos(angulo) * desde,
+      y: Math.sin(angulo) * desde,
+      vx: Math.cos(angulo) * rapidez,
+      vy: Math.sin(angulo) * rapidez,
+      edad: 0,
+      vida: 1.1 + Math.random() * 1.5,
+      r: destello ? 4 + Math.random() * 3.5 : 1 + Math.random() * 2.4,
+      color: COLORES_POLVO[Math.floor(Math.random() * COLORES_POLVO.length)],
+      destello,
+      fase: Math.random() * Math.PI * 2,
+    };
+  });
+}
+
+/** Avanza cada partícula `dt` segundos y descarta las que ya se apagaron. */
+function moverPolvo(polvo: Particula[], dt: number): Particula[] {
+  const freno = Math.exp(-dt * 1.4);
+  return polvo
+    .map((p) => ({
+      ...p,
+      x: p.x + p.vx * dt,
+      y: p.y + p.vy * dt,
+      vx: p.vx * freno,
+      // Frena y además flota hacia arriba, como polvo que se eleva.
+      vy: p.vy * freno - 26 * dt,
+      edad: p.edad + dt,
+    }))
+    .filter((p) => p.edad < p.vida);
+}
+
+/** Estrella de cuatro puntas centrada en el origen. */
+function estrella(r: number): string {
+  const c = r * 0.22;
+  return `M0 ${-r} L${c} ${-c} L${r} 0 L${c} ${c} L0 ${r} L${-c} ${c} L${-r} 0 L${-c} ${-c} Z`;
+}
+
 /** Inclina la escena hacia el puntero. Con reduced-motion no hace nada. */
 function inclinar(e: MouseEvent<HTMLDivElement>) {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -115,6 +182,9 @@ export function Teseracto({ onClic, etiqueta }: { onClic: () => void; etiqueta: 
   const [t, setT] = useState(0.6);
   const impulso = useRef(0);
   const encima = useRef(false);
+  const polvo = useRef<Particula[]>([]);
+  /** Segundos desde el último clic, para la onda expansiva (null: ninguna). */
+  const onda = useRef<number | null>(null);
   const id = useId();
 
   useEffect(() => {
@@ -128,6 +198,8 @@ export function Teseracto({ onClic, etiqueta }: { onClic: () => void; etiqueta: 
       // empujón del clic, que se va apagando.
       setT((v) => v + dt * ((encima.current ? 0.85 : 0.55) + impulso.current));
       impulso.current *= 0.94;
+      if (polvo.current.length > 0) polvo.current = moverPolvo(polvo.current, dt);
+      if (onda.current !== null) onda.current = onda.current + dt > 0.9 ? null : onda.current + dt;
       marco = requestAnimationFrame(paso);
     };
     marco = requestAnimationFrame(paso);
@@ -136,6 +208,11 @@ export function Teseracto({ onClic, etiqueta }: { onClic: () => void; etiqueta: 
 
   const activar = () => {
     impulso.current = 7; // el giro de "estoy pensando"
+    // Con movimiento reducido no corre la animación: no hay polvo que soltar.
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      polvo.current = [...polvo.current, ...soltarPolvo()];
+      onda.current = 0;
+    }
     onClic();
   };
 
@@ -247,6 +324,37 @@ export function Teseracto({ onClic, etiqueta }: { onClic: () => void; etiqueta: 
             {lineas(ARISTAS_B, css.arista)}
             {vertices(8)}
           </g>
+
+          {/* La onda expansiva del clic: sale del borde de la esfera y se apaga. */}
+          {onda.current !== null && (
+            <circle
+              r={(RADIO * (0.85 + onda.current * 0.75)).toFixed(1)}
+              className={css.onda}
+              style={{ opacity: Math.max(0, 1 - onda.current / 0.9).toFixed(2) }}
+            />
+          )}
+
+          {/* El polvo estelar: se apaga con la edad y titila mientras tanto. */}
+          {polvo.current.length > 0 && (
+            <g className={css.polvo}>
+              {polvo.current.map((p, k) => {
+                const resta = 1 - p.edad / p.vida;
+                const titila = 0.55 + 0.45 * Math.sin(p.fase + p.edad * 18);
+                const opacidad = (resta * titila).toFixed(2);
+                return p.destello ? (
+                  <path
+                    key={k}
+                    d={estrella(p.r * (0.6 + resta * 0.4))}
+                    transform={`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${((p.fase + p.edad * 2) * 57.3).toFixed(0)})`}
+                    fill={p.color}
+                    opacity={opacidad}
+                  />
+                ) : (
+                  <circle key={k} cx={p.x.toFixed(1)} cy={p.y.toFixed(1)} r={p.r.toFixed(2)} fill={p.color} opacity={opacidad} />
+                );
+              })}
+            </g>
+          )}
 
           {/* El reflejo de la luz sobre el vidrio, encima de todo. */}
           <ellipse cx="-62" cy="-98" rx="58" ry="30" transform="rotate(-32 -62 -98)" fill={`url(#${id}-reflejo)`} className={css.reflejo} />
