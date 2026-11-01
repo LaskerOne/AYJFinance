@@ -1,4 +1,5 @@
 import type { Movimiento } from "@/models/dominio";
+import { etiquetaDe } from "@/lib/etiquetas";
 
 /**
  * Hábitos de gasto a partir de los movimientos reales.
@@ -24,8 +25,12 @@ export function normalizar(texto: string): string {
     .trim();
 }
 
-/** "Helados y fresas" y "Helados" caen en el mismo grupo: "helados". */
+/** Primero la etiqueta del oráculo ("Comidas por fuera" agrupa almuerzos,
+ *  hamburguesas y domicilios aunque el concepto cambie); si ninguna encaja,
+ *  la primera palabra con sustancia: "Helados y fresas" → "helados". */
 function grupoDe(concepto: string): string {
+  const etiqueta = etiquetaDe(concepto);
+  if (etiqueta) return etiqueta;
   const palabras = normalizar(concepto).split(" ");
   return palabras.find((p) => p.length >= 3 && !/^\d+$/.test(p) && !VACIAS.has(p)) ?? "otros";
 }
@@ -39,7 +44,10 @@ function capitalizar(t: string): string {
   return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
-const esGastoCorriente = (m: Movimiento) => m.clase === "gasto" && !m.extraordinario;
+// Lo registrado desde la lista de pagos del mes (fijos y extras) es gasto
+// planeado, no un hábito: no cuenta ni en hormigas ni en repetidos.
+const esGastoCorriente = (m: Movimiento) =>
+  m.clase === "gasto" && !m.extraordinario && !m.gasto_id && !m.pendiente_id;
 
 export interface GrupoHormiga {
   nombre: string;

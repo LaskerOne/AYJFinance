@@ -92,6 +92,9 @@ export function Habitos() {
         </div>
         <div className="heroGrafico">
           <span className="eyebrow">En qué se va, de mayor a menor</span>
+          {/* El oráculo etiqueta cada compra por lo que es: todas las formas
+              de comer por fuera caen en un solo grupo aunque el concepto y
+              el monto cambien. */}
           {h.grupos.length > 0 ? (
             <BarrasRanking
               filas={h.grupos.slice(0, 7).map((g) => ({
@@ -114,7 +117,10 @@ export function Habitos() {
           <div>
             <h2>¿Qué cuenta como gasto pequeño?</h2>
             <p className="nota">
-              Cada hogar tiene su medida. Muevan el límite y la cuenta de arriba se recalcula.
+              Cada hogar tiene su medida. Muevan el límite y la cuenta de arriba se recalcula. El
+              oráculo agrupa las compras por lo que son (comidas, antojos, transporte…), y lo que
+              registran desde la lista de pagos del mes no entra aquí: eso es gasto planeado, no
+              un hábito.
             </p>
           </div>
         </header>
