@@ -60,6 +60,12 @@ export async function cerrarMes(hogarId: string, periodo: string): Promise<void>
   if (error) throw error;
 }
 
+/** Rehace los totales de los cierres guardados con el corte de ingresos vigente. */
+export async function recalcularCierres(hogarId: string): Promise<void> {
+  const { error } = await supabase.rpc("recalcular_cierres", { p_hogar: hogarId });
+  if (error) throw error;
+}
+
 /** Guarda la corrección de categoría para que el próximo extracto la aplique. */
 export async function aprenderRegla(
   hogarId: string,

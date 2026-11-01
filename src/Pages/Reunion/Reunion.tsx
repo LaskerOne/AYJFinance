@@ -4,6 +4,7 @@ import { Estado } from "@/components/ui/Etiqueta";
 import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
 import { useCerrarMes, useSalud } from "@/hooks/useSalud";
+import { mesContable } from "@/lib/contable";
 import { liquidarMes } from "@/lib/liquidacion";
 import { generarSugerencias } from "@/lib/sugerencias";
 import { enMeses, nombrePeriodo, porcentaje } from "@/lib/formato";
@@ -66,7 +67,11 @@ export function Reunion() {
   const nombrePasado = nombrePeriodo(`${mesPasado}-01`);
   const nombreHoy = nombrePeriodo(`${mesHoy}-01`);
 
-  const movsPasado = useMemo(() => movimientos.filter((m) => m.fecha.startsWith(mesPasado)), [movimientos, mesPasado]);
+  const corte = hogar?.corte_ingresos ?? null;
+  const movsPasado = useMemo(
+    () => movimientos.filter((m) => mesContable(m, corte) === mesPasado),
+    [movimientos, mesPasado, corte],
+  );
   const entro = movsPasado.filter((m) => m.clase === "ingreso").reduce((s, m) => s + Number(m.monto), 0);
   const salio = movsPasado.filter((m) => m.clase === "gasto").reduce((s, m) => s + Number(m.monto), 0);
 

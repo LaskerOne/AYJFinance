@@ -9,6 +9,7 @@ import { useMoneda } from "@/hooks/useMoneda";
 import { useCategorias } from "@/hooks/useCategorias";
 import { BarraApilada, type Segmento } from "@/components/charts/BarraApilada";
 import { gastoMensual } from "@/lib/calculos";
+import { atribuidoAOtroMes, mesContable, mesSiguiente } from "@/lib/contable";
 import { EnlaceEditar } from "@/components/ui/EnlaceEditar";
 import { aNumero, fechaCorta, hoyISO, nombrePeriodo } from "@/lib/formato";
 import {
@@ -49,7 +50,8 @@ function sumarDias(iso: string, n: number): string {
 }
 
 export function Movimientos() {
-  const { movimientos, gastos, crear, editar, borrar, ladoDe, idA } = useHogar();
+  const { movimientos, gastos, crear, editar, borrar, ladoDe, idA, hogar } = useHogar();
+  const corte = hogar?.corte_ingresos ?? null;
   const { $ } = useMoneda();
   const { opciones: opcionesCategoria, etiqueta: etiquetaCategoria } = useCategorias();
 
@@ -67,9 +69,11 @@ export function Movimientos() {
     extraordinario: false,
   }));
 
+  // Por mes contable: con el corte activo, el pago de fin de mes aparece en
+  // el mes siguiente, que es el que de verdad paga.
   const delMes = useMemo(
-    () => movimientos.filter((m) => mesDe(m.fecha) === mes),
-    [movimientos, mes],
+    () => movimientos.filter((m) => mesContable(m, corte) === mes),
+    [movimientos, mes, corte],
   );
 
   // El mes entero de corrido se vuelve denso: se agrupa por semanas y cada
@@ -187,7 +191,7 @@ export function Movimientos() {
               className="pill"
               onClick={() => setMes(desplazarMes(mes, 1))}
               aria-label="Mes siguiente"
-              disabled={mes >= mesDe(hoyISO())}
+              disabled={mes >= (corte ? mesSiguiente(mesDe(hoyISO())) : mesDe(hoyISO()))}
             >
               →
             </button>
@@ -528,7 +532,30 @@ export function Movimientos() {
                     />
                   </td>
                   <td style={{ whiteSpace: "nowrap" }}>
-                    {m.clase === "ingreso" && <Etiqueta lado="neutro" texto="Ingreso" />}
+                    {m.clase === "ingreso" && corte !== null && (
+                      <select
+                        className={css.cuentaPara}
+                        aria-label="Mes al que cuenta este ingreso"
+                        title="A qué mes cuenta este ingreso"
+                        value={mesContable(m, corte)}
+                        data-movido={atribuidoAOtroMes(m, corte)}
+                        onChange={(e) => {
+                          // Si eligen lo que la regla ya decide sola, se borra
+                          // la excepción; si no, queda fijada en el movimiento.
+                          const auto = mesContable({ ...m, cuenta_para: null }, corte);
+                          void editar("movimientos", m.id, {
+                            cuenta_para: e.target.value === auto ? null : `${e.target.value}-01`,
+                          });
+                        }}
+                      >
+                        {[mesDe(m.fecha), mesSiguiente(mesDe(m.fecha))].map((op) => (
+                          <option key={op} value={op}>
+                            → {nombrePeriodo(`${op}-01`)}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    {m.clase === "ingreso" && corte === null && <Etiqueta lado="neutro" texto="Ingreso" />}
                     {m.clase === "transferencia" && (
                       <Etiqueta lado={ladoDe(m.pagado_por)} texto="Liquidación" />
                     )}

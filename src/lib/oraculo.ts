@@ -2,6 +2,7 @@ import type { Finanzas } from "@/lib/calculos";
 import { gastoMensual } from "@/lib/calculos";
 import { mesesConSuCuota } from "@/lib/deudas";
 import { gastosHormiga } from "@/lib/habitos";
+import { mesContable } from "@/lib/contable";
 import { fijosDelMes } from "@/lib/fijos";
 import { liquidarMes } from "@/lib/liquidacion";
 import { rentabilidad } from "@/lib/patrimonio";
@@ -381,7 +382,7 @@ export function analizar(e: EntradaOraculo): Analisis {
   }
 
   // 2 · Movimientos: el ritmo del mes contra el presupuesto.
-  const delMes = e.movimientos.filter((m) => m.fecha.startsWith(mesHoy));
+  const delMes = e.movimientos.filter((m) => mesContable(m, e.hogar?.corte_ingresos) === mesHoy);
   const gastadoMes = suma(delMes.filter(corriente));
   const presupuestoMes = e.gastos.reduce((s, g) => s + gastoMensual(g), 0);
   const colchon = e.metas.find((m) => m.es_emergencia);

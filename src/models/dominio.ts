@@ -131,6 +131,9 @@ export interface Hogar {
   tasa_usura_mes?: string | null;
   /** Inflación anual de referencia (%), para la rentabilidad real. */
   inflacion_ref?: number | null;
+  /** Día (p. ej. 29) desde el cual un ingreso cuenta para el mes siguiente.
+   *  Nulo = apagado. Ver migración 0016 y src/lib/contable.ts. */
+  corte_ingresos?: number | null;
   creado_por: string;
   creado_en: string;
 }
@@ -235,6 +238,9 @@ export interface Movimiento {
   /** Gasto fijo del presupuesto del que salió, si se registró desde la
    *  lista de fijos del mes. Ver migración 0015. */
   gasto_id?: string | null;
+  /** Mes al que se atribuye (primer día), cuando no es el de la fecha.
+   *  Manda sobre la regla del corte de ingresos. Ver migración 0016. */
+  cuenta_para?: string | null;
   huella: string | null;
   nota: string;
   creado_en: string;

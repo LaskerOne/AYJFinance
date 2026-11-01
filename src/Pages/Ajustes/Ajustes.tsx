@@ -10,6 +10,7 @@ import {
   leerAlertasCorreo,
   cambiarAlertasCorreo,
 } from "@/services/hogar.service";
+import { recalcularCierres } from "@/services/coleccion.service";
 import { mensajeDeError } from "@/services/supabase";
 import { MONEDAS } from "@/lib/formato";
 import { useCategorias } from "@/hooks/useCategorias";
@@ -23,6 +24,26 @@ export function Ajustes() {
   const { usuario, correo, salir } = useSesion();
   const { opciones, renombrar, restaurar, hayRenombradas } = useCategorias();
   const { acento, setAcento } = useAcento();
+
+  const [estadoCorte, setEstadoCorte] = useState("");
+  const cambiarCorte = async (valor: string) => {
+    if (!hogar) return;
+    const corte = valor === "" ? null : Number(valor);
+    setEstadoCorte("Guardando y recalculando el historial…");
+    try {
+      await cambiarHogar({ corte_ingresos: corte });
+      // La regla es retroactiva: los cierres guardados se rehacen con ella,
+      // para que octubre no quede con dos sueldos y noviembre con cero.
+      await recalcularCierres(hogar.id);
+      setEstadoCorte(
+        corte === null
+          ? "Listo: todo volvió al mes calendario y el histórico se recalculó."
+          : `Listo: los ingresos desde el día ${corte} cuentan para el mes siguiente, también en el histórico.`,
+      );
+    } catch (e) {
+      setEstadoCorte(mensajeDeError(e));
+    }
+  };
 
   // null = la columna aún no existe (migración 0013 pendiente).
   const [alertas, setAlertas] = useState<boolean | null>(null);
@@ -128,6 +149,38 @@ export function Ajustes() {
             />
           </label>
         </div>
+      </section>
+
+      <section className="panel">
+        <header>
+          <div>
+            <h2>El pago de fin de mes</h2>
+            <p className="nota">
+              Si cobran el 15 y a fin de mes, el pago que llega el 29 o el 30 en realidad paga la
+              primera quincena del mes siguiente. Con esta regla, la app lo cuenta en el mes que de
+              verdad paga. La fecha de cada movimiento no cambia, así que el extracto del banco
+              sigue cuadrando, y cualquier ingreso puede moverse a mano desde Movimientos.
+            </p>
+          </div>
+        </header>
+        <div className={css.rejilla}>
+          <label className={css.campo}>
+            <span className="eyebrow">Ingresos de fin de mes</span>
+            <select
+              className="campo"
+              value={hogar?.corte_ingresos ?? ""}
+              onChange={(e) => void cambiarCorte(e.target.value)}
+            >
+              <option value="">Cuentan en el mes en que llegan</option>
+              {[25, 26, 27, 28, 29, 30, 31].map((d) => (
+                <option key={d} value={d}>
+                  Desde el día {d} cuentan para el mes siguiente
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        {estadoCorte && <p className="nota" style={{ marginTop: 10 }}>{estadoCorte}</p>}
       </section>
 
       <section className="panel">

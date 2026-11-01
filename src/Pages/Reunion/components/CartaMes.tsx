@@ -4,6 +4,7 @@ import { useMoneda } from "@/hooks/useMoneda";
 import { useCategorias } from "@/hooks/useCategorias";
 import { useOraculo } from "@/hooks/useOraculo";
 import { escribirCarta } from "@/lib/carta";
+import { mesContable } from "@/lib/contable";
 import { nombrePeriodo } from "@/lib/formato";
 import css from "../Reunion.module.css";
 
@@ -29,14 +30,14 @@ export function CartaMes({ mes }: { mes: string }) {
             hogar: hogar?.nombre ?? "",
             cierre,
             anterior: i > 0 ? ordenados[i - 1] : null,
-            movimientos: movimientos.filter((m) => m.fecha.startsWith(mes)),
+            movimientos: movimientos.filter((m) => mesContable(m, hogar?.corte_ingresos) === mes),
             decisiones: decisiones.filter((d) => d.periodo.startsWith(mes)),
             consejo: consejos[0]?.titulo ?? null,
             etiqueta,
             $,
           })
         : null,
-    [cierre, ordenados, i, movimientos, decisiones, consejos, hogar?.nombre, mes, etiqueta, $],
+    [cierre, ordenados, i, movimientos, decisiones, consejos, hogar?.nombre, hogar?.corte_ingresos, mes, etiqueta, $],
   );
 
   if (!carta) {
