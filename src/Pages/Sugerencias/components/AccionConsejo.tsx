@@ -45,6 +45,30 @@ export function AccionConsejo({ accion }: { accion: Accion }) {
         </div>
       );
 
+    case "crear-meta":
+      return (
+        <div className={css.accion}>
+          <button
+            className="pill primaria"
+            onClick={() =>
+              void listo(
+                crear("metas", {
+                  usuario_id: null,
+                  nombre: accion.nombre,
+                  objetivo: accion.objetivo,
+                  acumulado: 0,
+                  aporte: accion.aporte,
+                  es_emergencia: false,
+                  orden: metas.length + 1,
+                }),
+              )
+            }
+          >
+            Crear la meta · {$(accion.objetivo)}
+          </button>
+        </div>
+      );
+
     case "sumar-colchon":
       return (
         <div className={css.accion}>

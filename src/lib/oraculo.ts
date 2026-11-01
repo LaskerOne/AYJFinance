@@ -54,7 +54,8 @@ export type Accion =
   | { tipo: "saldar-bote"; mes: string; deudor: string; monto: number; texto: string }
   | { tipo: "sumar-colchon"; metaId: string; monto: number }
   | { tipo: "mover-aporte"; desdeId: string; aporte: number; opciones: { id: string; nombre: string }[] }
-  | { tipo: "marcar-cumplida"; decisionId: string };
+  | { tipo: "marcar-cumplida"; decisionId: string }
+  | { tipo: "crear-meta"; nombre: string; objetivo: number; aporte: number };
 
 export interface Mensaje {
   id: string;
@@ -653,6 +654,30 @@ export function analizar(e: EntradaOraculo): Analisis {
   }
 
   // 11 · Decisiones: lo acordado y la reunión.
+  // X · Vivir un mes adelantados: la salida de fondo al enredo de cobrar el
+  // 15 y el 30. Con media canasta mensual ahorrada, el mes arranca pagado
+  // con lo ganado el mes anterior y la fecha del sueldo deja de importar.
+  if (e.hogar?.corte_ingresos) {
+    const costoVida = e.gastos.reduce((s, g) => s + gastoMensual(g), 0) + e.f.cuotas;
+    const objetivo = Math.round(costoVida / 2);
+    const yaExiste = e.metas.some((m) => m.nombre.toLowerCase().includes("adelantad"));
+    if (!yaExiste && objetivo > 0) {
+      const aporte = Math.max(0, Math.round(Math.max(e.f.libre, 0) * 0.5));
+      agregar({
+        id: "mes-adelantado",
+        titulo: "La meta que arregla las quincenas: vivir un mes adelantados",
+        cuerpo: `Hoy cada pago financia la quincena que sigue, y por eso el mes depende de las fechas del sueldo. Con ${e.$(objetivo)} ahorrados —media canasta de gastos y cuotas— noviembre se paga con lo ganado en octubre: el primero de cada mes ya está todo el mes en la cuenta.`,
+        impacto: aporte > 0 ? `Aportando ${e.$(aporte)} al mes la alcanzan en ${e.meses(Math.ceil(objetivo / aporte))}.` : undefined,
+        prioridad: 35,
+        tono: "neutro",
+        fuente: "proyección",
+        comoSeCalcula:
+          "La mitad del costo de vida mensual (gastos presupuestados más cuotas): lo que falta para que la segunda quincena también se pague con plata del mes anterior. El aporte sugerido es la mitad de lo que les queda libre.",
+        accion: { tipo: "crear-meta", nombre: "Un mes adelantados", objetivo, aporte },
+      });
+    }
+  }
+
   const pendientes = e.decisiones.filter((d) => d.periodo.startsWith(mesPasado) && !d.cumplida);
   if (pendientes.length > 0) {
     agregar({
