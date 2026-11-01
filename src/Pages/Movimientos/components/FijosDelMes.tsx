@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Estado } from "@/components/ui/Etiqueta";
 import { CampoMoneda } from "@/components/ui/CampoMoneda";
@@ -8,12 +8,13 @@ import { useMoneda } from "@/hooks/useMoneda";
 import { useCategorias } from "@/hooks/useCategorias";
 import { useFijosDelMes } from "@/hooks/useFijosDelMes";
 import type { FijoDelMes } from "@/lib/fijos";
-import { fechaCorta, nombrePeriodo } from "@/lib/formato";
+import { aNumero, fechaCorta, hoyISO, nombrePeriodo } from "@/lib/formato";
 import { mensajeDeError } from "@/services/supabase";
+import type { Movimiento, PendienteMes } from "@/models/dominio";
 import css from "../Movimientos.module.css";
 
 /** Lo que el usuario cambió en una fila antes de registrarla. Lo que no
- *  tocó sale de la propuesta del presupuesto. */
+ *  tocó sale de la propuesta (del presupuesto o del pendiente). */
 interface Ajuste {
   marcado?: boolean;
   monto?: number;
@@ -22,26 +23,39 @@ interface Ajuste {
 }
 
 /**
- * Los gastos fijos del presupuesto que tocan este mes, listos para pasar a
- * movimientos con un clic. Propone monto, fecha y quién paga; se ajusta lo
- * que haya cambiado (la luz no llega igual todos los meses) y se registra.
+ * Los pagos del mes en una sola lista de chequeo, desde el día 1:
+ * los gastos fijos del presupuesto que tocan este mes, más los pagos extra
+ * que resultaron solo este mes (la matrícula, el arreglo). Propone monto,
+ * fecha y quién paga; se ajusta lo que cambió y se registra con un clic.
  */
 export function FijosDelMes({ mes }: { mes: string }) {
-  const { idA, crearVarias, editar, ladoDe } = useHogar();
+  const { idA, crear, crearVarias, editar, borrar, ladoDe, pendientes_mes, movimientos } = useHogar();
   const { $ } = useMoneda();
-  const { etiqueta } = useCategorias();
+  const { etiqueta, opciones: opcionesCategoria } = useCategorias();
   const { fijos, sinMes } = useFijosDelMes(mes);
   const [ajustes, setAjustes] = useState<Record<string, Ajuste>>({});
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 
-  const pendientes = fijos.filter((f) => !f.registrado);
-  const registrados = fijos.length - pendientes.length;
+  // Los pagos extra de este mes, con el movimiento que los pagó si ya está.
+  const extras = pendientes_mes
+    .filter((p) => p.periodo.startsWith(mes))
+    .map((p) => ({ p, registrado: movimientos.find((m) => m.pendiente_id === p.id) ?? null }));
+
+  const [nuevo, setNuevo] = useState(() => ({
+    concepto: "",
+    categoria: "Otros" as string,
+    monto: 0,
+    usuario_id: null as string | null,
+  }));
+  const [agregando, setAgregando] = useState(false);
+
+  const fechaPropuesta = hoyISO().startsWith(mes) ? hoyISO() : `${mes}-01`;
 
   // La propuesta de cada fila, con los ajustes encima. Lo que parece ya
   // digitado a mano arranca sin marcar: es más fácil marcarlo que borrar un
   // duplicado.
-  const fila = (f: FijoDelMes) => {
+  const filaFijo = (f: FijoDelMes) => {
     const a = ajustes[f.gasto.id] ?? {};
     return {
       marcado: a.marcado ?? !f.parecido,
@@ -50,25 +64,44 @@ export function FijosDelMes({ mes }: { mes: string }) {
       pagadoPor: a.pagadoPor !== undefined ? a.pagadoPor : (f.gasto.usuario_id ?? idA),
     };
   };
+  const filaExtra = (p: PendienteMes) => {
+    const a = ajustes[p.id] ?? {};
+    return {
+      marcado: a.marcado ?? true,
+      monto: a.monto ?? Number(p.monto),
+      fecha: a.fecha ?? fechaPropuesta,
+      pagadoPor: a.pagadoPor !== undefined ? a.pagadoPor : (p.usuario_id ?? idA),
+    };
+  };
   const ajustar = (id: string, cambio: Ajuste) =>
-    setAjustes((p) => ({ ...p, [id]: { ...p[id], ...cambio } }));
+    setAjustes((prev) => ({ ...prev, [id]: { ...prev[id], ...cambio } }));
 
-  const marcados = pendientes.filter((f) => fila(f).marcado);
-  const totalMarcado = marcados.reduce((s, f) => s + fila(f).monto, 0);
-  const faltante = pendientes.reduce((s, f) => s + f.monto, 0);
+  const fijosPendientes = fijos.filter((f) => !f.registrado);
+  const extrasPendientes = extras.filter((e) => !e.registrado);
+  const totalLista = fijos.length + extras.length;
+  const registrados = totalLista - fijosPendientes.length - extrasPendientes.length;
+
+  const marcadosFijos = fijosPendientes.filter((f) => filaFijo(f).marcado);
+  const marcadosExtras = extrasPendientes.filter((e) => filaExtra(e.p).marcado);
+  const cuantosMarcados = marcadosFijos.length + marcadosExtras.length;
+  const totalMarcado =
+    marcadosFijos.reduce((s, f) => s + filaFijo(f).monto, 0) +
+    marcadosExtras.reduce((s, e) => s + filaExtra(e.p).monto, 0);
+  const faltante =
+    fijosPendientes.reduce((s, f) => s + f.monto, 0) +
+    extrasPendientes.reduce((s, e) => s + Number(e.p.monto), 0);
 
   const [a, m] = mes.split("-").map(Number);
   const ultimoDia = `${mes}-${String(new Date(a, m, 0).getDate()).padStart(2, "0")}`;
 
   const registrar = async () => {
-    if (marcados.length === 0) return;
+    if (cuantosMarcados === 0) return;
     setGuardando(true);
     setError("");
     try {
-      await crearVarias(
-        "movimientos",
-        marcados.map((f) => {
-          const v = fila(f);
+      await crearVarias("movimientos", [
+        ...marcadosFijos.map((f) => {
+          const v = filaFijo(f);
           return {
             fecha: v.fecha,
             concepto: f.gasto.concepto || etiqueta(f.gasto.categoria),
@@ -76,14 +109,31 @@ export function FijosDelMes({ mes }: { mes: string }) {
             monto: v.monto,
             clase: "gasto",
             pagado_por: v.pagadoPor,
-            // Un fijo de los dos va al bote; uno personal, no.
+            // Un pago de los dos va al bote; uno personal, no.
             compartido: f.gasto.usuario_id === null,
             extraordinario: false,
             origen: "manual",
             gasto_id: f.gasto.id,
           };
         }),
-      );
+        ...marcadosExtras.map(({ p }) => {
+          const v = filaExtra(p);
+          return {
+            fecha: v.fecha,
+            concepto: p.concepto || etiqueta(p.categoria),
+            categoria: p.categoria,
+            monto: v.monto,
+            clase: "gasto",
+            pagado_por: v.pagadoPor,
+            compartido: p.usuario_id === null,
+            // Un pago suelto de un solo mes no es parte del presupuesto que
+            // se repite: no debe dañar la comparación contra lo corriente.
+            extraordinario: true,
+            origen: "manual",
+            pendiente_id: p.id,
+          };
+        }),
+      ]);
       setAjustes({});
     } catch (e) {
       setError(mensajeDeError(e));
@@ -92,50 +142,73 @@ export function FijosDelMes({ mes }: { mes: string }) {
     }
   };
 
-  if (fijos.length === 0 && sinMes === 0) return null;
+  const agregarExtra = async (e: FormEvent) => {
+    e.preventDefault();
+    if (nuevo.monto <= 0 || !nuevo.concepto.trim()) return;
+    setError("");
+    try {
+      await crear("pendientes_mes", {
+        periodo: `${mes}-01`,
+        concepto: nuevo.concepto.trim(),
+        categoria: nuevo.categoria,
+        monto: nuevo.monto,
+        usuario_id: nuevo.usuario_id,
+      });
+      setNuevo({ concepto: "", categoria: "Otros", monto: 0, usuario_id: null });
+      setAgregando(false);
+    } catch (err) {
+      setError(mensajeDeError(err));
+    }
+  };
+
+  const filaRegistrada = (
+    clave: string,
+    concepto: string,
+    detalle: string,
+    mov: Movimiento,
+  ) => (
+    <li key={clave} className={css.fijo} data-registrado="true">
+      <span className={css.fijoMarca} aria-hidden="true">
+        ✓
+      </span>
+      <span className={css.fijoConcepto}>
+        {concepto}
+        <small>{detalle}</small>
+      </span>
+      <span className={css.fijoHecho}>
+        Registrado el {fechaCorta(mov.fecha)} por <b className="num">{$(Number(mov.monto))}</b>
+      </span>
+    </li>
+  );
 
   return (
     <section className="panel">
       <header>
         <div>
-          <h2>Pagos fijos de {nombrePeriodo(`${mes}-01`)}</h2>
+          <h2>Pagos de {nombrePeriodo(`${mes}-01`)}</h2>
           <p className="nota">
-            Salen de los gastos fijos del presupuesto. Ajusten el monto si cambió y regístrenlos
-            de una vez.
+            La lista de chequeo del mes: los fijos del presupuesto más lo que resultó solo este
+            mes. Ajusten el monto si cambió y regístrenlos de una vez.
           </p>
         </div>
-        {fijos.length > 0 &&
-          (pendientes.length === 0 ? (
-            <Estado tono="ok">Los {fijos.length} registrados</Estado>
+        {totalLista > 0 &&
+          (fijosPendientes.length + extrasPendientes.length === 0 ? (
+            <Estado tono="ok">Los {totalLista} registrados</Estado>
           ) : (
             <Estado tono="warn">
-              {registrados} de {fijos.length} · faltan {$(faltante)}
+              {registrados} de {totalLista} · faltan {$(faltante)}
             </Estado>
           ))}
       </header>
 
-      {fijos.length > 0 && (
+      {totalLista > 0 && (
         <ul className={css.fijos}>
           {fijos.map((f) => {
-            const v = fila(f);
+            const v = filaFijo(f);
             const g = f.gasto;
             const parecido = f.parecido;
             if (f.registrado) {
-              return (
-                <li key={g.id} className={css.fijo} data-registrado="true">
-                  <span className={css.fijoMarca} aria-hidden="true">
-                    ✓
-                  </span>
-                  <span className={css.fijoConcepto}>
-                    {g.concepto || etiqueta(g.categoria)}
-                    <small>{etiqueta(g.categoria)}</small>
-                  </span>
-                  <span className={css.fijoHecho}>
-                    Registrado el {fechaCorta(f.registrado.fecha)} por{" "}
-                    <b className="num">{$(Number(f.registrado.monto))}</b>
-                  </span>
-                </li>
-              );
+              return filaRegistrada(g.id, g.concepto || etiqueta(g.categoria), etiqueta(g.categoria), f.registrado);
             }
             return (
               <li key={g.id} className={`firma ${css.fijo}`} data-lado={ladoDe(g.usuario_id)}>
@@ -193,22 +266,132 @@ export function FijosDelMes({ mes }: { mes: string }) {
               </li>
             );
           })}
+
+          {extras.map(({ p, registrado }) => {
+            if (registrado) {
+              return filaRegistrada(p.id, p.concepto, `Solo este mes · ${etiqueta(p.categoria)}`, registrado);
+            }
+            const v = filaExtra(p);
+            return (
+              <li key={p.id} className={`firma ${css.fijo}`} data-lado={ladoDe(p.usuario_id)}>
+                <input
+                  type="checkbox"
+                  className={css.fijoMarca}
+                  checked={v.marcado}
+                  onChange={(e) => ajustar(p.id, { marcado: e.target.checked })}
+                  aria-label={`Registrar ${p.concepto}`}
+                />
+                <span className={css.fijoConcepto}>
+                  {p.concepto}
+                  <small>
+                    Solo este mes · {etiqueta(p.categoria)} ·{" "}
+                    <button
+                      type="button"
+                      className={css.quitarPendiente}
+                      onClick={() => void borrar("pendientes_mes", p.id)}
+                    >
+                      quitar
+                    </button>
+                  </small>
+                </span>
+                <input
+                  type="date"
+                  className={`campo ${css.fijoFecha}`}
+                  aria-label={`Fecha de ${p.concepto}`}
+                  value={v.fecha}
+                  min={`${mes}-01`}
+                  max={ultimoDia}
+                  onChange={(e) => ajustar(p.id, { fecha: e.target.value })}
+                />
+                <SelectorPersona
+                  className={`campo ${css.fijoQuien}`}
+                  valor={v.pagadoPor}
+                  etiqueta={`Quién pagó ${p.concepto}`}
+                  textoComun="Sin especificar"
+                  onCambio={(q) => ajustar(p.id, { pagadoPor: q })}
+                />
+                <CampoMoneda
+                  className={`campo ${css.fijoMonto}`}
+                  valor={v.monto}
+                  etiqueta={`Monto de ${p.concepto}`}
+                  onCambio={(monto) => ajustar(p.id, { monto })}
+                />
+              </li>
+            );
+          })}
         </ul>
       )}
 
-      {pendientes.length > 0 && (
-        <div className={css.fijosPie}>
+      {totalLista === 0 && sinMes === 0 && (
+        <p className="nota" style={{ marginTop: 12 }}>
+          Este mes no hay pagos en la lista. Los fijos salen de los gastos marcados como fijos en{" "}
+          <Link to="/presupuesto">Presupuesto</Link>; lo que resulte solo este mes se agrega aquí
+          abajo.
+        </p>
+      )}
+
+      <div className={css.fijosPie}>
+        {fijosPendientes.length + extrasPendientes.length > 0 && (
           <button
             className="pill primaria"
             onClick={() => void registrar()}
-            disabled={guardando || marcados.length === 0}
+            disabled={guardando || cuantosMarcados === 0}
           >
             {guardando
               ? "Registrando…"
-              : `Registrar ${marcados.length} ${marcados.length === 1 ? "pago" : "pagos"} · ${$(totalMarcado)}`}
+              : `Registrar ${cuantosMarcados} ${cuantosMarcados === 1 ? "pago" : "pagos"} · ${$(totalMarcado)}`}
           </button>
-          {error && <span className={css.fijosError}>{error}</span>}
-        </div>
+        )}
+        {!agregando && (
+          <button className="pill ghost" onClick={() => setAgregando(true)}>
+            + Agregar un pago de este mes
+          </button>
+        )}
+        {error && <span className={css.fijosError}>{error}</span>}
+      </div>
+
+      {agregando && (
+        <form className={css.extraForm} onSubmit={(e) => void agregarExtra(e)}>
+          <input
+            className="campo"
+            placeholder="Matrícula, arreglo, regalo…"
+            aria-label="Concepto del pago"
+            value={nuevo.concepto}
+            onChange={(e) => setNuevo({ ...nuevo, concepto: e.target.value })}
+          />
+          <select
+            className="campo"
+            aria-label="Categoría"
+            value={nuevo.categoria}
+            onChange={(e) => setNuevo({ ...nuevo, categoria: e.target.value })}
+          >
+            {opcionesCategoria.map((c) => (
+              <option key={c.clave} value={c.clave}>
+                {c.nombre}
+              </option>
+            ))}
+          </select>
+          <SelectorPersona
+            className="campo"
+            valor={nuevo.usuario_id}
+            etiqueta="Quién lo asume"
+            onCambio={(q) => setNuevo({ ...nuevo, usuario_id: q })}
+          />
+          <input
+            className="campo n"
+            inputMode="decimal"
+            placeholder="Monto"
+            aria-label="Monto del pago"
+            value={nuevo.monto === 0 ? "" : String(nuevo.monto)}
+            onChange={(e) => setNuevo({ ...nuevo, monto: aNumero(e.target.value) })}
+          />
+          <button className="pill" type="submit" disabled={nuevo.monto <= 0 || !nuevo.concepto.trim()}>
+            Agregar
+          </button>
+          <button className="pill ghost" type="button" onClick={() => setAgregando(false)}>
+            Cancelar
+          </button>
+        </form>
       )}
 
       {sinMes > 0 && (

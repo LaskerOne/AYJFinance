@@ -217,6 +217,21 @@ export interface Meta {
   creado_en: string;
 }
 
+/** Un pago extra de un mes concreto, que no es un fijo del presupuesto:
+ *  la matrícula, el regalo, el arreglo. Se registra desde la lista de
+ *  pagos del mes; está pagado cuando un movimiento lo referencia. */
+export interface PendienteMes {
+  id: string;
+  hogar_id: string;
+  /** Primer día del mes al que pertenece (YYYY-MM-DD). */
+  periodo: string;
+  concepto: string;
+  categoria: Categoria;
+  monto: number;
+  usuario_id: string | null;
+  creado_en: string;
+}
+
 /** Un movimiento usa un catálogo u otro según sea gasto o ingreso. */
 export type CategoriaMovimiento = Categoria | CategoriaIngreso;
 
@@ -241,6 +256,8 @@ export interface Movimiento {
   /** Mes al que se atribuye (primer día), cuando no es el de la fecha.
    *  Manda sobre la regla del corte de ingresos. Ver migración 0016. */
   cuenta_para?: string | null;
+  /** Pendiente del mes que este movimiento pagó. Ver migración 0017. */
+  pendiente_id?: string | null;
   huella: string | null;
   nota: string;
   creado_en: string;
@@ -368,6 +385,7 @@ export interface MapaTablas {
   cierres_mensuales: CierreMensual;
   activos: Activo;
   decisiones: Decision;
+  pendientes_mes: PendienteMes;
 }
 
 export type NombreTabla = keyof MapaTablas;

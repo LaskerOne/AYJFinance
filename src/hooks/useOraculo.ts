@@ -37,7 +37,7 @@ export function guardarDescartados(valor: Set<string>, mes = mesLocal()) {
  * reunión), para que todas digan lo mismo.
  */
 export function useOraculo(): Analisis {
-  const { movimientos, gastos, ingresos, deudas, metas, activos, decisiones, hogar, idA, idB, nombreDe } = useHogar();
+  const { movimientos, gastos, ingresos, deudas, metas, activos, decisiones, pendientes_mes, hogar, idA, idB, nombreDe } = useHogar();
   const f = useFinanzas();
   const { $ } = useMoneda();
   const { etiqueta } = useCategorias();
@@ -52,6 +52,7 @@ export function useOraculo(): Analisis {
         metas,
         activos,
         decisiones,
+        pendientes: pendientes_mes,
         hogar,
         idA,
         idB,
@@ -61,7 +62,7 @@ export function useOraculo(): Analisis {
         meses: enMeses,
         pct: (n) => porcentaje(n),
       }),
-    [f, movimientos, gastos, ingresos, deudas, metas, activos, decisiones, hogar, idA, idB, nombreDe, etiqueta, $],
+    [f, movimientos, gastos, ingresos, deudas, metas, activos, decisiones, pendientes_mes, hogar, idA, idB, nombreDe, etiqueta, $],
   );
 }
 

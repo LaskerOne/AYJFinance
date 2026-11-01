@@ -25,6 +25,7 @@ import type {
   Meta,
   Movimiento,
   NombreTabla,
+  PendienteMes,
   Perfil,
   ReglaCategoria,
 } from "@/models/dominio";
@@ -41,6 +42,7 @@ const TABLAS: NombreTabla[] = [
   "cierres_mensuales",
   "activos",
   "decisiones",
+  "pendientes_mes",
 ];
 
 const ORDEN: Record<NombreTabla, { columna: string; ascendente?: boolean }> = {
@@ -53,6 +55,7 @@ const ORDEN: Record<NombreTabla, { columna: string; ascendente?: boolean }> = {
   cierres_mensuales: { columna: "periodo" },
   activos: { columna: "orden" },
   decisiones: { columna: "orden" },
+  pendientes_mes: { columna: "creado_en" },
 };
 
 const VACIO: Filas = {
@@ -65,6 +68,7 @@ const VACIO: Filas = {
   cierres_mensuales: [],
   activos: [],
   decisiones: [],
+  pendientes_mes: [],
 };
 
 interface ValorHogar {
@@ -87,6 +91,8 @@ interface ValorHogar {
   cierres: CierreMensual[];
   activos: Activo[];
   decisiones: Decision[];
+  /** Pagos extra del mes, pendientes de registrar. */
+  pendientes_mes: PendienteMes[];
 
   cargando: boolean;
   error: string;
@@ -402,6 +408,7 @@ export function HogarProvider({ children }: { children: ReactNode }) {
       cierres: filas.cierres_mensuales,
       activos: filas.activos,
       decisiones: filas.decisiones,
+      pendientes_mes: filas.pendientes_mes,
       cargando,
       error,
       errorEscritura,

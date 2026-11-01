@@ -515,3 +515,30 @@
   background: var(--a-soft);
   font-weight: 600;
 }
+
+/* --- pagos extra del mes -------------------------------------------------- */
+.extraForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.extraForm input[aria-label="Concepto del pago"] {
+  flex: 2 1 200px;
+}
+.extraForm select,
+.extraForm input.n {
+  flex: 1 1 130px;
+}
+.quitarPendiente {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--ink-3);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.quitarPendiente:hover {
+  color: var(--crit-ink);
+}

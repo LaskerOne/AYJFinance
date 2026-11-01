@@ -20,6 +20,7 @@ import {
   type Ingreso,
   type Meta,
   type Movimiento,
+  type PendienteMes,
 } from "@/models/dominio";
 
 /**
@@ -93,6 +94,9 @@ export interface EntradaOraculo {
   metas: Meta[];
   activos: Activo[];
   decisiones: Decision[];
+  /** Pagos extra del mes (migración 0017). Opcional: sin ellos solo se
+   *  pierden sus recordatorios. */
+  pendientes?: PendienteMes[];
   hogar: Hogar | null;
   idA: string | null;
   idB: string | null;
@@ -358,12 +362,27 @@ export function analizar(e: EntradaOraculo): Analisis {
   const pendientesFijos = fijosDelMes(e.gastos, e.movimientos, mesHoy, hoyIso).fijos.filter(
     (x) => !x.registrado && !x.parecido,
   );
-  const vencidos = pendientesFijos.filter((x) =>
+  const vencidosFijos = pendientesFijos.filter((x) =>
     x.gasto.dia_pago ? x.fecha <= hoyIso : dia >= 25,
   );
+  // Los pagos extra del mes no tienen día de pago: cuentan desde el 25,
+  // salvo que ya tengan su movimiento.
+  const vencidosExtras = (e.pendientes ?? []).filter(
+    (p) =>
+      p.periodo.startsWith(mesHoy) &&
+      dia >= 25 &&
+      !e.movimientos.some((m) => m.pendiente_id === p.id),
+  );
+  const vencidos = [
+    ...vencidosFijos.map((x) => ({
+      nombre: x.gasto.concepto || e.etiqueta(x.gasto.categoria),
+      monto: x.monto,
+    })),
+    ...vencidosExtras.map((p) => ({ nombre: p.concepto, monto: Number(p.monto) })),
+  ];
   if (vencidos.length > 0) {
     const total = vencidos.reduce((s, x) => s + x.monto, 0);
-    const nombres = vencidos.slice(0, 3).map((x) => x.gasto.concepto || e.etiqueta(x.gasto.categoria));
+    const nombres = vencidos.slice(0, 3).map((x) => x.nombre);
     const resto = vencidos.length - nombres.length;
     agregar({
       id: "fijos-pendientes",
@@ -377,7 +396,7 @@ export function analizar(e: EntradaOraculo): Analisis {
       fuente: "movimientos",
       ir: { texto: "Registrarlos", ruta: "/movimientos" },
       comoSeCalcula:
-        "Gastos fijos del presupuesto que tocan este mes, cuyo día de pago ya pasó (o, si no tienen día, cuando el mes va por el 25) y que no tienen un movimiento vinculado ni uno parecido digitado a mano.",
+        "Gastos fijos del presupuesto que tocan este mes, cuyo día de pago ya pasó (o, si no tienen día, cuando el mes va por el 25), más los pagos extra anotados para este mes, siempre que no tengan un movimiento vinculado ni uno parecido digitado a mano.",
     });
   }
 
