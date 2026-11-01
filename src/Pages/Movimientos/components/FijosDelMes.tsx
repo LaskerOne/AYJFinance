@@ -225,6 +225,15 @@ export function FijosDelMes({ mes }: { mes: string }) {
                     {etiqueta(g.categoria)}
                     {g.frecuencia === "quincenal" && " · dos quincenas"}
                     {g.frecuencia !== "mensual" && g.frecuencia !== "quincenal" && ` · ${g.frecuencia}`}
+                    {" · "}
+                    <button
+                      type="button"
+                      className={css.quitarPendiente}
+                      title="Lo borra del presupuesto: deja de aparecer todos los meses"
+                      onClick={() => void borrar("gastos_presupuesto", g.id)}
+                    >
+                      quitar del presupuesto
+                    </button>
                   </small>
                 </span>
                 <input

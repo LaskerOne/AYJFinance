@@ -2,6 +2,7 @@ import type { Finanzas } from "@/lib/calculos";
 import { gastoMensual } from "@/lib/calculos";
 import { mesesConSuCuota } from "@/lib/deudas";
 import { gastosHormiga } from "@/lib/habitos";
+import { categoriaSugerida } from "@/lib/categorizar";
 import { mesContable } from "@/lib/contable";
 import { fijosDelMes } from "@/lib/fijos";
 import { liquidarMes } from "@/lib/liquidacion";
@@ -654,6 +655,34 @@ export function analizar(e: EntradaOraculo): Analisis {
   }
 
   // 11 · Decisiones: lo acordado y la reunión.
+  // Catalogación: compras de los últimos 60 días cuya etiqueta de hábito
+  // apunta a otra categoría. Solo etiquetas (señal fuerte); lo planeado
+  // (fijos y extras registrados) se respeta porque lo nombraron ellos.
+  const hace60 = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - 60);
+  const desde60 = `${hace60.getFullYear()}-${String(hace60.getMonth() + 1).padStart(2, "0")}-${String(hace60.getDate()).padStart(2, "0")}`;
+  const descolocados = e.movimientos
+    .filter((m) => m.clase === "gasto" && !m.extraordinario && !m.gasto_id && !m.pendiente_id && m.fecha >= desde60)
+    .map((m) => ({ m, sug: categoriaSugerida(m.concepto, []) }))
+    .filter((x): x is typeof x & { sug: NonNullable<typeof x.sug> } =>
+      x.sug !== null && x.sug.razon === "etiqueta" && x.sug.categoria !== x.m.categoria,
+    );
+  if (descolocados.length >= 3) {
+    const ejemplos = descolocados
+      .slice(0, 2)
+      .map((x) => `«${x.m.concepto}» está en ${e.etiqueta(x.m.categoria)} y suena a ${e.etiqueta(x.sug.categoria)}`);
+    agregar({
+      id: "catalogacion",
+      titulo: `${descolocados.length} compras parecen estar en otra categoría`,
+      cuerpo: `${ejemplos.join("; ")}. Con la categoría bien puesta, el presupuesto por categoría y los hábitos cuentan la historia real. Al escribir el concepto de un movimiento nuevo, el oráculo ya propone la categoría.`,
+      prioridad: 37,
+      tono: "neutro",
+      fuente: "movimientos",
+      ir: { texto: "Revisarlas en Movimientos", ruta: "/movimientos" },
+      comoSeCalcula:
+        "Gastos de los últimos 60 días cuya etiqueta de hábito (comidas, transporte, tienda…) apunta a una categoría distinta de la elegida. Lo registrado desde la lista de pagos no se toca.",
+    });
+  }
+
   // X · Vivir un mes adelantados: la salida de fondo al enredo de cobrar el
   // 15 y el 30. Con media canasta mensual ahorrada, el mes arranca pagado
   // con lo ganado el mes anterior y la fecha del sueldo deja de importar.

@@ -9,6 +9,7 @@ import { useMoneda } from "@/hooks/useMoneda";
 import { useCategorias } from "@/hooks/useCategorias";
 import { BarraApilada, type Segmento } from "@/components/charts/BarraApilada";
 import { gastoMensual } from "@/lib/calculos";
+import { categoriaSugerida } from "@/lib/categorizar";
 import { atribuidoAOtroMes, mesContable, mesSiguiente } from "@/lib/contable";
 import { EnlaceEditar } from "@/components/ui/EnlaceEditar";
 import { aNumero, fechaCorta, hoyISO, nombrePeriodo } from "@/lib/formato";
@@ -51,7 +52,7 @@ function sumarDias(iso: string, n: number): string {
 }
 
 export function Movimientos() {
-  const { movimientos, gastos, crear, editar, borrar, ladoDe, idA, hogar } = useHogar();
+  const { movimientos, gastos, crear, editar, borrar, ladoDe, idA, hogar, reglas } = useHogar();
   const corte = hogar?.corte_ingresos ?? null;
   const { $ } = useMoneda();
   const { opciones: opcionesCategoria, etiqueta: etiquetaCategoria } = useCategorias();
@@ -69,6 +70,19 @@ export function Movimientos() {
     compartido: false,
     extraordinario: false,
   }));
+  // Mientras no toquen la categoría a mano, el oráculo la propone desde el
+  // concepto: las reglas aprendidas primero, las etiquetas de hábito después.
+  const [categoriaManual, setCategoriaManual] = useState(false);
+  const [sugerencia, setSugerencia] = useState("");
+  const alEscribirConcepto = (concepto: string) => {
+    if (categoriaManual || nuevo.clase !== "gasto") {
+      setNuevo((n) => ({ ...n, concepto }));
+      return;
+    }
+    const sug = categoriaSugerida(concepto, reglas);
+    setSugerencia(sug ? (sug.razon === "etiqueta" ? `El oráculo la puso por «${sug.etiqueta}»` : "El oráculo la puso por una regla aprendida") : "");
+    setNuevo((n) => ({ ...n, concepto, categoria: sug ? sug.categoria : n.categoria }));
+  };
 
   // Por mes contable: con el corte activo, el pago de fin de mes aparece en
   // el mes siguiente, que es el que de verdad paga.
@@ -176,6 +190,8 @@ export function Movimientos() {
     // También vuelve a cero la casilla del bote: que quede pegada de un
     // movimiento al siguiente es justo como se marcan cosas sin querer.
     setNuevo((n) => ({ ...n, concepto: "", monto: 0, compartido: false, extraordinario: false }));
+    setCategoriaManual(false);
+    setSugerencia("");
     setMes(mesDe(nuevo.fecha));
   };
 
@@ -277,7 +293,7 @@ export function Movimientos() {
               className="campo"
               placeholder="Mercado de la semana"
               value={nuevo.concepto}
-              onChange={(e) => setNuevo({ ...nuevo, concepto: e.target.value })}
+              onChange={(e) => alEscribirConcepto(e.target.value)}
             />
           </label>
 
@@ -286,7 +302,11 @@ export function Movimientos() {
             <select
               className="campo"
               value={nuevo.categoria}
-              onChange={(e) => setNuevo({ ...nuevo, categoria: e.target.value })}
+              onChange={(e) => {
+                setCategoriaManual(true);
+                setSugerencia("");
+                setNuevo({ ...nuevo, categoria: e.target.value });
+              }}
             >
               {nuevo.clase === "ingreso"
                 ? CATEGORIAS_INGRESO.map((c) => (
@@ -300,6 +320,7 @@ export function Movimientos() {
                     </option>
                   ))}
             </select>
+            {sugerencia && <small className={css.sugerenciaCategoria}>{sugerencia}</small>}
           </label>
 
           <label className={css.campo}>

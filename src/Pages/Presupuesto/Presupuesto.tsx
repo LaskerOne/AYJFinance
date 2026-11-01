@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Cifra } from "@/components/ui/Cifra";
 import { Estado } from "@/components/ui/Etiqueta";
-import { BarraApilada, type Segmento } from "@/components/charts/BarraApilada";
+import { BarraApilada } from "@/components/charts/BarraApilada";
 import { CampoMoneda } from "@/components/ui/CampoMoneda";
 import { SelectorPersona } from "@/components/ui/SelectorPersona";
 import { useHogar } from "@/contexts/HogarContext";
@@ -16,11 +16,12 @@ import {
   type Frecuencia,
   type TipoGasto,
 } from "@/models/dominio";
+import css from "./Presupuesto.module.css";
 
 type Pestania = "ingresos" | "gastos";
 
 export function Presupuesto() {
-  const { ingresos, gastos, crear, editar, borrar } = useHogar();
+  const { ingresos, gastos, crear, editar, borrar, idB, nombreDe, idA } = useHogar();
   const { $ } = useMoneda();
   const f = useFinanzas();
   const { opciones: opcionesCategoria } = useCategorias();
@@ -29,11 +30,37 @@ export function Presupuesto() {
   // Lo comprometido cada mes: gastos de vida, cuotas y aportes a metas.
   const comprometido = f.gastos + f.cuotas + f.aportes;
   const fraccionComprometida = f.ingreso > 0 ? comprometido / f.ingreso : 0;
-  const ingresoHogar = Math.max(0, f.ingreso - f.ingresoA - f.ingresoB);
-  const fuentesIngreso: Segmento[] = [
-    { nombre: "Ingresos de los dos", valor: f.ingresoA + f.ingresoB, color: "--a" },
-    { nombre: "Del hogar", valor: ingresoHogar, color: "--comun" },
-  ];
+  const ingresoComun = Math.max(0, f.ingreso - f.ingresoA - f.ingresoB);
+
+  // Cada uno por su lado: lo suyo sale de su ingreso; lo de los dos va
+  // aparte y lo cubren con lo que les queda, pague quien pague.
+  const lados = [
+    {
+      lado: "a" as const,
+      nombre: nombreDe(idA),
+      entra: f.ingresoA,
+      gastos: f.gastoA,
+      cuotas: f.cuotaA,
+      aportes: f.aporteA,
+    },
+    ...(idB
+      ? [{
+          lado: "b" as const,
+          nombre: nombreDe(idB),
+          entra: f.ingresoB,
+          gastos: f.gastoB,
+          cuotas: f.cuotaB,
+          aportes: f.aporteB,
+        }]
+      : []),
+  ].map((l) => ({ ...l, sale: l.gastos + l.cuotas + l.aportes, queda: l.entra - l.gastos - l.cuotas - l.aportes }));
+  const comun = {
+    gastos: f.gastoComun,
+    cuotas: f.cuotaComun,
+    aportes: f.aporteComun,
+    total: f.gastoComun + f.cuotaComun + f.aporteComun,
+  };
+  const quedaEntreLosDos = lados.reduce((s, l) => s + l.queda, 0) + ingresoComun;
 
   return (
     <>
@@ -75,26 +102,64 @@ export function Presupuesto() {
             total={f.ingreso}
             etiqueta="Reparto del ingreso presupuestado"
           />
-          {fuentesIngreso[0].valor + fuentesIngreso[1].valor > 0 && (
-            <>
-              <span className="eyebrow" style={{ marginTop: 10 }}>
-                De dónde sale
+        </div>
+      </section>
+
+      <section className="panel">
+        <header>
+          <div>
+            <h2>Cada uno por su lado</h2>
+            <p className="nota">
+              Lo de cada quien sale de su propio ingreso. Lo de los dos va aparte: la app no
+              espera que lo dividan por mitades, sale de lo que les queda, pague quien pague.
+            </p>
+          </div>
+        </header>
+        <div className={css.lados}>
+          {lados.map((l) => (
+            <article key={l.lado} className={`firma ${css.lado}`} data-lado={l.lado}>
+              <h3 className={css.ladoNombre}>
+                {l.nombre}
+                {l.queda < 0 && <Estado tono="crit">No le alcanza</Estado>}
+              </h3>
+              <div className={css.ladoFilas}>
+                <span>
+                  Le entra <b className="num">{$(l.entra)}</b>
+                </span>
+                <span>
+                  Lo suyo <b className="num">{$(l.sale)}</b>
+                </span>
+                <span className={css.ladoDesglose}>
+                  gastos {$(l.gastos)} · cuotas {$(l.cuotas)} · metas {$(l.aportes)}
+                </span>
+              </div>
+              <p className={css.ladoQueda} data-negativo={l.queda < 0}>
+                {l.queda >= 0 ? "Le queda" : "Le falta"} <b className="num">{$(Math.abs(l.queda))}</b>
+              </p>
+            </article>
+          ))}
+
+          <article className={`firma ${css.lado}`} data-lado="comun">
+            <h3 className={css.ladoNombre}>
+              De los dos
+              {quedaEntreLosDos - comun.total < 0 && <Estado tono="crit">No cuadra</Estado>}
+            </h3>
+            <div className={css.ladoFilas}>
+              <span>
+                Para pagar juntos <b className="num">{$(comun.total)}</b>
               </span>
-              <BarraApilada
-                segmentos={
-                  f.ingresoA + f.ingresoB > 0 && ingresoHogar > 0
-                    ? fuentesIngreso
-                    : [
-                        { nombre: "Tuyo", valor: f.ingresoA, color: "--a" },
-                        { nombre: "De tu pareja", valor: f.ingresoB, color: "--b" },
-                      ]
-                }
-                total={f.ingreso}
-                alto={16}
-                etiqueta="Ingreso por persona"
-              />
-            </>
-          )}
+              <span className={css.ladoDesglose}>
+                gastos {$(comun.gastos)} · cuotas {$(comun.cuotas)} · metas {$(comun.aportes)}
+              </span>
+              <span>
+                Tienen para cubrirlo <b className="num">{$(quedaEntreLosDos)}</b>
+              </span>
+            </div>
+            <p className={css.ladoQueda} data-negativo={quedaEntreLosDos - comun.total < 0}>
+              {quedaEntreLosDos - comun.total >= 0 ? "Les queda libre" : "Descuadre"}{" "}
+              <b className="num">{$(Math.abs(quedaEntreLosDos - comun.total))}</b>
+            </p>
+          </article>
         </div>
       </section>
 
