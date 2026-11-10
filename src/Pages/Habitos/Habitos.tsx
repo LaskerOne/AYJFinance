@@ -1,54 +1,54 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { BarrasRanking } from "@/components/charts/BarrasRanking";
 import { Cifra } from "@/components/ui/Cifra";
 import { Estado } from "@/components/ui/Etiqueta";
 import { FilaKpi } from "@/components/ui/Kpi";
 import { useHogar } from "@/contexts/HogarContext";
 import { useFinanzas } from "@/hooks/useFinanzas";
+import { useHormigas } from "@/hooks/useHormigas";
 import { useMoneda } from "@/hooks/useMoneda";
+import { mesSiguiente } from "@/lib/contable";
 import { simularDeudas } from "@/lib/deudas";
-import { gastosHormiga, pagosQueSeRepiten } from "@/lib/habitos";
-import { aNumero, enMeses, porcentaje } from "@/lib/formato";
+import { pagosQueSeRepiten, tendenciaHormiga } from "@/lib/habitos";
+import { aNumero, enMeses, hoyISO, nombrePeriodo, porcentaje } from "@/lib/formato";
 import css from "./Habitos.module.css";
 
-const CLAVE_UMBRAL = "cuentas-de-dos:umbral-hormiga";
-const UMBRAL_INICIAL = 50_000;
-
-function leerUmbral(): number {
-  try {
-    const v = Number(localStorage.getItem(CLAVE_UMBRAL));
-    return v >= 10_000 && v <= 200_000 ? v : UMBRAL_INICIAL;
-  } catch {
-    return UMBRAL_INICIAL;
-  }
+function mesAnterior(mes: string): string {
+  const [a, m] = mes.split("-").map(Number);
+  return m === 1 ? `${a - 1}-12` : `${a}-${String(m - 1).padStart(2, "0")}`;
 }
 
 /**
  * Los hábitos que no se ven en un mes cualquiera: las compras pequeñas que
- * sumadas pesan, y los pagos que se repiten solos. Todo se calcula con los
- * movimientos reales y se traduce a un año, que es donde se nota.
+ * sumadas pesan, y los pagos que se repiten solos. Las hormigas se miran mes
+ * a mes, con el total real de cada uno; la tendencia larga vive en Histórico.
  */
 export function Habitos() {
   const { movimientos, deudas, hogar } = useHogar();
   const f = useFinanzas();
   const { $ } = useMoneda();
+  const { umbral, setUmbral, serie } = useHormigas();
 
-  const [umbral, setUmbralEstado] = useState(leerUmbral);
+  const hoy = hoyISO();
+  const mesHoy = hoy.slice(0, 7);
+  const primerMes = serie[0]?.mes ?? mesHoy;
+  const [mes, setMes] = useState(mesHoy);
   const [recorte, setRecorte] = useState(50);
 
-  const setUmbral = (v: number) => {
-    setUmbralEstado(v);
-    try {
-      localStorage.setItem(CLAVE_UMBRAL, String(v));
-    } catch {
-      // Sin almacenamiento el umbral igual aplica durante esta visita.
-    }
-  };
-
-  const h = useMemo(() => gastosHormiga(movimientos, umbral), [movimientos, umbral]);
+  const h = serie.find((x) => x.mes === mes) ?? { mes, compras: 0, total: 0, grupos: [] };
   const repetidos = useMemo(() => pagosQueSeRepiten(movimientos), [movimientos]);
 
-  const libera = (h.mensual * recorte) / 100;
+  // El mes en curso va a medias: para el recorte y el año se usa a dónde
+  // llegaría al ritmo de hoy, no lo que lleva. Un mes terminado es su total.
+  const enCurso = mes === mesHoy;
+  const [anio, numMes] = mes.split("-").map(Number);
+  const diasDelMes = new Date(anio, numMes, 0).getDate();
+  const diaHoy = Number(hoy.slice(8, 10));
+  const proyectado = enCurso ? (h.total / diaHoy) * diasDelMes : h.total;
+  const tendencia = tendenciaHormiga(serie, mes, proyectado);
+
+  const libera = (proyectado * recorte) / 100;
   const estrategia = hogar?.estrategia_deuda ?? "avalancha";
   const abonoActual = Number(hogar?.abono_extra ?? 0);
   const hayDeuda = deudas.some((d) => Number(d.saldo) > 0);
@@ -70,28 +70,57 @@ export function Habitos() {
     <>
       <section className="panel hero heroGrid">
         <div className="heroCifras">
-          <span className="eyebrow">Gastos hormiga · al mes</span>
+          <div className={css.navegaMes}>
+            <button
+              className="pill"
+              onClick={() => setMes(mesAnterior(mes))}
+              aria-label="Mes anterior"
+              disabled={mes <= primerMes}
+            >
+              ←
+            </button>
+            <span className={css.mesActual}>{nombrePeriodo(`${mes}-01`)}</span>
+            <button
+              className="pill"
+              onClick={() => setMes(mesSiguiente(mes))}
+              aria-label="Mes siguiente"
+              disabled={mes >= mesHoy}
+            >
+              →
+            </button>
+          </div>
+          <span className="eyebrow">Gastos hormiga del mes</span>
           <span className="heroNumero heroPos">
-            <Cifra valor={h.mensual} formato={$} />
+            <Cifra valor={h.total} formato={$} />
           </span>
           <span className="heroDetalle">
-            {h.compras} compras de hasta {$(umbral)} en los últimos {h.dias} días, llevadas a un
-            mes promedio.
+            {h.compras} {h.compras === 1 ? "compra" : "compras"} de hasta {$(umbral)}
+            {enCurso ? ` en lo que va del mes (día ${diaHoy} de ${diasDelMes}).` : " en todo el mes."}
           </span>
           <div className="heroChips">
-            <Estado tono="neutro">{$(h.anual)} al año</Estado>
-            {f.deudaTotal > 0 && h.anual > 0 && (
-              <Estado tono="neutro">= {porcentaje(h.anual / f.deudaTotal)} de su deuda</Estado>
+            {tendencia && (
+              <Estado
+                tono={
+                  tendencia.tendencia === "sube" ? "warn" : tendencia.tendencia === "baja" ? "ok" : "neutro"
+                }
+              >
+                {tendencia.cambio >= 0 ? "↑" : "↓"} {porcentaje(Math.abs(tendencia.cambio))}{" "}
+                {enCurso ? "proyectado contra" : "contra"} los meses anteriores
+              </Estado>
             )}
-            {f.gastos > 0 && h.mensual > 0 && (
-              <Estado tono={h.mensual / f.gastos > 0.15 ? "warn" : "ok"}>
-                {porcentaje(h.mensual / f.gastos)} del gasto presupuestado
+            {enCurso && h.total > 0 && (
+              <Estado tono="neutro">A este ritmo cierra en {$(proyectado)}</Estado>
+            )}
+            {proyectado > 0 && <Estado tono="neutro">{$(proyectado * 12)} al año</Estado>}
+            {f.gastos > 0 && proyectado > 0 && (
+              <Estado tono={proyectado / f.gastos > 0.15 ? "warn" : "ok"}>
+                {porcentaje(proyectado / f.gastos)} del gasto presupuestado
               </Estado>
             )}
           </div>
         </div>
         <div className="heroGrafico">
-          <span className="eyebrow">En qué se va, de mayor a menor</span>
+          <span className="eyebrow">En qué se fue, de mayor a menor</span>
           {/* El oráculo etiqueta cada compra por lo que es: todas las formas
               de comer por fuera caen en un solo grupo aunque el concepto y
               el monto cambien. */}
@@ -99,16 +128,17 @@ export function Habitos() {
             <BarrasRanking
               filas={h.grupos.slice(0, 7).map((g) => ({
                 nombre: `${g.nombre} ×${g.veces}`,
-                valor: g.mensual,
+                valor: g.total,
               }))}
-              total={h.mensual}
-              etiqueta="Gastos hormiga por concepto, promedio mensual"
+              total={h.total}
+              etiqueta={`Gastos hormiga por concepto en ${nombrePeriodo(`${mes}-01`)}`}
             />
           ) : (
-            <p className="vacio">
-              Sin compras pequeñas registradas en los últimos tres meses con este umbral.
-            </p>
+            <p className="vacio">Sin compras pequeñas registradas este mes con este umbral.</p>
           )}
+          <p className={css.pieHero}>
+            La tendencia, mes contra mes, está en <Link to="/historico">Histórico</Link>.
+          </p>
         </div>
       </section>
 
@@ -139,7 +169,7 @@ export function Habitos() {
         </div>
       </section>
 
-      {h.mensual > 0 && (
+      {proyectado > 0 && (
         <section className="panel">
           <header>
             <div>

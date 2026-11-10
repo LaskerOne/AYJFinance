@@ -1,5 +1,6 @@
 import type { Movimiento } from "@/models/dominio";
 import { etiquetaDe } from "@/lib/etiquetas";
+import { mesContable, mesSiguiente } from "@/lib/contable";
 
 /**
  * Hábitos de gasto a partir de los movimientos reales.
@@ -108,6 +109,89 @@ export function gastosHormiga(movimientos: Movimiento[], umbral: number, hoy = n
       .map(([nombre, v]) => ({ nombre: capitalizar(nombre), ...v, mensual: v.total * factor }))
       .sort((a, b) => b.total - a.total),
   };
+}
+
+// --- mes a mes -------------------------------------------------------------
+// El promedio de tres meses sirve para dimensionar, pero esconde lo que pasó:
+// un mes malo se diluye entre dos buenos. Mes a mes, cada compra cuenta en el
+// mes contable donde cayó, con su total real y sin proyecciones, y la serie
+// completa es la que deja ver si la costumbre va subiendo o bajando.
+
+export interface GrupoHormigaMes {
+  nombre: string;
+  veces: number;
+  total: number;
+}
+
+export interface HormigaMes {
+  /** "YYYY-MM" contable. */
+  mes: string;
+  compras: number;
+  total: number;
+  grupos: GrupoHormigaMes[];
+}
+
+/** Las compras hormiga de cada mes con movimientos, del más viejo al más nuevo.
+ *  Los meses intermedios sin compras pequeñas aparecen en cero: un mes limpio
+ *  también es dato de la tendencia. */
+export function hormigasPorMes(
+  movimientos: Movimiento[],
+  umbral: number,
+  corte: number | null | undefined,
+): HormigaMes[] {
+  const fijos = new Set(pagosQueSeRepiten(movimientos).map((r) => normalizar(r.concepto)));
+  const porMes = new Map<string, Map<string, GrupoHormigaMes>>();
+  const meses = new Set<string>();
+
+  for (const m of movimientos) {
+    if (!esGastoCorriente(m)) continue;
+    const mes = mesContable(m, corte);
+    meses.add(mes);
+    if (Number(m.monto) > umbral || fijos.has(normalizar(m.concepto))) continue;
+    const grupos = porMes.get(mes) ?? new Map<string, GrupoHormigaMes>();
+    const nombre = capitalizar(grupoDe(m.concepto));
+    const g = grupos.get(nombre) ?? { nombre, veces: 0, total: 0 };
+    g.veces += 1;
+    g.total += Number(m.monto);
+    grupos.set(nombre, g);
+    porMes.set(mes, grupos);
+  }
+  if (meses.size === 0) return [];
+
+  const ordenados = [...meses].sort();
+  const salida: HormigaMes[] = [];
+  for (let mes = ordenados[0]; mes <= ordenados[ordenados.length - 1]; mes = mesSiguiente(mes)) {
+    const grupos = [...(porMes.get(mes)?.values() ?? [])].sort((a, b) => b.total - a.total);
+    salida.push({
+      mes,
+      compras: grupos.reduce((s, g) => s + g.veces, 0),
+      total: grupos.reduce((s, g) => s + g.total, 0),
+      grupos,
+    });
+  }
+  return salida;
+}
+
+export type Tendencia = "baja" | "sube" | "estable";
+
+/** Cómo viene el mes contra el promedio de los anteriores (hasta tres).
+ *  ±10 % se considera estable: unas cuantas compras de diferencia no son
+ *  una tendencia. Un mes a medias se compara con `totalDelMes` (su
+ *  proyección al cierre), no con lo que lleva: si no, siempre "bajaría".
+ *  Null si no hay meses previos con qué comparar. */
+export function tendenciaHormiga(
+  serie: HormigaMes[],
+  mes: string,
+  totalDelMes?: number,
+): { tendencia: Tendencia; promedioAnterior: number; cambio: number } | null {
+  const i = serie.findIndex((h) => h.mes === mes);
+  if (i <= 0) return null;
+  const previos = serie.slice(Math.max(0, i - 3), i);
+  const promedioAnterior = previos.reduce((s, h) => s + h.total, 0) / previos.length;
+  if (promedioAnterior <= 0) return null;
+  const cambio = ((totalDelMes ?? serie[i].total) - promedioAnterior) / promedioAnterior;
+  const tendencia: Tendencia = cambio > 0.1 ? "sube" : cambio < -0.1 ? "baja" : "estable";
+  return { tendencia, promedioAnterior, cambio };
 }
 
 export interface PagoRepetido {

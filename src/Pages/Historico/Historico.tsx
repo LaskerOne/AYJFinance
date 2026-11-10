@@ -9,8 +9,10 @@ import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
 import { useCategorias } from "@/hooks/useCategorias";
 import { useCerrarMes } from "@/hooks/useSalud";
+import { useHormigas } from "@/hooks/useHormigas";
+import { tendenciaHormiga } from "@/lib/habitos";
 import { mensajeDeError } from "@/services/supabase";
-import { nombrePeriodo, porcentaje } from "@/lib/formato";
+import { hoyISO, nombrePeriodo, porcentaje } from "@/lib/formato";
 import { COLOR_CATEGORIA, type Categoria } from "@/models/dominio";
 import css from "./Historico.module.css";
 
@@ -31,6 +33,7 @@ export function Historico() {
   const cerrarMesConPuntaje = useCerrarMes();
   const { $ } = useMoneda();
   const { etiqueta } = useCategorias();
+  const { umbral, serie: hormigas } = useHormigas();
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
 
@@ -71,6 +74,25 @@ export function Historico() {
         ]
       : []),
   ];
+
+  // Gastos hormiga: se calculan en vivo desde los movimientos (no se
+  // congelan en el cierre) con el mismo umbral de Hábitos. El mes en curso
+  // va a medias, así que la tendencia se lee sobre el último mes terminado.
+  const mesHoy = hoyISO().slice(0, 7);
+  const hormigaDe = new Map(hormigas.map((h) => [h.mes, h.total]));
+  const columnasHormiga: ColumnaMes[] = hormigas.slice(-12).map((h) => ({
+    periodo: `${h.mes}-01`,
+    valores: [
+      {
+        nombre: h.mes === mesHoy ? "Gastos hormiga (va a medias)" : "Gastos hormiga",
+        valor: h.total,
+        color: "--s-gasto",
+      },
+    ],
+  }));
+  const terminados = hormigas.filter((h) => h.mes < mesHoy);
+  const ultimoTerminado = terminados[terminados.length - 1];
+  const tendencia = ultimoTerminado ? tendenciaHormiga(hormigas, ultimoTerminado.mes) : null;
 
   const ultimo = ordenados[ordenados.length - 1];
   const penultimo = ordenados[ordenados.length - 2];
@@ -277,6 +299,35 @@ export function Historico() {
         </>
       )}
 
+      {hormigas.length > 0 && (
+        <section className="panel">
+          <header>
+            <div>
+              <h2>Gastos hormiga, mes a mes</h2>
+              <p className="nota">
+                Las compras de hasta {$(umbral)} de cada mes, con su total real. Si las barras
+                bajan, la costumbre se está corrigiendo; el umbral se ajusta en Hábitos.
+              </p>
+            </div>
+            {tendencia && ultimoTerminado && (
+              <Estado
+                tono={
+                  tendencia.tendencia === "sube" ? "warn" : tendencia.tendencia === "baja" ? "ok" : "neutro"
+                }
+              >
+                {(() => {
+                  const n = nombrePeriodo(`${ultimoTerminado.mes}-01`);
+                  return n.charAt(0).toUpperCase() + n.slice(1);
+                })()}
+                : {tendencia.tendencia === "sube" ? "subió" : tendencia.tendencia === "baja" ? "bajó" : "estable,"}{" "}
+                {porcentaje(Math.abs(tendencia.cambio))} contra los meses anteriores
+              </Estado>
+            )}
+          </header>
+          <BarrasMensuales meses={columnasHormiga} etiqueta="Gastos hormiga por mes" />
+        </section>
+      )}
+
       {ordenados.length > 0 && (
         <section className="panel">
           <header>
@@ -296,6 +347,9 @@ export function Historico() {
                   <th className="r">Cuotas</th>
                   <th className="r">Ahorro</th>
                   <th className="r">Deuda</th>
+                  <th className="r" title={`Compras de hasta ${$(umbral)}, calculadas con los movimientos de hoy`}>
+                    Hormiga
+                  </th>
                   {categoriasUsadas.map((c) => (
                     <th key={c} className="r">
                       {etiqueta(c)}
@@ -320,6 +374,7 @@ export function Historico() {
                       )}
                     </td>
                     <td className="r num">{$(Number(c.deuda_total))}</td>
+                    <td className="r num">{$(hormigaDe.get(c.periodo.slice(0, 7)) ?? 0)}</td>
                     {categoriasUsadas.map((cat) => (
                       <td key={cat} className="r num" style={{ fontSize: 12 }}>
                         <span

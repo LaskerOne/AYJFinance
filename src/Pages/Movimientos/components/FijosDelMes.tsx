@@ -47,6 +47,7 @@ export function FijosDelMes({ mes }: { mes: string }) {
     categoria: "Otros" as string,
     monto: 0,
     usuario_id: null as string | null,
+    extraordinario: false,
   }));
   const [agregando, setAgregando] = useState(false);
 
@@ -126,9 +127,9 @@ export function FijosDelMes({ mes }: { mes: string }) {
             clase: "gasto",
             pagado_por: v.pagadoPor,
             compartido: p.usuario_id === null,
-            // Un pago suelto de un solo mes no es parte del presupuesto que
-            // se repite: no debe dañar la comparación contra lo corriente.
-            extraordinario: true,
+            // Solo va aparte de la comparación con el presupuesto si lo
+            // marcaron como extra al agregarlo; si no, es gasto corriente.
+            extraordinario: p.extraordinario === true,
             origen: "manual",
             pendiente_id: p.id,
           };
@@ -153,8 +154,9 @@ export function FijosDelMes({ mes }: { mes: string }) {
         categoria: nuevo.categoria,
         monto: nuevo.monto,
         usuario_id: nuevo.usuario_id,
+        extraordinario: nuevo.extraordinario,
       });
-      setNuevo({ concepto: "", categoria: "Otros", monto: 0, usuario_id: null });
+      setNuevo({ concepto: "", categoria: "Otros", monto: 0, usuario_id: null, extraordinario: false });
       setAgregando(false);
     } catch (err) {
       setError(mensajeDeError(err));
@@ -278,7 +280,12 @@ export function FijosDelMes({ mes }: { mes: string }) {
 
           {extras.map(({ p, registrado }) => {
             if (registrado) {
-              return filaRegistrada(p.id, p.concepto, `Solo este mes · ${etiqueta(p.categoria)}`, registrado);
+              return filaRegistrada(
+                p.id,
+                p.concepto,
+                `${p.extraordinario ? "Extra · " : ""}Solo este mes · ${etiqueta(p.categoria)}`,
+                registrado,
+              );
             }
             const v = filaExtra(p);
             return (
@@ -293,7 +300,7 @@ export function FijosDelMes({ mes }: { mes: string }) {
                 <span className={css.fijoConcepto}>
                   {p.concepto}
                   <small>
-                    Solo este mes · {etiqueta(p.categoria)} ·{" "}
+                    {p.extraordinario && "Extra · "}Solo este mes · {etiqueta(p.categoria)} ·{" "}
                     <button
                       type="button"
                       className={css.quitarPendiente}
@@ -394,6 +401,14 @@ export function FijosDelMes({ mes }: { mes: string }) {
             value={nuevo.monto === 0 ? "" : String(nuevo.monto)}
             onChange={(e) => setNuevo({ ...nuevo, monto: aNumero(e.target.value) })}
           />
+          <label className={css.extraCasilla} title="Compra puntual que no se repite: queda aparte de la comparación con el presupuesto">
+            <input
+              type="checkbox"
+              checked={nuevo.extraordinario}
+              onChange={(e) => setNuevo({ ...nuevo, extraordinario: e.target.checked })}
+            />
+            <span>Es extraordinario</span>
+          </label>
           <button className="pill" type="submit" disabled={nuevo.monto <= 0 || !nuevo.concepto.trim()}>
             Agregar
           </button>

@@ -229,6 +229,8 @@ export interface PendienteMes {
   categoria: Categoria;
   monto: number;
   usuario_id: string | null;
+  /** Si se registra como gasto extraordinario (0018). Apagado salvo que lo marquen. */
+  extraordinario: boolean;
   creado_en: string;
 }
 
