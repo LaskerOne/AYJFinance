@@ -36,7 +36,7 @@ export function Habitos() {
   const [mes, setMes] = useState(mesHoy);
   const [recorte, setRecorte] = useState(50);
 
-  const h = serie.find((x) => x.mes === mes) ?? { mes, compras: 0, total: 0, grupos: [] };
+  const h = serie.find((x) => x.mes === mes) ?? { mes, compras: 0, total: 0, grupos: [], puntuales: [] };
   const repetidos = useMemo(() => pagosQueSeRepiten(movimientos), [movimientos]);
 
   // El mes en curso va a medias: para el recorte y el año se usa a dónde
@@ -136,6 +136,18 @@ export function Habitos() {
           ) : (
             <p className="vacio">Sin compras pequeñas registradas este mes con este umbral.</p>
           )}
+          {h.puntuales.length > 0 && (
+            <p className={css.pieHero}>
+              No cuentan como hormiga, por ser compras puntuales:{" "}
+              {h.puntuales.slice(0, 3).map((m, i) => (
+                <span key={m.id}>
+                  {i > 0 && ", "}
+                  {m.concepto} ({$(Number(m.monto))})
+                </span>
+              ))}
+              {h.puntuales.length > 3 && ` y ${h.puntuales.length - 3} más`}.
+            </p>
+          )}
           <p className={css.pieHero}>
             La tendencia, mes contra mes, está en <Link to="/historico">Histórico</Link>.
           </p>
@@ -147,10 +159,11 @@ export function Habitos() {
           <div>
             <h2>¿Qué cuenta como gasto pequeño?</h2>
             <p className="nota">
-              Cada hogar tiene su medida. Muevan el límite y la cuenta de arriba se recalcula. El
-              oráculo agrupa las compras por lo que son (comidas, antojos, transporte…), y lo que
-              registran desde la lista de pagos del mes no entra aquí: eso es gasto planeado, no
-              un hábito.
+              Cada hogar tiene su medida. Muevan el límite y la cuenta de arriba se recalcula. Pero
+              pequeño no basta: cuenta lo que es costumbre —comer por fuera, café y antojos,
+              licor, transporte suelto, tienda, juegos— o lo que se repite tres o más veces en un
+              mes. Una necesidad puntual (un repuesto, un remedio) queda fuera, igual que lo que
+              registran desde la lista de pagos del mes.
             </p>
           </div>
         </header>

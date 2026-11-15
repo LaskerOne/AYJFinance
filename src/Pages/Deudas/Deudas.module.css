@@ -174,3 +174,44 @@
     box-shadow: 0 0 14px 0 color-mix(in srgb, var(--a-ink) 80%, transparent);
   }
 }
+
+/* --- cuánto abonar a capital --------------------------------------------- */
+.escenarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.escenario {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.escenario[data-recomendado="true"] {
+  border-color: var(--a);
+  box-shadow: 0 0 0 1px var(--a) inset;
+}
+.escenario button {
+  margin-top: 6px;
+  align-self: flex-start;
+}
+.escenarioMonto {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--a-ink);
+}
+.escenarioDetalle {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.planTitulo {
+  margin: 20px 0 8px;
+  font-size: 14.5px;
+}

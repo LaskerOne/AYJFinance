@@ -6,6 +6,7 @@ export function tasaMensual(efectivaAnual: number): number {
 }
 
 interface DeudaSim {
+  id: string;
   saldo: number;
   cuota: number;
   im: number;
@@ -21,6 +22,9 @@ export interface Simulacion {
   /** True si las cuotas no alcanzan a cubrir los intereses. */
   estancado: boolean;
   sinDeudas: boolean;
+  /** Por mes, lo que fue a capital por fuera de las cuotas y a qué deuda
+   *  (el abono extra más las cuotas que ya se liberaron). Solo con reinversión. */
+  abonos: Array<Array<{ id: string; monto: number }>>;
 }
 
 function prioritaria(items: DeudaSim[], estrategia: EstrategiaDeuda): DeudaSim | null {
@@ -46,12 +50,12 @@ export function simularDeudas(
   reinvertir: boolean,
 ): Simulacion {
   const items: DeudaSim[] = deudas
-    .map((d) => ({ saldo: Number(d.saldo), cuota: Number(d.cuota), im: tasaMensual(d.tasa_ea) }))
+    .map((d) => ({ id: d.id, saldo: Number(d.saldo), cuota: Number(d.cuota), im: tasaMensual(d.tasa_ea) }))
     .filter((d) => d.saldo > 0.5);
 
   const total0 = items.reduce((s, d) => s + d.saldo, 0);
   if (items.length === 0) {
-    return { meses: 0, intereses: 0, serie: [0], estancado: false, sinDeudas: true };
+    return { meses: 0, intereses: 0, serie: [0], estancado: false, sinDeudas: true, abonos: [] };
   }
 
   const presupuesto = items.reduce((s, d) => s + d.cuota, 0) + extra;
@@ -60,6 +64,7 @@ export function simularDeudas(
   let mes = 0;
   let estancado = false;
   let anterior = total0;
+  const abonos: Simulacion["abonos"] = [];
 
   while (items.some((d) => d.saldo > 0.5) && mes < TOPE_MESES) {
     mes += 1;
@@ -75,6 +80,7 @@ export function simularDeudas(
       usado += pago;
     }
 
+    const delMes: Array<{ id: string; monto: number }> = [];
     if (reinvertir) {
       let sobra = Math.max(0, presupuesto - usado);
       let vueltas = 0;
@@ -85,8 +91,10 @@ export function simularDeudas(
         const pago = Math.min(sobra, objetivo.saldo);
         objetivo.saldo -= pago;
         sobra -= pago;
+        if (pago > 0.5) delMes.push({ id: objetivo.id, monto: pago });
       }
     }
+    abonos.push(delMes);
 
     const total = items.reduce((s, d) => s + Math.max(0, d.saldo), 0);
     serie.push(total);
@@ -105,6 +113,7 @@ export function simularDeudas(
     serie,
     estancado: estancado || mes >= TOPE_MESES,
     sinDeudas: false,
+    abonos,
   };
 }
 

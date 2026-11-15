@@ -50,6 +50,58 @@ function capitalizar(t: string): string {
 const esGastoCorriente = (m: Movimiento) =>
   m.clase === "gasto" && !m.extraordinario && !m.gasto_id && !m.pendiente_id;
 
+// --- qué es hormiga ---------------------------------------------------------
+// Pequeño no basta. Un manubrio para la moto de 45 000 es pequeño, pero es una
+// necesidad puntual, no una costumbre. Una compra es hormiga si:
+//  · el oráculo la etiqueta como costumbre (comer por fuera, café y antojos,
+//    licor, transporte suelto, tienda, juegos), o
+//  · sin etiqueta, su grupo se repite: tres o más compras parecidas dentro de
+//    un mes (±15 días alrededor de ella). Eso es frecuencia, no un imprevisto.
+// Lo demás queda como "puntual": se muestra aparte para que se vea por qué
+// no cuenta.
+
+const VECES_PARA_COSTUMBRE = 3;
+const VENTANA_DIAS = 15;
+
+export interface ClasificacionHormiga {
+  /** Ids de los movimientos que cuentan como hormiga. */
+  hormiga: Set<string>;
+  /** Ids de compras pequeñas que no cuentan por ser puntuales. */
+  puntual: Set<string>;
+}
+
+function diaDe(fecha: string): number {
+  return Math.round(new Date(`${fecha}T00:00:00`).getTime() / 86_400_000);
+}
+
+export function clasificarHormigas(movimientos: Movimiento[], umbral: number): ClasificacionHormiga {
+  // Un pago fijo que se repite cada mes (el plan del celular) no es un gasto
+  // hormiga aunque sea pequeño: va en su propia lista.
+  const fijos = new Set(pagosQueSeRepiten(movimientos).map((r) => normalizar(r.concepto)));
+  const pequenas = movimientos.filter(
+    (m) => esGastoCorriente(m) && Number(m.monto) <= umbral && !fijos.has(normalizar(m.concepto)),
+  );
+
+  const hormiga = new Set<string>();
+  const puntual = new Set<string>();
+  const sinEtiqueta = new Map<string, Movimiento[]>();
+  for (const m of pequenas) {
+    if (etiquetaDe(m.concepto)) hormiga.add(m.id);
+    else {
+      const g = grupoDe(m.concepto);
+      sinEtiqueta.set(g, [...(sinEtiqueta.get(g) ?? []), m]);
+    }
+  }
+  for (const grupo of sinEtiqueta.values()) {
+    const dias = grupo.map((m) => diaDe(m.fecha));
+    grupo.forEach((m, i) => {
+      const cerca = dias.filter((d) => Math.abs(d - dias[i]) <= VENTANA_DIAS).length;
+      (cerca >= VECES_PARA_COSTUMBRE ? hormiga : puntual).add(m.id);
+    });
+  }
+  return { hormiga, puntual };
+}
+
 export interface GrupoHormiga {
   nombre: string;
   veces: number;
@@ -82,12 +134,8 @@ export function gastosHormiga(movimientos: Movimiento[], umbral: number, hoy = n
   const dias = Math.max(1, Math.round((hoyMedianoche.getTime() - desde.getTime()) / 86_400_000) + 1);
   const factor = 30.44 / dias;
 
-  // Un pago fijo que se repite cada mes (el plan del celular) no es un gasto
-  // hormiga aunque sea pequeño: va en su propia lista.
-  const fijos = new Set(pagosQueSeRepiten(movimientos).map((r) => normalizar(r.concepto)));
-  const pequenas = ventana.filter(
-    (m) => Number(m.monto) <= umbral && !fijos.has(normalizar(m.concepto)),
-  );
+  const { hormiga } = clasificarHormigas(movimientos, umbral);
+  const pequenas = ventana.filter((m) => hormiga.has(m.id));
   const porGrupo = new Map<string, { veces: number; total: number }>();
   for (const m of pequenas) {
     const g = grupoDe(m.concepto);
@@ -129,6 +177,8 @@ export interface HormigaMes {
   compras: number;
   total: number;
   grupos: GrupoHormigaMes[];
+  /** Compras pequeñas del mes que no cuentan por ser puntuales, de mayor a menor. */
+  puntuales: Movimiento[];
 }
 
 /** Las compras hormiga de cada mes con movimientos, del más viejo al más nuevo.
@@ -139,15 +189,17 @@ export function hormigasPorMes(
   umbral: number,
   corte: number | null | undefined,
 ): HormigaMes[] {
-  const fijos = new Set(pagosQueSeRepiten(movimientos).map((r) => normalizar(r.concepto)));
+  const { hormiga, puntual } = clasificarHormigas(movimientos, umbral);
   const porMes = new Map<string, Map<string, GrupoHormigaMes>>();
+  const puntualesPorMes = new Map<string, Movimiento[]>();
   const meses = new Set<string>();
 
   for (const m of movimientos) {
     if (!esGastoCorriente(m)) continue;
     const mes = mesContable(m, corte);
     meses.add(mes);
-    if (Number(m.monto) > umbral || fijos.has(normalizar(m.concepto))) continue;
+    if (puntual.has(m.id)) puntualesPorMes.set(mes, [...(puntualesPorMes.get(mes) ?? []), m]);
+    if (!hormiga.has(m.id)) continue;
     const grupos = porMes.get(mes) ?? new Map<string, GrupoHormigaMes>();
     const nombre = capitalizar(grupoDe(m.concepto));
     const g = grupos.get(nombre) ?? { nombre, veces: 0, total: 0 };
@@ -167,6 +219,7 @@ export function hormigasPorMes(
       compras: grupos.reduce((s, g) => s + g.veces, 0),
       total: grupos.reduce((s, g) => s + g.total, 0),
       grupos,
+      puntuales: (puntualesPorMes.get(mes) ?? []).sort((a, b) => Number(b.monto) - Number(a.monto)),
     });
   }
   return salida;

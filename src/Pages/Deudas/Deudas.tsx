@@ -11,6 +11,7 @@ import { useMoneda } from "@/hooks/useMoneda";
 import { useFinanzas } from "@/hooks/useFinanzas";
 import { simularDeudas, ordenarPorEstrategia, tasaMensual } from "@/lib/deudas";
 import { aNumero, dentroDe, enMeses, porcentaje } from "@/lib/formato";
+import { CuantoAbonar } from "./components/CuantoAbonar";
 import css from "./Deudas.module.css";
 
 export function Deudas() {
@@ -343,6 +344,14 @@ export function Deudas() {
           </>
         )}
       </section>
+
+      <CuantoAbonar
+        abono={abono}
+        onUsar={(monto) => {
+          setAbono(monto);
+          void cambiarHogar({ abono_extra: monto });
+        }}
+      />
 
       <section className="panel">
         <header>

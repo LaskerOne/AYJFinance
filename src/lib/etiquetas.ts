@@ -54,7 +54,9 @@ const ETIQUETAS: Array<[string, string[]]> = [
   ],
   [
     "Tienda y mercaditos",
-    ["tienda", "minimercado", "minimarket", "d1", "ara", "oxxo", "drogueria"],
+    // La droguería no: un remedio es necesidad, no costumbre. Si se vuelve
+    // frecuente, el clasificador de hormigas la atrapa por repetición.
+    ["tienda", "minimercado", "minimarket", "d1", "ara", "oxxo"],
   ],
   [
     "Juegos y apps",

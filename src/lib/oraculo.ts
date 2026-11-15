@@ -1,6 +1,7 @@
 import type { Finanzas } from "@/lib/calculos";
 import { gastoMensual } from "@/lib/calculos";
 import { mesesConSuCuota } from "@/lib/deudas";
+import { recomendarAbono } from "@/lib/abonos";
 import { gastosHormiga } from "@/lib/habitos";
 import { categoriaSugerida } from "@/lib/categorizar";
 import { mesContable } from "@/lib/contable";
@@ -327,6 +328,38 @@ export function analizar(e: EntradaOraculo): Analisis {
     fmt: { moneda: e.$, meses: e.meses, pct: e.pct },
   })) {
     agregar({ ...s, prioridad: s.prioridad * 10, fuente: FUENTE_SUGERENCIA[s.id] ?? "presupuesto" });
+  }
+
+  // 0b · Cuánto abonar a capital. Reemplaza al consejo genérico del
+  // sobrante: en vez de "pongan todo lo libre", una cifra con margen según
+  // el colchón, y solo si hoy abonan bastante menos que eso.
+  const abonoActual = Number(e.hogar?.abono_extra ?? 0);
+  const rec = recomendarAbono({
+    deudas: e.deudas,
+    estrategia: e.hogar?.estrategia_deuda ?? "avalancha",
+    libre: e.f.libre,
+    mesesColchon: e.f.mesesColchon,
+  });
+  const propuesto = rec?.escenarios.find((x) => x.abono === rec.recomendado);
+  if (rec && propuesto && abonoActual < rec.recomendado * 0.8) {
+    const i = consejos.findIndex((c) => c.id === "sobrante-a-deuda");
+    if (i >= 0) consejos.splice(i, 1);
+    agregar({
+      id: "abono-capital",
+      titulo: `Abonen ${e.$(rec.recomendado)} a capital cada mes`,
+      cuerpo:
+        `Además de las cuotas, ${abonoActual > 0 ? `en vez de los ${e.$(abonoActual)} de hoy, ` : ""}` +
+        `${e.$(rec.recomendado)} al mes los deja libres en ${e.meses(propuesto.meses)} en lugar de ` +
+        `${e.meses(rec.base.meses)}. ${rec.razon} En el banco, que sea a capital con reducción de plazo.`,
+      impacto: `${e.meses(propuesto.mesesGanados)} menos · ${e.$(propuesto.interesAhorrado)} de intereses`,
+      prioridad: 12,
+      tono: "warn",
+      fuente: "deudas",
+      ir: { texto: "Ver el plan de abonos", ruta: `/deudas?abono=${rec.recomendado}` },
+      comoSeCalcula:
+        `Lo libre del presupuesto es ${e.$(rec.maximo)} al mes; se propone el ` +
+        `${Math.round(rec.fraccion * 100)} % y se simula mes a mes con la estrategia elegida.`,
+    });
   }
 
   // 1 · Movimientos: registro al día.
