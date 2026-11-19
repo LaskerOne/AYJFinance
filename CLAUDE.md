@@ -21,6 +21,12 @@ Antes de dar por terminado un cambio: `npm run lint`, `npm test` y
 `npm run build`. El workflow `.github/workflows/calidad.yml` corre lo mismo
 en cada push y PR.
 
+Claude Code tiene un hook `Stop` (`.claude/settings.json` →
+`.claude/hooks/verificar.mjs`): al terminar cada turno, si hay cambios sin
+commit en `src/` o en la configuración, corre lint y pruebas, y si fallan
+devuelve el error para que se corrija antes de entregar. Solo bloquea una vez
+por turno, para no quedar en un ciclo.
+
 **Excepción al "todo en español":** los hooks de React se nombran `useAlgo`,
 no `usarAlgo`. React y ESLint reconocen un hook solo por ese prefijo; sin él,
 las reglas de hooks no lo revisan.
