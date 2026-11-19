@@ -12,13 +12,18 @@ npm run dev        # Vite en 127.0.0.1:5173
 npm run typecheck  # tsc --noEmit
 npm run build      # typecheck + compilación a dist/
 npm run preview    # sirve dist/
+npm run lint       # ESLint (typescript-eslint + reglas de hooks)
 npm test           # Vitest, una pasada
 npm run test:watch # Vitest en modo observador
 ```
 
-Antes de dar por terminado un cambio: `npm test` y `npm run build`. El
-workflow `.github/workflows/calidad.yml` corre lo mismo en cada push y PR.
-Aún no hay linter.
+Antes de dar por terminado un cambio: `npm run lint`, `npm test` y
+`npm run build`. El workflow `.github/workflows/calidad.yml` corre lo mismo
+en cada push y PR.
+
+**Excepción al "todo en español":** los hooks de React se nombran `useAlgo`,
+no `usarAlgo`. React y ESLint reconocen un hook solo por ese prefijo; sin él,
+las reglas de hooks no lo revisan.
 
 ## Pruebas
 
@@ -28,8 +33,10 @@ Aún no hay linter.
 - Una fórmula nueva en `src/lib/` llega con sus pruebas en el mismo cambio.
   Prioriza invariantes (lo que le queda a cada uno suma lo libre del hogar;
   avalancha nunca paga más interés que bola) sobre ejemplos sueltos.
-- Hoy tienen pruebas `calculos`, `deudas`, `liquidacion` y `formato`. Los demás
-  módulos de `lib` no tienen todavía.
+- Hoy tienen pruebas `calculos`, `deudas`, `liquidacion`, `formato` y
+  `oraculo`. Los demás módulos de `lib` no tienen todavía.
+- Lo que depende de la fecha recibe `hoy` como argumento; las pruebas lo fijan
+  siempre. Una prueba que usa la fecha del sistema falla el día menos pensado.
 
 ## Arquitectura: el dato de abajo hacia arriba
 

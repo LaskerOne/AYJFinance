@@ -170,7 +170,9 @@ export function leerCSV(
   reglas: ReglaCategoria[],
   huellasExistentes: Set<string>,
 ): ResultadoLectura {
-  const limpio = contenido.replace(/^﻿/, "");
+  // Excel guarda los CSV en UTF-8 con BOM; sin quitarlo, el primer encabezado
+  // no coincide con ningún nombre de columna conocido.
+  const limpio = contenido.replace(/^\uFEFF/, "");
   const lineas = limpio.split(/\r?\n/).filter((l) => l.trim().length > 0);
   if (lineas.length < 2) {
     return { filas: [], columnas: { fecha: "", concepto: "", monto: "" }, descartadas: 0 };

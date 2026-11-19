@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   verificar:
-    name: Tipos, pruebas y build
+    name: Tipos, lint, pruebas y build
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -49,6 +49,9 @@ jobs:
 
       - name: Revisar tipos
         run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
 
       - name: Pruebas
         run: npm test

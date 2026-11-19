@@ -6,7 +6,7 @@
  * Vive fuera de `src/lib/` porque no es cálculo: solo la importan los
  * archivos `*.test.ts`, así que nunca llega al bundle.
  */
-import type { Deuda, GastoPresupuesto, Ingreso, Meta, Movimiento } from "@/models/dominio";
+import type { Activo, Decision, Deuda, GastoPresupuesto, Hogar, Ingreso, Meta, Movimiento } from "@/models/dominio";
 
 const HOGAR = "hogar-prueba";
 const CREADO = "2026-01-01T00:00:00Z";
@@ -89,6 +89,53 @@ export function movimiento(p: Partial<Movimiento> = {}): Movimiento {
     origen: "manual",
     huella: null,
     nota: "",
+    creado_en: CREADO,
+    ...p,
+  };
+}
+
+export function hogar(p: Partial<Hogar> = {}): Hogar {
+  return {
+    id: HOGAR,
+    nombre: "Casa",
+    moneda: "COP",
+    reparto: "proporcional",
+    estrategia_deuda: "avalancha",
+    abono_extra: 0,
+    etiquetas_categorias: {},
+    creado_por: "a",
+    creado_en: CREADO,
+    ...p,
+  };
+}
+
+export function decision(p: Partial<Decision> = {}): Decision {
+  return {
+    id: "dec",
+    hogar_id: HOGAR,
+    periodo: "2026-09-01",
+    texto: "Decisión",
+    responsable: null,
+    cumplida: false,
+    origen: null,
+    orden: 0,
+    creado_en: CREADO,
+    ...p,
+  };
+}
+
+export function activo(p: Partial<Activo> = {}): Activo {
+  return {
+    id: "act",
+    hogar_id: HOGAR,
+    usuario_id: null,
+    nombre: "Cuenta",
+    tipo: "ahorro",
+    valor: 0,
+    tasa_ea: null,
+    aporte_mensual: 0,
+    vencimiento: null,
+    orden: 0,
     creado_en: CREADO,
     ...p,
   };
