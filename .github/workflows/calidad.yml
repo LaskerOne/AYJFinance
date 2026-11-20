@@ -1,0 +1,63 @@
+####################################################################
+#  Puerta de calidad
+#
+#  Corre en cada push a v2/main y en cada PR. Si algo falla, el PR no
+#  debería fusionarse: es la misma verificación que se pide en local
+#  antes de dar un cambio por terminado (ver CLAUDE.md).
+#
+#  No necesita secretos: las pruebas cubren src/lib/, que es cálculo
+#  puro, y el build de Vite no habla con Supabase. Por eso un fork o
+#  un PR externo puede correrlo sin exponer nada.
+####################################################################
+
+name: Calidad
+
+on:
+  push:
+    branches: [v2, main]
+  pull_request:
+
+# Solo lee el código: el principio de mínimo privilegio también aplica
+# al token que GitHub le presta al workflow.
+permissions:
+  contents: read
+
+# Un push nuevo a la misma rama cancela la corrida anterior: no tiene
+# sentido gastar minutos verificando un commit que ya quedó viejo.
+concurrency:
+  group: calidad-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: Tipos, lint, pruebas y build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `ci` y no `install`: respeta el package-lock al pie de la letra y
+      # falla si no cuadra con package.json, en vez de reescribirlo.
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Revisar tipos
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Pruebas
+        run: npm test
+
+      # El build repite el typecheck (está dentro del script), pero
+      # además confirma que Vite empaqueta: un import roto que tsc deja
+      # pasar aparece aquí.
+      - name: Build
+        run: npx vite build

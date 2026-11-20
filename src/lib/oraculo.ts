@@ -725,10 +725,13 @@ export function analizar(e: EntradaOraculo): Analisis {
     const yaExiste = e.metas.some((m) => m.nombre.toLowerCase().includes("adelantad"));
     if (!yaExiste && objetivo > 0) {
       const aporte = Math.max(0, Math.round(Math.max(e.f.libre, 0) * 0.5));
+      // El ejemplo usa el mes en curso y el siguiente: con meses fijos, el
+      // texto decía «noviembre con lo de octubre» en cualquier época del año.
+      const mesQueViene = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 1);
       agregar({
         id: "mes-adelantado",
         titulo: "La meta que arregla las quincenas: vivir un mes adelantados",
-        cuerpo: `Hoy cada pago financia la quincena que sigue, y por eso el mes depende de las fechas del sueldo. Con ${e.$(objetivo)} ahorrados —media canasta de gastos y cuotas— noviembre se paga con lo ganado en octubre: el primero de cada mes ya está todo el mes en la cuenta.`,
+        cuerpo: `Hoy cada pago financia la quincena que sigue, y por eso el mes depende de las fechas del sueldo. Con ${e.$(objetivo)} ahorrados —media canasta de gastos y cuotas— ${nombreMes(mesQueViene)} se paga con lo ganado en ${nombreMes(hoy)}: el primero de cada mes ya está todo el mes en la cuenta.`,
         impacto: aporte > 0 ? `Aportando ${e.$(aporte)} al mes la alcanzan en ${e.meses(Math.ceil(objetivo / aporte))}.` : undefined,
         prioridad: 35,
         tono: "neutro",

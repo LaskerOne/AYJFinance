@@ -26,7 +26,7 @@ const PAD = { arriba: 16, derecha: 18, abajo: 28, izquierda: 62 };
  * objetivo; las series que se acortan se rellenan con ceros y al aterrizar
  * quedan exactas. Con `prefers-reduced-motion` devuelve el objetivo directo.
  */
-function usarSeriesFluidas(series: Serie[]): Serie[] {
+function useSeriesFluidas(series: Serie[]): Serie[] {
   const [pintadas, setPintadas] = useState(series);
   const objetivo = useRef(series);
   objetivo.current = series;
@@ -76,7 +76,7 @@ export function LineaTiempo({ series: objetivo, etiqueta, alto = 200, etiquetaX 
   const svgRef = useRef<SVGSVGElement>(null);
   const [foco, setFoco] = useState<number | null>(null);
   const idGrad = useId();
-  const series = usarSeriesFluidas(objetivo);
+  const series = useSeriesFluidas(objetivo);
 
   const n = Math.max(2, ...series.map((s) => s.puntos.length));
   const maxY = Math.max(1, ...series.flatMap((s) => s.puntos));

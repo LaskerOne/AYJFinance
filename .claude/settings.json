@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/verificar.mjs\"",
+            "timeout": 180,
+            "statusMessage": "Verificando lint y pruebas..."
+          }
+        ]
+      }
+    ]
+  }
+}
