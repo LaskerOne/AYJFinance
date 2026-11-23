@@ -2,14 +2,10 @@ import { useState } from "react";
 import { CampoMoneda } from "@/components/ui/CampoMoneda";
 import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
-import { MESES, hoyISO, nombrePeriodo } from "@/lib/formato";
+import { MESES, hoyISO } from "@/lib/formato";
+import { movimientoDeLiquidacion } from "@/lib/liquidacion";
 import type { Accion } from "@/lib/oraculo";
 import css from "../Sugerencias.module.css";
-
-function finDeMes(mes: string): string {
-  const [a, m] = mes.split("-").map(Number);
-  return `${mes}-${String(new Date(a, m, 0).getDate()).padStart(2, "0")}`;
-}
 
 /**
  * Resuelve el consejo ahí mismo: asignar un aporte, poner días o meses de
@@ -96,17 +92,15 @@ export function AccionConsejo({ accion }: { accion: Accion }) {
             className="pill primaria"
             onClick={() =>
               void listo(
-                crear("movimientos", {
-                  fecha: accion.mes === hoyISO().slice(0, 7) ? hoyISO() : finDeMes(accion.mes),
-                  concepto: `Liquidación del bote · ${nombrePeriodo(`${accion.mes}-01`)}`,
-                  categoria: "Otros",
-                  monto: accion.monto,
-                  clase: "transferencia",
-                  pagado_por: accion.deudor,
-                  compartido: false,
-                  extraordinario: false,
-                  origen: "manual",
-                }),
+                crear(
+                  "movimientos",
+                  movimientoDeLiquidacion({
+                    mes: accion.mes,
+                    deudor: accion.deudor,
+                    monto: accion.monto,
+                    hoy: hoyISO(),
+                  }),
+                ),
               )
             }
           >

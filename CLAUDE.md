@@ -39,8 +39,9 @@ las reglas de hooks no lo revisan.
 - Una fórmula nueva en `src/lib/` llega con sus pruebas en el mismo cambio.
   Prioriza invariantes (lo que le queda a cada uno suma lo libre del hogar;
   avalancha nunca paga más interés que bola) sobre ejemplos sueltos.
-- Hoy tienen pruebas `calculos`, `deudas`, `liquidacion`, `formato` y
-  `oraculo`. Los demás módulos de `lib` no tienen todavía.
+- Hoy tienen pruebas `calculos`, `deudas`, `liquidacion`, `formato`,
+  `oraculo`, `categorizar`, `proyeccion` y `listas`. Los demás módulos de
+  `lib` no tienen todavía.
 - Lo que depende de la fecha recibe `hoy` como argumento; las pruebas lo fijan
   siempre. Una prueba que usa la fecha del sistema falla el día menos pensado.
 

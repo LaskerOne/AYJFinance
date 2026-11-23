@@ -8,7 +8,7 @@ import { useHogar } from "@/contexts/HogarContext";
 import { useMoneda } from "@/hooks/useMoneda";
 import { useCategorias } from "@/hooks/useCategorias";
 import { BarraApilada, type Segmento } from "@/components/charts/BarraApilada";
-import { gastoMensual } from "@/lib/calculos";
+import { esGastoExtraordinario, gastoMensual, totalesPorClase } from "@/lib/calculos";
 import { categoriaSugerida } from "@/lib/categorizar";
 import { atribuidoAOtroMes, mesContable, mesSiguiente } from "@/lib/contable";
 import { EnlaceEditar } from "@/components/ui/EnlaceEditar";
@@ -106,21 +106,15 @@ export function Movimientos() {
     return [...mapa.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1));
   }, [delMes]);
 
-  const ingresosMes = delMes
-    .filter((m) => m.clase === "ingreso")
-    .reduce((s, m) => s + Number(m.monto), 0);
-  const gastosMes = delMes
-    .filter((m) => m.clase === "gasto")
-    .reduce((s, m) => s + Number(m.monto), 0);
+  const totalesMes = useMemo(() => totalesPorClase(delMes), [delMes]);
+  const ingresosMes = totalesMes.ingresos;
+  const gastosMes = totalesMes.gastos;
 
   // Lo puntual se aparta: el presupuesto describe lo que se repite, y
   // mezclarlo con una compra grande hace ver mal un mes que estaba bien.
-  const extraordinarios = useMemo(
-    () => delMes.filter((m) => m.clase === "gasto" && m.extraordinario),
-    [delMes],
-  );
-  const totalExtraordinario = extraordinarios.reduce((s, m) => s + Number(m.monto), 0);
-  const gastosCorrientes = gastosMes - totalExtraordinario;
+  const extraordinarios = useMemo(() => delMes.filter(esGastoExtraordinario), [delMes]);
+  const totalExtraordinario = totalesMes.extraordinarios;
+  const gastosCorrientes = totalesMes.corrientes;
 
   const comparativa: LineaComparativa[] = useMemo(() => {
     const filas = CATEGORIAS.map((categoria) => ({
@@ -456,12 +450,7 @@ export function Movimientos() {
         )}
 
         {semanas.map(([clave, lista], idx) => {
-          const entroSemana = lista
-            .filter((m) => m.clase === "ingreso")
-            .reduce((s, m) => s + Number(m.monto), 0);
-          const salioSemana = lista
-            .filter((m) => m.clase === "gasto")
-            .reduce((s, m) => s + Number(m.monto), 0);
+          const { ingresos: entroSemana, gastos: salioSemana } = totalesPorClase(lista);
           return (
         <details
           key={clave}

@@ -3,17 +3,10 @@ import { Estado } from "@/components/ui/Etiqueta";
 import { useHogar } from "@/contexts/HogarContext";
 import { useFinanzas } from "@/hooks/useFinanzas";
 import { useMoneda } from "@/hooks/useMoneda";
-import { liquidarMes } from "@/lib/liquidacion";
+import { liquidarMes, movimientoDeLiquidacion } from "@/lib/liquidacion";
 import { fechaCorta, hoyISO, nombrePeriodo, porcentajeEntero } from "@/lib/formato";
 import type { Movimiento } from "@/models/dominio";
 import css from "../Movimientos.module.css";
-
-/** Último día del mes (YYYY-MM), para fechar la liquidación de un mes pasado. */
-function finDeMes(mes: string): string {
-  const [a, m] = mes.split("-").map(Number);
-  const d = new Date(a, m, 0);
-  return `${mes}-${String(d.getDate()).padStart(2, "0")}`;
-}
 
 /**
  * Cuentas claras del bote común: con lo que cada uno pagó de los gastos
@@ -64,17 +57,7 @@ export function LiquidacionBote({ mes, delMes }: { mes: string; delMes: Movimien
     if (saldado || !deudor) return;
     setGuardando(true);
     try {
-      await crear("movimientos", {
-        fecha: mes === hoyISO().slice(0, 7) ? hoyISO() : finDeMes(mes),
-        concepto: `Liquidación del bote · ${nombrePeriodo(`${mes}-01`)}`,
-        categoria: "Otros",
-        monto,
-        clase: "transferencia",
-        pagado_por: deudor,
-        compartido: false,
-        extraordinario: false,
-        origen: "manual",
-      });
+      await crear("movimientos", movimientoDeLiquidacion({ mes, deudor, monto, hoy: hoyISO() }));
     } finally {
       setGuardando(false);
     }

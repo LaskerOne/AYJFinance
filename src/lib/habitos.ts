@@ -1,6 +1,7 @@
 import type { Movimiento } from "@/models/dominio";
 import { etiquetaDe } from "@/lib/etiquetas";
 import { mesContable, mesSiguiente } from "@/lib/contable";
+import { esGastoNoPlaneado } from "@/lib/calculos";
 
 /**
  * Hábitos de gasto a partir de los movimientos reales.
@@ -46,9 +47,8 @@ function capitalizar(t: string): string {
 }
 
 // Lo registrado desde la lista de pagos del mes (fijos y extras) es gasto
-// planeado, no un hábito: no cuenta ni en hormigas ni en repetidos.
-const esGastoCorriente = (m: Movimiento) =>
-  m.clase === "gasto" && !m.extraordinario && !m.gasto_id && !m.pendiente_id;
+// planeado, no un hábito: no cuenta ni en hormigas ni en repetidos. Por eso
+// aquí se usa esGastoNoPlaneado y no esGastoCorriente.
 
 // --- qué es hormiga ---------------------------------------------------------
 // Pequeño no basta. Un manubrio para la moto de 45 000 es pequeño, pero es una
@@ -79,7 +79,7 @@ export function clasificarHormigas(movimientos: Movimiento[], umbral: number): C
   // hormiga aunque sea pequeño: va en su propia lista.
   const fijos = new Set(pagosQueSeRepiten(movimientos).map((r) => normalizar(r.concepto)));
   const pequenas = movimientos.filter(
-    (m) => esGastoCorriente(m) && Number(m.monto) <= umbral && !fijos.has(normalizar(m.concepto)),
+    (m) => esGastoNoPlaneado(m) && Number(m.monto) <= umbral && !fijos.has(normalizar(m.concepto)),
   );
 
   const hormiga = new Set<string>();
@@ -124,7 +124,7 @@ export function gastosHormiga(movimientos: Movimiento[], umbral: number, hoy = n
   const hoyIso = isoLocal(hoy);
 
   const ventana = movimientos.filter(
-    (m) => esGastoCorriente(m) && m.fecha >= inicioIso && m.fecha <= hoyIso,
+    (m) => esGastoNoPlaneado(m) && m.fecha >= inicioIso && m.fecha <= hoyIso,
   );
   // Si los registros empiezan después del inicio de la ventana, se cuenta
   // desde el primero: no hay que promediar contra días sin datos.
@@ -195,7 +195,7 @@ export function hormigasPorMes(
   const meses = new Set<string>();
 
   for (const m of movimientos) {
-    if (!esGastoCorriente(m)) continue;
+    if (!esGastoNoPlaneado(m)) continue;
     const mes = mesContable(m, corte);
     meses.add(mes);
     if (puntual.has(m.id)) puntualesPorMes.set(mes, [...(puntualesPorMes.get(mes) ?? []), m]);
@@ -257,7 +257,7 @@ export interface PagoRepetido {
 export function pagosQueSeRepiten(movimientos: Movimiento[]): PagoRepetido[] {
   const porConcepto = new Map<string, { nombre: string; porMes: Map<string, number> }>();
   for (const m of movimientos) {
-    if (!esGastoCorriente(m)) continue;
+    if (!esGastoNoPlaneado(m)) continue;
     const clave = normalizar(m.concepto);
     if (!clave) continue;
     const acc = porConcepto.get(clave) ?? { nombre: m.concepto.trim(), porMes: new Map() };

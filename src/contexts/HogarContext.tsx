@@ -12,6 +12,13 @@ import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import { supabase } from "@/services/supabase";
 import { obtenerOCrearHogar, integrantes as leerIntegrantes } from "@/services/hogar.service";
 import * as coleccion from "@/services/coleccion.service";
+import {
+  aplicarCambioRemoto,
+  fusionarPorId,
+  insertarSiFalta,
+  quitarPorId,
+  type ConId,
+} from "@/lib/listas";
 import { useSesion } from "./SesionContext";
 import type {
   Activo,
@@ -153,6 +160,17 @@ export function HogarProvider({ children }: { children: ReactNode }) {
     filasRef.current = filas;
   }, [filas]);
 
+  // Único punto que reescribe la lista de una tabla. Los cambios en sí son
+  // funciones puras de lib/listas.ts, con pruebas; aquí solo se conecta con el
+  // estado. Si la lista no cambió, se conserva el objeto y no se repinta.
+  const cambiarLista = useCallback((tabla: NombreTabla, cambio: (lista: ConId[]) => ConId[]) => {
+    setFilas((p) => {
+      const antes = p[tabla] as ConId[];
+      const despues = cambio(antes);
+      return despues === antes ? p : { ...p, [tabla]: despues as never };
+    });
+  }, []);
+
   const cargarTodo = useCallback(async (hogarId: string) => {
     const fallidas: string[] = [];
 
@@ -228,26 +246,13 @@ export function HogarProvider({ children }: { children: ReactNode }) {
     if (!hogar) return;
 
     const aplicar = (tabla: NombreTabla) => (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
-      setFilas((previas) => {
-        const lista = [...previas[tabla]] as Array<{ id: string }>;
-        const nueva = payload.new as { id?: string } | null;
-        const vieja = payload.old as { id?: string } | null;
-
-        if (payload.eventType === "INSERT" && nueva?.id) {
-          if (lista.some((f) => f.id === nueva.id)) return previas;
-          return { ...previas, [tabla]: [...lista, nueva] as never };
-        }
-        if (payload.eventType === "UPDATE" && nueva?.id) {
-          return {
-            ...previas,
-            [tabla]: lista.map((f) => (f.id === nueva.id ? nueva : f)) as never,
-          };
-        }
-        if (payload.eventType === "DELETE" && vieja?.id) {
-          return { ...previas, [tabla]: lista.filter((f) => f.id !== vieja.id) as never };
-        }
-        return previas;
-      });
+      cambiarLista(tabla, (lista) =>
+        aplicarCambioRemoto(lista, {
+          tipo: payload.eventType,
+          nueva: payload.new as { id?: string } | null,
+          vieja: payload.old as { id?: string } | null,
+        }),
+      );
     };
 
     const canal = supabase.channel(`hogar:${hogar.id}`);
@@ -294,12 +299,9 @@ export function HogarProvider({ children }: { children: ReactNode }) {
       try {
         await conHogar(async (hogarId) => {
           const creada = await coleccion.insertar(tabla, { ...fila, hogar_id: hogarId });
-          // Pintado inmediato: no se espera al eco del WebSocket.
-          setFilas((p) => {
-            const lista = p[tabla] as Array<{ id: string }>;
-            if (lista.some((f) => f.id === (creada as { id: string }).id)) return p;
-            return { ...p, [tabla]: [...lista, creada] as never };
-          });
+          // Pintado inmediato: no se espera al eco del WebSocket, que luego
+          // llega con el mismo id y no la duplica.
+          cambiarLista(tabla, (lista) => insertarSiFalta(lista, creada as ConId));
         });
         setErrorEscritura("");
         return true;
@@ -308,7 +310,7 @@ export function HogarProvider({ children }: { children: ReactNode }) {
         return false;
       }
     },
-    [conHogar],
+    [conHogar, cambiarLista],
   );
 
   const crearVarias = useCallback(
@@ -328,13 +330,8 @@ export function HogarProvider({ children }: { children: ReactNode }) {
 
   const editar = useCallback(
     async (tabla: NombreTabla, id: string, cambios: Record<string, unknown>) => {
-      const antes = filasRef.current[tabla] as Array<{ id: string }>;
-      setFilas((p) => ({
-        ...p,
-        [tabla]: (p[tabla] as Array<{ id: string }>).map((f) =>
-          f.id === id ? { ...f, ...cambios } : f,
-        ) as never,
-      }));
+      const antes = filasRef.current[tabla] as ConId[];
+      cambiarLista(tabla, (lista) => fusionarPorId(lista, id, cambios));
       try {
         await coleccion.actualizar(tabla, id, cambios);
         setErrorEscritura("");
@@ -342,30 +339,27 @@ export function HogarProvider({ children }: { children: ReactNode }) {
       } catch (e) {
         // Se deshace el pintado optimista: la pantalla no puede mostrar algo
         // que la base rechazó.
-        setFilas((p) => ({ ...p, [tabla]: antes as never }));
+        cambiarLista(tabla, () => antes);
         setErrorEscritura(detalleDeError(e));
         return false;
       }
     },
-    [],
+    [cambiarLista],
   );
 
   const borrar = useCallback(async (tabla: NombreTabla, id: string) => {
-    const antes = filasRef.current[tabla] as Array<{ id: string }>;
-    setFilas((p) => ({
-      ...p,
-      [tabla]: (p[tabla] as Array<{ id: string }>).filter((f) => f.id !== id) as never,
-    }));
+    const antes = filasRef.current[tabla] as ConId[];
+    cambiarLista(tabla, (lista) => quitarPorId(lista, id));
     try {
       await coleccion.eliminar(tabla, id);
       setErrorEscritura("");
       return true;
     } catch (e) {
-      setFilas((p) => ({ ...p, [tabla]: antes as never }));
+      cambiarLista(tabla, () => antes);
       setErrorEscritura(detalleDeError(e));
       return false;
     }
-  }, []);
+  }, [cambiarLista]);
 
   const cambiarHogar = useCallback(
     async (cambios: Partial<Hogar>) => {

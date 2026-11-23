@@ -1,3 +1,4 @@
+import { nombrePeriodo } from "@/lib/formato";
 import type { Movimiento, Reparto } from "@/models/dominio";
 
 /**
@@ -69,5 +70,47 @@ export function liquidarMes(
     sinAtribuir: sinAtribuirFilas.length,
     sinAtribuirMonto: suma(sinAtribuirFilas),
     parteA,
+  };
+}
+
+/** Último día de un mes (YYYY-MM) en YYYY-MM-DD. */
+export function finDeMes(mes: string): string {
+  const [a, m] = mes.split("-").map(Number);
+  return `${mes}-${String(new Date(a, m, 0).getDate()).padStart(2, "0")}`;
+}
+
+export type MovimientoNuevo = Pick<
+  Movimiento,
+  "fecha" | "concepto" | "categoria" | "monto" | "clase" | "pagado_por" | "compartido" | "extraordinario" | "origen"
+>;
+
+/**
+ * La transferencia que salda el bote de un mes. Se registra desde la pantalla
+ * de movimientos y desde el consejo del oráculo; antes cada una armaba su
+ * copia y una diferencia en el concepto o la fecha las habría separado sin
+ * avisar.
+ *
+ * Si se salda el mes en curso, lleva la fecha de hoy; si es un mes pasado,
+ * el último día de ese mes, para que cuente en el mes que liquida.
+ */
+export function movimientoDeLiquidacion(p: {
+  /** Mes que se liquida, YYYY-MM. */
+  mes: string;
+  /** Quien debe y hace la transferencia. */
+  deudor: string;
+  monto: number;
+  /** Fecha de hoy, YYYY-MM-DD. */
+  hoy: string;
+}): MovimientoNuevo {
+  return {
+    fecha: p.mes === p.hoy.slice(0, 7) ? p.hoy : finDeMes(p.mes),
+    concepto: `Liquidación del bote · ${nombrePeriodo(`${p.mes}-01`)}`,
+    categoria: "Otros",
+    monto: p.monto,
+    clase: "transferencia",
+    pagado_por: p.deudor,
+    compartido: false,
+    extraordinario: false,
+    origen: "manual",
   };
 }

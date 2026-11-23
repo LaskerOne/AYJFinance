@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { liquidarMes } from "@/lib/liquidacion";
+import { finDeMes, liquidarMes, movimientoDeLiquidacion } from "@/lib/liquidacion";
 import { movimiento } from "@/pruebas/fabricas";
 
 const compartido = (pagado_por: string | null, monto: number) =>
@@ -64,5 +64,41 @@ describe("liquidarMes", () => {
     );
     expect(l.totalCompartido).toBe(0);
     expect(l.neto).toBe(0);
+  });
+});
+
+describe("finDeMes", () => {
+  it("conoce la longitud de cada mes, incluido febrero bisiesto", () => {
+    expect(finDeMes("2026-01")).toBe("2026-01-31");
+    expect(finDeMes("2026-04")).toBe("2026-04-30");
+    expect(finDeMes("2026-02")).toBe("2026-02-28");
+    expect(finDeMes("2028-02")).toBe("2028-02-29");
+    expect(finDeMes("2026-12")).toBe("2026-12-31");
+  });
+});
+
+describe("movimientoDeLiquidacion", () => {
+  const base = { deudor: "ana", monto: 150_000 };
+
+  it("si se salda el mes en curso, lleva la fecha de hoy", () => {
+    expect(movimientoDeLiquidacion({ ...base, mes: "2026-11", hoy: "2026-11-23" }).fecha).toBe("2026-11-23");
+  });
+
+  it("si se salda un mes pasado, queda en su último día para contar en ese mes", () => {
+    expect(movimientoDeLiquidacion({ ...base, mes: "2026-10", hoy: "2026-11-23" }).fecha).toBe("2026-10-31");
+    expect(movimientoDeLiquidacion({ ...base, mes: "2025-12", hoy: "2026-01-05" }).fecha).toBe("2025-12-31");
+  });
+
+  it("es una transferencia de quien debe: ni gasto, ni del bote, ni extraordinaria", () => {
+    const m = movimientoDeLiquidacion({ ...base, mes: "2026-10", hoy: "2026-11-23" });
+    expect(m).toMatchObject({
+      clase: "transferencia",
+      pagado_por: "ana",
+      monto: 150_000,
+      compartido: false,
+      extraordinario: false,
+      origen: "manual",
+    });
+    expect(m.concepto).toContain("Liquidación del bote");
   });
 });

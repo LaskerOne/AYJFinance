@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { calcularFinanzas, gastoMensual, ingresoMensual, type EntradaCalculo } from "@/lib/calculos";
-import { deuda, gasto, ingreso, meta } from "@/pruebas/fabricas";
+import {
+  calcularFinanzas,
+  esGastoCorriente,
+  esGastoExtraordinario,
+  esGastoNoPlaneado,
+  gastoMensual,
+  ingresoMensual,
+  totalesPorClase,
+  type EntradaCalculo,
+} from "@/lib/calculos";
+import { deuda, gasto, ingreso, meta, movimiento } from "@/pruebas/fabricas";
 
 describe("mensualización", () => {
   it("un ingreso quincenal vale el doble al mes", () => {
@@ -150,5 +159,83 @@ describe("regla 50/30/20", () => {
   it("un ahorro entre la mitad del objetivo y el objetivo es advertencia; menos, crítico", () => {
     expect(conGastos({ categoria: "Vivienda", monto: 850_000 }).ahorro.estado).toBe("warn");
     expect(conGastos({ categoria: "Vivienda", monto: 950_000 }).ahorro.estado).toBe("crit");
+  });
+});
+
+describe("clases de gasto", () => {
+  const corriente = movimiento({ clase: "gasto", extraordinario: false });
+  const extra = movimiento({ clase: "gasto", extraordinario: true });
+  const deFijo = movimiento({ clase: "gasto", gasto_id: "g1" });
+  const dePendiente = movimiento({ clase: "gasto", pendiente_id: "p1" });
+  const entrada = movimiento({ clase: "ingreso" });
+  const traslado = movimiento({ clase: "transferencia" });
+
+  it("corriente y extraordinario se excluyen entre sí y solo aplican a gastos", () => {
+    for (const m of [corriente, extra, deFijo, dePendiente, entrada, traslado]) {
+      expect(esGastoCorriente(m) && esGastoExtraordinario(m)).toBe(false);
+      if (m.clase !== "gasto") {
+        expect(esGastoCorriente(m) || esGastoExtraordinario(m)).toBe(false);
+      } else {
+        expect(esGastoCorriente(m) || esGastoExtraordinario(m)).toBe(true);
+      }
+    }
+  });
+
+  it("lo planeado es corriente pero no cuenta como no planeado", () => {
+    expect(esGastoCorriente(deFijo)).toBe(true);
+    expect(esGastoNoPlaneado(deFijo)).toBe(false);
+    expect(esGastoNoPlaneado(dePendiente)).toBe(false);
+    expect(esGastoNoPlaneado(corriente)).toBe(true);
+  });
+
+  it("todo gasto no planeado es corriente", () => {
+    for (const m of [corriente, extra, deFijo, dePendiente, entrada, traslado]) {
+      if (esGastoNoPlaneado(m)) expect(esGastoCorriente(m)).toBe(true);
+    }
+  });
+});
+
+describe("totalesPorClase", () => {
+  const movs = [
+    movimiento({ clase: "ingreso", monto: 3_000_000 }),
+    movimiento({ clase: "gasto", monto: 200_000 }),
+    movimiento({ clase: "gasto", monto: 800_000, extraordinario: true }),
+    movimiento({ clase: "gasto", monto: 50_000, gasto_id: "g1" }),
+    movimiento({ clase: "transferencia", monto: 400_000 }),
+  ];
+
+  it("suma ingresos y gastos, y aparta los extraordinarios", () => {
+    expect(totalesPorClase(movs)).toEqual({
+      ingresos: 3_000_000,
+      gastos: 1_050_000,
+      extraordinarios: 800_000,
+      corrientes: 250_000,
+    });
+  });
+
+  it("corrientes + extraordinarios es exactamente lo que salió", () => {
+    const t = totalesPorClase(movs);
+    expect(t.corrientes + t.extraordinarios).toBe(t.gastos);
+  });
+
+  it("coincide con sumar los predicados por separado", () => {
+    const suma = (f: (m: (typeof movs)[number]) => boolean) =>
+      movs.filter(f).reduce((s, m) => s + Number(m.monto), 0);
+    const t = totalesPorClase(movs);
+    expect(t.corrientes).toBe(suma(esGastoCorriente));
+    expect(t.extraordinarios).toBe(suma(esGastoExtraordinario));
+  });
+
+  it("las transferencias no son ni ingreso ni gasto", () => {
+    expect(totalesPorClase([movimiento({ clase: "transferencia", monto: 1 })])).toEqual({
+      ingresos: 0,
+      gastos: 0,
+      extraordinarios: 0,
+      corrientes: 0,
+    });
+  });
+
+  it("sin movimientos todo es cero", () => {
+    expect(totalesPorClase([])).toEqual({ ingresos: 0, gastos: 0, extraordinarios: 0, corrientes: 0 });
   });
 });
