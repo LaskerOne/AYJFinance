@@ -176,7 +176,7 @@ export function Movimientos() {
   const agregar = async (e: FormEvent) => {
     e.preventDefault();
     if (nuevo.monto <= 0) return;
-    await crear("movimientos", {
+    const guardado = await crear("movimientos", {
       fecha: nuevo.fecha,
       concepto: nuevo.concepto.trim() || "Sin descripción",
       categoria: nuevo.categoria,
@@ -187,6 +187,9 @@ export function Movimientos() {
       extraordinario: nuevo.clase === "gasto" && nuevo.extraordinario,
       origen: "manual",
     });
+    // Si la base lo rechazó, el formulario se queda lleno para reintentar; el
+    // motivo ya lo muestra el aviso de error del Layout.
+    if (!guardado) return;
     // También vuelve a cero la casilla del bote: que quede pegada de un
     // movimiento al siguiente es justo como se marcan cosas sin querer.
     setNuevo((n) => ({ ...n, concepto: "", monto: 0, compartido: false, extraordinario: false }));

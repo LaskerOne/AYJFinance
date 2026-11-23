@@ -28,9 +28,11 @@ export function AccionConsejo({ accion }: { accion: Accion }) {
 
   if (hecho) return <p className={css.hecho}>✓ Hecho. Ya quedó guardado.</p>;
 
-  const listo = async (trabajo: Promise<unknown>) => {
-    await trabajo;
-    setHecho(true);
+  // Solo se marca hecho si la base aceptó todo; si no, el botón sigue ahí
+  // para reintentar y el motivo sale en el aviso del Layout.
+  const listo = async (trabajo: Promise<boolean | boolean[]>) => {
+    const resultado = await trabajo;
+    if ([resultado].flat().every(Boolean)) setHecho(true);
   };
 
   switch (accion.tipo) {
