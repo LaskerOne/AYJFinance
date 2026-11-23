@@ -1,4 +1,5 @@
 import { CATEGORIAS, type Categoria, type ClaseMovimiento, type ReglaCategoria } from "@/models/dominio";
+import { reglaQueAplica } from "@/lib/categorizar";
 import { aNumero } from "@/lib/formato";
 
 /**
@@ -147,15 +148,13 @@ export function clasificar(
   concepto: string,
   reglas: ReglaCategoria[],
 ): { categoria: Categoria; porRegla: boolean } {
+  const regla = reglaQueAplica(concepto, reglas);
+  if (regla) return { categoria: regla.categoria, porRegla: true };
+
+  // El diccionario sigue con el normalizador de este archivo: es el mismo que
+  // arma la huella de deduplicación, y cambiarlo dejaría pasar como nuevos
+  // movimientos que ya se importaron.
   const texto = normalizar(concepto);
-
-  const aprendidas = [...reglas].sort((a, b) => b.patron.length - a.patron.length);
-  for (const r of aprendidas) {
-    if (texto.includes(normalizar(r.patron))) {
-      return { categoria: r.categoria, porRegla: true };
-    }
-  }
-
   for (const [categoria, claves] of DICCIONARIO) {
     if (claves.some((c) => texto.includes(normalizar(c)))) {
       return { categoria, porRegla: false };

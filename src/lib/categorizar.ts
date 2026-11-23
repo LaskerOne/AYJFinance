@@ -26,10 +26,17 @@ export interface SugerenciaCategoria {
   etiqueta?: string;
 }
 
-export function categoriaSugerida(
+/**
+ * La regla aprendida que aplica a un concepto, o null. Es la única definición
+ * de "qué regla gana": la usan tanto la sugerencia del oráculo como el
+ * importador de CSV. Cuando cada uno tenía su copia, ya habían divergido: el
+ * importador no quitaba la puntuación y no descartaba un patrón vacío, que
+ * como `includes("")` es siempre cierto habría capturado todos los movimientos.
+ */
+export function reglaQueAplica(
   concepto: string,
   reglas: ReglaCategoria[],
-): SugerenciaCategoria | null {
+): ReglaCategoria | null {
   const texto = normalizar(concepto);
   if (!texto) return null;
 
@@ -37,8 +44,19 @@ export function categoriaSugerida(
   const aprendidas = [...reglas].sort((a, b) => b.patron.length - a.patron.length);
   for (const r of aprendidas) {
     const patron = normalizar(r.patron);
-    if (patron && texto.includes(patron)) return { categoria: r.categoria, razon: "regla" };
+    if (patron && texto.includes(patron)) return r;
   }
+  return null;
+}
+
+export function categoriaSugerida(
+  concepto: string,
+  reglas: ReglaCategoria[],
+): SugerenciaCategoria | null {
+  if (!normalizar(concepto)) return null;
+
+  const regla = reglaQueAplica(concepto, reglas);
+  if (regla) return { categoria: regla.categoria, razon: "regla" };
 
   const etiqueta = etiquetaDe(concepto);
   if (etiqueta && CATEGORIA_DE_ETIQUETA[etiqueta]) {

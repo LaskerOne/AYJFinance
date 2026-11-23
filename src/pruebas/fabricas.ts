@@ -6,7 +6,9 @@
  * Vive fuera de `src/lib/` porque no es cálculo: solo la importan los
  * archivos `*.test.ts`, así que nunca llega al bundle.
  */
-import type { Activo, Decision, Deuda, GastoPresupuesto, Hogar, Ingreso, Meta, Movimiento } from "@/models/dominio";
+import type {
+  Activo, Decision, Deuda, GastoPresupuesto, Hogar, Ingreso, Meta, Movimiento, ReglaCategoria,
+} from "@/models/dominio";
 
 const HOGAR = "hogar-prueba";
 const CREADO = "2026-01-01T00:00:00Z";
@@ -137,6 +139,18 @@ export function activo(p: Partial<Activo> = {}): Activo {
     vencimiento: null,
     orden: 0,
     creado_en: CREADO,
+    ...p,
+  };
+}
+
+export function regla(p: Partial<ReglaCategoria> = {}): ReglaCategoria {
+  return {
+    id: "regla",
+    hogar_id: HOGAR,
+    patron: "exito",
+    categoria: "Mercado",
+    veces: 1,
+    creada_en: CREADO,
     ...p,
   };
 }

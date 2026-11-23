@@ -1,3 +1,4 @@
+import { esGastoExtraordinario } from "@/lib/calculos";
 import { MESES } from "@/lib/formato";
 import type { CierreMensual, Decision, Movimiento } from "@/models/dominio";
 
@@ -66,7 +67,7 @@ export function escribirCarta(e: EntradaCarta): Carta {
         gasto += ` La que más cambió frente a ${mesDe(a.periodo)} fue ${e.etiqueta(mayor.k).toLowerCase()}: ${mayor.delta > 0 ? "subió" : "bajó"} de ${$(mayor.antes)} a ${$(mayor.v)}.`;
       }
     }
-    const extra = e.movimientos.filter((m) => m.clase === "gasto" && m.extraordinario);
+    const extra = e.movimientos.filter(esGastoExtraordinario);
     if (extra.length > 0) {
       const total = extra.reduce((s, m) => s + Number(m.monto), 0);
       const mayorExtra = [...extra].sort((x, y) => Number(y.monto) - Number(x.monto))[0];

@@ -47,6 +47,28 @@ export interface MesProyectado {
 
 type ConMesPago = { frecuencia: Frecuencia; mes_pago?: number | null };
 
+/*
+ * Estos predicados son la única definición de "periódico" y "le falta el mes
+ * de pago". Antes fijos.ts y oraculo.ts los reescribían comparando con
+ * "mensual" y "quincenal"; una frecuencia nueva solo se agregaba en CICLO y
+ * esas copias la habrían clasificado mal sin avisar.
+ */
+
+/** Se paga cada varios meses (bimestral, trimestral, semestral, anual). */
+export function esPeriodico(item: Pick<ConMesPago, "frecuencia">): boolean {
+  return (CICLO[item.frecuencia] ?? 0) > 0;
+}
+
+/** Periódico al que todavía no le dijeron en qué mes se paga. */
+export function faltaMesDePago(item: ConMesPago): boolean {
+  return esPeriodico(item) && !item.mes_pago;
+}
+
+/** Si se paga en `mes` (1–12): lo mensual siempre; lo periódico, en su mes. */
+export function tocaEnMes(item: ConMesPago, mes: number): boolean {
+  return !esPeriodico(item) || caeEn(item, mes);
+}
+
 /** True si un concepto periódico con mes de pago cae en `mes` (1–12). */
 export function caeEn(item: ConMesPago, mes: number): boolean {
   const ciclo = CICLO[item.frecuencia];
@@ -56,12 +78,11 @@ export function caeEn(item: ConMesPago, mes: number): boolean {
 
 /** Periódico con mes de pago: el monto entero en su mes, cero en los demás. */
 export function esPuntual(item: ConMesPago): boolean {
-  return CICLO[item.frecuencia] > 0 && Boolean(item.mes_pago);
+  return esPeriodico(item) && Boolean(item.mes_pago);
 }
 
 export function sinMesDePago(ingresos: Ingreso[], gastos: GastoPresupuesto[]): number {
-  const falta = (i: ConMesPago) => CICLO[i.frecuencia] > 0 && !i.mes_pago;
-  return ingresos.filter(falta).length + gastos.filter(falta).length;
+  return ingresos.filter(faltaMesDePago).length + gastos.filter(faltaMesDePago).length;
 }
 
 export interface EntradaProyeccion {

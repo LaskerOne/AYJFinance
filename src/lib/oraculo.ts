@@ -1,5 +1,5 @@
 import type { Finanzas } from "@/lib/calculos";
-import { gastoMensual } from "@/lib/calculos";
+import { esGastoCorriente, esGastoNoPlaneado, gastoMensual } from "@/lib/calculos";
 import { mesesConSuCuota } from "@/lib/deudas";
 import { recomendarAbono } from "@/lib/abonos";
 import { gastosHormiga } from "@/lib/habitos";
@@ -8,7 +8,7 @@ import { mesContable } from "@/lib/contable";
 import { fijosDelMes } from "@/lib/fijos";
 import { liquidarMes } from "@/lib/liquidacion";
 import { rentabilidad } from "@/lib/patrimonio";
-import { proyectarFlujo } from "@/lib/proyeccion";
+import { faltaMesDePago, proyectarFlujo } from "@/lib/proyeccion";
 import { generarSugerencias } from "@/lib/sugerencias";
 import { MESES } from "@/lib/formato";
 import {
@@ -118,7 +118,6 @@ function valorFuturo(m: number, anualPct: number, anios: number): number {
   return m * ((Math.pow(1 + i, anios * 12) - 1) / i);
 }
 
-const corriente = (m: Movimiento) => m.clase === "gasto" && !m.extraordinario;
 const suma = (filas: Movimiento[]) => filas.reduce((s, m) => s + Number(m.monto), 0);
 
 /** Qué tan apretado o sano está cada frente, para elegir los tips. */
@@ -437,7 +436,7 @@ export function analizar(e: EntradaOraculo): Analisis {
 
   // 2 · Movimientos: el ritmo del mes contra el presupuesto.
   const delMes = e.movimientos.filter((m) => mesContable(m, e.hogar?.corte_ingresos) === mesHoy);
-  const gastadoMes = suma(delMes.filter(corriente));
+  const gastadoMes = suma(delMes.filter(esGastoCorriente));
   const presupuestoMes = e.gastos.reduce((s, g) => s + gastoMensual(g), 0);
   const colchon = e.metas.find((m) => m.es_emergencia);
   if (dia >= 7 && presupuestoMes > 0 && gastadoMes > 0) {
@@ -470,7 +469,7 @@ export function analizar(e: EntradaOraculo): Analisis {
   // 3 · Movimientos: la categoría que más se disparó frente al mes pasado, al mismo día.
   const porCat = (filas: Movimiento[]) => {
     const mapa = new Map<string, number>();
-    for (const m of filas.filter(corriente)) mapa.set(m.categoria, (mapa.get(m.categoria) ?? 0) + Number(m.monto));
+    for (const m of filas.filter(esGastoCorriente)) mapa.set(m.categoria, (mapa.get(m.categoria) ?? 0) + Number(m.monto));
     return mapa;
   };
   const hastaHoyPasado = e.movimientos.filter(
@@ -625,7 +624,7 @@ export function analizar(e: EntradaOraculo): Analisis {
   }
 
   // 8 · Presupuesto: pagos no mensuales sin mes.
-  const gastosSinMes = e.gastos.filter((g) => g.frecuencia !== "mensual" && g.frecuencia !== "quincenal" && !g.mes_pago);
+  const gastosSinMes = e.gastos.filter(faltaMesDePago);
   const sinMes = gastosSinMes.length;
   if (sinMes > 0) {
     agregar({
@@ -694,7 +693,7 @@ export function analizar(e: EntradaOraculo): Analisis {
   const hace60 = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - 60);
   const desde60 = `${hace60.getFullYear()}-${String(hace60.getMonth() + 1).padStart(2, "0")}-${String(hace60.getDate()).padStart(2, "0")}`;
   const descolocados = e.movimientos
-    .filter((m) => m.clase === "gasto" && !m.extraordinario && !m.gasto_id && !m.pendiente_id && m.fecha >= desde60)
+    .filter((m) => esGastoNoPlaneado(m) && m.fecha >= desde60)
     .map((m) => ({ m, sug: categoriaSugerida(m.concepto, []) }))
     .filter((x): x is typeof x & { sug: NonNullable<typeof x.sug> } =>
       x.sug !== null && x.sug.razon === "etiqueta" && x.sug.categoria !== x.m.categoria,
@@ -868,7 +867,7 @@ export function evaluarDecision(d: Decision, c: ContextoEvaluacion): Evaluacion 
   // Si el mes siguiente aún va en curso, se compara hasta el mismo día.
   const hasta = despues === mesHoy ? hoy.getDate() : 31;
   const delMes = (m: string, filtro: (x: Movimiento) => boolean) =>
-    suma(c.movimientos.filter((x) => x.fecha.startsWith(m) && Number(x.fecha.slice(8, 10)) <= hasta && corriente(x) && filtro(x)));
+    suma(c.movimientos.filter((x) => x.fecha.startsWith(m) && Number(x.fecha.slice(8, 10)) <= hasta && esGastoCorriente(x) && filtro(x)));
 
   if (despues > mesHoy) {
     return c.ids.has(d.origen) ? { estado: "en-curso", texto: "En curso este mes." } : { estado: "lograda", texto: "El oráculo ya no lo detecta." };

@@ -7,6 +7,7 @@ import {
   type GastoPresupuesto,
   type Ingreso,
   type Meta,
+  type Movimiento,
   type Reparto,
 } from "@/models/dominio";
 
@@ -22,6 +23,59 @@ export function ingresoMensual(i: Pick<Ingreso, "monto" | "frecuencia">): number
  */
 export function gastoMensual(g: Pick<GastoPresupuesto, "monto" | "frecuencia">): number {
   return Number(g.monto) * (MULTIPLICADOR_FRECUENCIA[g.frecuencia] ?? 1);
+}
+
+// ---- qué clase de gasto es un movimiento ----------------------------------
+// Hay dos criterios distintos y los dos hacen falta; antes cada módulo escribía
+// el suyo a mano y uno de ellos, en hábitos, se llamaba "corriente" aunque era
+// el otro.
+
+type MovimientoClasificable = Pick<Movimiento, "clase" | "extraordinario" | "gasto_id" | "pendiente_id">;
+
+/** Gasto del día a día: el que se compara con el presupuesto. */
+export function esGastoCorriente(m: Pick<Movimiento, "clase" | "extraordinario">): boolean {
+  return m.clase === "gasto" && !m.extraordinario;
+}
+
+/** Gasto puntual que se aparta para no deformar la comparación con el presupuesto. */
+export function esGastoExtraordinario(m: Pick<Movimiento, "clase" | "extraordinario">): boolean {
+  return m.clase === "gasto" && Boolean(m.extraordinario);
+}
+
+/**
+ * Gasto corriente que nadie planeó: no salió de la lista de pagos del mes
+ * (fijos ni extras). Es lo que miran hábitos y la catalogación del oráculo,
+ * porque lo planeado ya lo nombraron ellos y no es una costumbre.
+ */
+export function esGastoNoPlaneado(m: MovimientoClasificable): boolean {
+  return esGastoCorriente(m) && !m.gasto_id && !m.pendiente_id;
+}
+
+export interface TotalesPorClase {
+  ingresos: number;
+  /** Todo lo que salió, corriente y extraordinario. */
+  gastos: number;
+  extraordinarios: number;
+  /** gastos − extraordinarios: lo que se compara con el presupuesto. */
+  corrientes: number;
+}
+
+/** Cuánto entró y cuánto salió en un grupo de movimientos (un mes, una semana). */
+export function totalesPorClase(
+  movimientos: Array<Pick<Movimiento, "clase" | "extraordinario" | "monto">>,
+): TotalesPorClase {
+  let ingresos = 0;
+  let gastos = 0;
+  let extraordinarios = 0;
+  for (const m of movimientos) {
+    const monto = Number(m.monto);
+    if (m.clase === "ingreso") ingresos += monto;
+    else if (m.clase === "gasto") {
+      gastos += monto;
+      if (m.extraordinario) extraordinarios += monto;
+    }
+  }
+  return { ingresos, gastos, extraordinarios, corrientes: gastos - extraordinarios };
 }
 
 export interface EntradaCalculo {

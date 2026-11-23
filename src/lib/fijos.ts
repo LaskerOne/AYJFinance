@@ -1,6 +1,6 @@
 import type { GastoPresupuesto, Movimiento } from "@/models/dominio";
 import { gastoMensual } from "@/lib/calculos";
-import { caeEn, esPuntual } from "@/lib/proyeccion";
+import { esPuntual, faltaMesDePago, tocaEnMes } from "@/lib/proyeccion";
 
 /**
  * Los fijos del mes: qué gastos fijos del presupuesto tocan en un mes dado,
@@ -72,13 +72,8 @@ export function fijosDelMes(
   const delMes = movimientos.filter((m) => m.fecha.startsWith(periodo));
   const fijos = gastos.filter((g) => g.tipo === "fijo" && Number(g.monto) > 0);
 
-  const sinMes = fijos.filter(
-    (g) => g.frecuencia !== "mensual" && g.frecuencia !== "quincenal" && !g.mes_pago,
-  ).length;
-
-  const tocan = fijos.filter(
-    (g) => g.frecuencia === "mensual" || g.frecuencia === "quincenal" || caeEn(g, mes),
-  );
+  const sinMes = fijos.filter(faltaMesDePago).length;
+  const tocan = fijos.filter((g) => tocaEnMes(g, mes));
 
   // Un movimiento a mano solo puede «parecerse» a un fijo: el primero que lo
   // reclama se lo queda, para no sugerir el mismo pago dos veces.
