@@ -102,9 +102,16 @@ interface ValorHogar {
   descartarErrorEscritura: () => void;
   enVivo: boolean;
 
-  crear: <T extends NombreTabla>(tabla: T, fila: Record<string, unknown>) => Promise<void>;
-  editar: (tabla: NombreTabla, id: string, cambios: Record<string, unknown>) => Promise<void>;
-  borrar: (tabla: NombreTabla, id: string) => Promise<void>;
+  /* crear, editar y borrar no lanzan: el fallo va a `errorEscritura`, que el
+   * Layout muestra en cualquier pantalla. Devuelven si la base aceptó el
+   * cambio, para que quien cierra un formulario o marca algo como hecho lo
+   * haga solo si de verdad se guardó. Antes devolvían void y la pantalla daba
+   * por guardado lo que la base había rechazado. */
+  crear: <T extends NombreTabla>(tabla: T, fila: Record<string, unknown>) => Promise<boolean>;
+  editar: (tabla: NombreTabla, id: string, cambios: Record<string, unknown>) => Promise<boolean>;
+  borrar: (tabla: NombreTabla, id: string) => Promise<boolean>;
+  /** Esta sí lanza: quienes la usan (importar, registrar fijos) muestran el
+   *  error en su propio formulario y necesitan el total insertado. */
   crearVarias: (tabla: NombreTabla, filas: Record<string, unknown>[]) => Promise<number>;
   cambiarHogar: (cambios: Partial<Hogar>) => Promise<void>;
   recargar: () => Promise<void>;
@@ -295,8 +302,10 @@ export function HogarProvider({ children }: { children: ReactNode }) {
           });
         });
         setErrorEscritura("");
+        return true;
       } catch (e) {
         setErrorEscritura(detalleDeError(e));
+        return false;
       }
     },
     [conHogar],
@@ -329,11 +338,13 @@ export function HogarProvider({ children }: { children: ReactNode }) {
       try {
         await coleccion.actualizar(tabla, id, cambios);
         setErrorEscritura("");
+        return true;
       } catch (e) {
         // Se deshace el pintado optimista: la pantalla no puede mostrar algo
         // que la base rechazó.
         setFilas((p) => ({ ...p, [tabla]: antes as never }));
         setErrorEscritura(detalleDeError(e));
+        return false;
       }
     },
     [],
@@ -348,9 +359,11 @@ export function HogarProvider({ children }: { children: ReactNode }) {
     try {
       await coleccion.eliminar(tabla, id);
       setErrorEscritura("");
+      return true;
     } catch (e) {
       setFilas((p) => ({ ...p, [tabla]: antes as never }));
       setErrorEscritura(detalleDeError(e));
+      return false;
     }
   }, []);
 

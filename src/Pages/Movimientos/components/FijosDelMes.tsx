@@ -147,20 +147,19 @@ export function FijosDelMes({ mes }: { mes: string }) {
     e.preventDefault();
     if (nuevo.monto <= 0 || !nuevo.concepto.trim()) return;
     setError("");
-    try {
-      await crear("pendientes_mes", {
-        periodo: `${mes}-01`,
-        concepto: nuevo.concepto.trim(),
-        categoria: nuevo.categoria,
-        monto: nuevo.monto,
-        usuario_id: nuevo.usuario_id,
-        extraordinario: nuevo.extraordinario,
-      });
-      setNuevo({ concepto: "", categoria: "Otros", monto: 0, usuario_id: null, extraordinario: false });
-      setAgregando(false);
-    } catch (err) {
-      setError(mensajeDeError(err));
-    }
+    // `crear` no lanza: si la base lo rechaza, devuelve false y el motivo sale
+    // en el aviso del Layout. El formulario sigue abierto para reintentar.
+    const guardado = await crear("pendientes_mes", {
+      periodo: `${mes}-01`,
+      concepto: nuevo.concepto.trim(),
+      categoria: nuevo.categoria,
+      monto: nuevo.monto,
+      usuario_id: nuevo.usuario_id,
+      extraordinario: nuevo.extraordinario,
+    });
+    if (!guardado) return;
+    setNuevo({ concepto: "", categoria: "Otros", monto: 0, usuario_id: null, extraordinario: false });
+    setAgregando(false);
   };
 
   const filaRegistrada = (
